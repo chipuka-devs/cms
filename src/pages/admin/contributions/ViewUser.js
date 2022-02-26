@@ -259,6 +259,11 @@ const ViewUser = () => {
         size="large"
         tip={loading.loadingMessage}
       >
+        <div>
+          <p className="text-gray-500">
+            Fill in the form below to add a contribution
+          </p>
+        </div>
         <form className="flex items-end gap-1 mx-auto" onSubmit={handleSubmit}>
           <div className="">
             <label className="font-medium" htmlFor="type">

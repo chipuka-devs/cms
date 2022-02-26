@@ -14,6 +14,7 @@ import PrivateUser from "./PrivateUserRoute";
 import View from "../pages/admin/contributions/ViewAll";
 import ViewUser from "../pages/admin/contributions/ViewUser";
 import NewContribution from "../pages/admin/contributions/NewContribution";
+import Deductions from "../pages/admin/deductions/view";
 
 export const useRouter = () => [
   {
@@ -30,15 +31,6 @@ export const useRouter = () => [
     element: (
       <PrivateRoute>
         <CreateFile />
-      </PrivateRoute>
-    ),
-  },
-
-  {
-    path: "/admin/:id",
-    element: (
-      <PrivateRoute>
-        <ViewFile />
       </PrivateRoute>
     ),
   },
@@ -102,6 +94,16 @@ export const useRouter = () => [
     element: (
       <PrivateRoute>
         <NewContribution />
+      </PrivateRoute>
+    ),
+  },
+
+  // deduciotn paths
+  {
+    path: "/admin/deductions",
+    element: (
+      <PrivateRoute>
+        <Deductions />
       </PrivateRoute>
     ),
   },

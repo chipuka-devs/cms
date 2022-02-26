@@ -118,6 +118,11 @@ const NewContribution = () => {
           <span className="text-lg">Create Contribution</span>
         </Divider>
 
+        <div>
+          <p className="text-gray-500">
+            Fill in the form below to create a new contribution
+          </p>
+        </div>
         {/* create new contribution form */}
         <form
           className="flex items-end gap-1 mx-auto my-2"

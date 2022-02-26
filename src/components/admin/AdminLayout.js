@@ -1,7 +1,7 @@
 import { Layout, Menu, Breadcrumb } from "antd";
 import {
   LogoutOutlined,
-  PieChartOutlined,
+  MinusCircleOutlined,
   // PlusCircleOutlined,
   KeyOutlined,
   ShareAltOutlined,
@@ -48,12 +48,22 @@ const AdminLayout = ({ children, current = "1", breadcrumbs = ["Admin"] }) => {
             </Menu.Item>
           </Menu.SubMenu>
 
-          <Menu.Item key="3" icon={<KeyOutlined />}>
-            <Link to="/admin/privileges">Privileges</Link>
+          <Menu.SubMenu
+            key="2"
+            icon={<MinusCircleOutlined className="text-2xl" />}
+            title="Deductions"
+          >
+            <Menu.Item>
+              <Link to="/admin/deductions">View</Link>
+            </Menu.Item>
+          </Menu.SubMenu>
+
+          <Menu.Item key="4" icon={<KeyOutlined />}>
+            <Link to="/admin/privileges">Roles</Link>
           </Menu.Item>
 
           <Menu.Item
-            key="4"
+            key="5"
             icon={<LogoutOutlined />}
             onClick={() => {
               const auth = getAuth();
