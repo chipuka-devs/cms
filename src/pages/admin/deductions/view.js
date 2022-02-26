@@ -1,5 +1,5 @@
-import { Dropdown, Input, Spin } from "antd";
-import { addDoc, collection, doc, onSnapshot } from "firebase/firestore";
+import { Input, Spin } from "antd";
+import { addDoc, collection, onSnapshot } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../../../components/admin/AdminLayout";
 import { error, success } from "../../../components/Notifications";
@@ -194,9 +194,12 @@ const View = () => {
           summary={{
             show: true,
             title: "Total Deductions (kshs):",
-            amount: fetchedDeductions
-              .map((item) => (item.status === "approved" ? item.amount : 0))
-              .reduce((prev, next) => parseInt(prev) + parseInt(next)),
+            amount:
+              fetchedDeductions &&
+              fetchedDeductions.length > 0 &&
+              fetchedDeductions
+                .map((item) => (item.status === "approved" ? item.amount : 0))
+                .reduce((prev, next) => parseInt(prev) + parseInt(next)),
           }}
           style
         />

@@ -3,7 +3,6 @@ import CreateFile from "../pages/admin/CreateFile";
 import Home from "../pages/Home";
 import Signin from "../pages/admin/Signin";
 import Signup from "../pages/admin/Signup";
-import ViewFile from "../pages/admin/ViewFile";
 import Privileges from "../pages/admin/Privileges";
 import PrivateRoute from "./PrivateAdminRoute";
 import { Result } from "antd";
