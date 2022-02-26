@@ -2,8 +2,9 @@ import { Layout, Menu, Breadcrumb } from "antd";
 import {
   LogoutOutlined,
   PieChartOutlined,
-  PlusCircleOutlined,
+  // PlusCircleOutlined,
   KeyOutlined,
+  ShareAltOutlined,
 } from "@ant-design/icons";
 import { useState } from "react";
 // import { Context } from "../../utils/MainContext";
@@ -30,13 +31,22 @@ const AdminLayout = ({ children, current = "1", breadcrumbs = ["Admin"] }) => {
         <div className="logo" />
 
         <Menu theme="dark" defaultSelectedKeys={[curr]} mode="inline">
-          <Menu.Item key="1" icon={<PieChartOutlined />}>
-            <Link to="/admin">Dashboard</Link>
-          </Menu.Item>
+          {/* <Menu.Item key="1" icon={<PieChartOutlined />}>
+            <Link to="/admin">Contributions</Link>
+          </Menu.Item> */}
 
-          <Menu.Item key="2" icon={<PlusCircleOutlined />}>
-            <Link to="/admin/new_file">Add File</Link>
-          </Menu.Item>
+          <Menu.SubMenu
+            key="1"
+            icon={<ShareAltOutlined className="text-2xl" />}
+            title="Contributions"
+          >
+            <Menu.Item>
+              <Link to="/admin/contributions">View</Link>
+            </Menu.Item>
+            <Menu.Item>
+              <Link to="/admin/contributions/new">New</Link>
+            </Menu.Item>
+          </Menu.SubMenu>
 
           <Menu.Item key="3" icon={<KeyOutlined />}>
             <Link to="/admin/privileges">Privileges</Link>
@@ -82,7 +92,7 @@ const AdminLayout = ({ children, current = "1", breadcrumbs = ["Admin"] }) => {
         </Content>
 
         <Footer style={{ textAlign: "center" }}>
-          St-Jude Choir ©2022 Created by Pekstar Coders
+          Excel to Json ©2022 Created by Pekstar Coders
         </Footer>
       </Layout>
     </Layout>

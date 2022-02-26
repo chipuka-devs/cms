@@ -1,20 +1,48 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import AdminLayout from "../../components/admin/AdminLayout";
 import { Divider, Table, Spin } from "antd";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../../utils/firebase";
 import { useNavigate } from "react-router-dom";
+import { Context } from "../../utils/MainContext";
 
 const Admin = () => {
-  const [tableData, setTableData] = useState();
+  const [tableData, setTableData] = useState({
+    columns: [],
+    rows: [],
+  });
   const [loading, setLoading] = useState(false);
+  const [fileName, setFileName] = useState("");
 
   useEffect(() => {
     setLoading(true);
-    const unsub = onSnapshot(collection(db, "files"), (docs) => {
+    const unsub = onSnapshot(collection(db, "file"), (docs) => {
       let list = [];
 
-      docs.forEach((d) => list.push({ ...d.data(), id: d.id }));
+      docs.forEach((d) => {
+        const data = d.data().data;
+        setFileName(d.data().name);
+
+        if (data.length > 0) {
+          const setTable = () => {
+            let columns = [];
+            Object.keys(data[0]).forEach((i) =>
+              columns.push({
+                title: i,
+                dataIndex: i,
+                key: i.toLowerCase(),
+              })
+            );
+            setTableData({
+              columns,
+              rows: data,
+            });
+            setLoading(false);
+          };
+          setTable();
+        }
+      });
+      console.log(docs[0].data());
 
       setTableData(list);
       setLoading(false);
@@ -27,35 +55,25 @@ const Admin = () => {
     <AdminLayout current="1" breadcrumbs={["Admin"]}>
       <div>
         <Divider>
-          <span className="text-lg">All uploaded Files</span>
+          <span className="text-lg">{fileName && fileName} Tabs</span>
         </Divider>
 
         {/* {loading ? (
           <div>Loading . . .</div>
         ) : ( */}
         <Spin spinning={loading} size="large" tip="Loading...">
-          <ExcelTable
+          <CustomTable
             cols={[
-              { title: "name", dataIndex: "name", key: "name" },
+              { title: "uid", dataIndex: "id", key: "id" },
 
               {
-                title: "Date",
-                dataIndex: "uploadedAt",
-                key: "uploadedAt",
-                render: (d) =>
-                  d &&
-                  d.seconds && (
-                    <>{new Date(d.seconds * 1000).toLocaleString()} </>
-                  ),
-              },
-              {
-                title: "size",
+                title: "Table Size(rows)",
                 dataIndex: "data",
                 key: "data",
                 render: (d) => <>{d && d.length}</>,
               },
             ]}
-            rows={tableData}
+            rows={tableData.rows}
           />
         </Spin>
         {/* )} */}
@@ -63,8 +81,9 @@ const Admin = () => {
     </AdminLayout>
   );
 };
-export const ExcelTable = ({ cols, rows }) => {
+export const CustomTable = ({ cols, rows, isClickable = false, summary }) => {
   const navigate = useNavigate();
+  const { setCurrentView } = useContext(Context);
 
   const columns = cols;
 
@@ -73,12 +92,36 @@ export const ExcelTable = ({ cols, rows }) => {
     <Table
       columns={columns}
       dataSource={data}
+      summary={() => {
+        if (summary && summary.show) {
+          return (
+            <Table.Summary fixed>
+              <Table.Summary.Row className="bg-slate-500 text-white">
+                <Table.Summary.Cell index={0} colSpan={2}>
+                  <span className="font-medium uppercase">{summary.title}</span>
+                </Table.Summary.Cell>
+                <Table.Summary.Cell index={1} colSpan={2}>
+                  <span
+                    className="font-medium uppercase"
+                    style={{ fontSize: "17px" }}
+                  >
+                    {summary.amount}
+                  </span>
+                </Table.Summary.Cell>
+              </Table.Summary.Row>
+            </Table.Summary>
+          );
+        }
+      }}
       onRow={(record) => {
-        return {
-          onClick: () => {
-            navigate(`${record.id}`);
-          }, // click row
-        };
+        if (isClickable) {
+          return {
+            onClick: () => {
+              navigate(`${record.id}`);
+              setCurrentView(record);
+            }, // click row
+          };
+        }
       }}
     />
   );

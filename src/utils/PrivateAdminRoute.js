@@ -7,7 +7,7 @@ import { db } from "./firebase";
 import { Context } from "./MainContext";
 
 const PrivateRoute = ({ children }) => {
-  const { currentUser: user } = useContext(Context);
+  const { user } = useContext(Context);
   const [loading, setLoading] = useState(false);
   const [friends, setFriends] = useState([]);
 

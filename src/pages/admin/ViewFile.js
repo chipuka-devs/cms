@@ -13,10 +13,13 @@ const ViewFile = () => {
 
   useEffect(() => {
     setLoading(true);
-    const unsub = onSnapshot(doc(db, "files", id), (doc) => {
-      setFileDetails(doc.data());
-      setLoading(false);
-    });
+    const unsub = onSnapshot(
+      doc(db, "files", "61dUF3qa6ksXAZ9FuIz0"),
+      (doc) => {
+        setFileDetails(doc.data().data.filter((item) => item.id === id)[0]);
+        setLoading(false);
+      }
+    );
 
     return unsub;
   }, [id]);
@@ -25,7 +28,7 @@ const ViewFile = () => {
     if (fileDetails) {
       const setTable = () => {
         let columns = [];
-        Object.keys(fileDetails.data[0]).forEach((i) =>
+        Object.keys(fileDetails.data[1]).forEach((i) =>
           columns.push({
             title: i,
             dataIndex: i,
@@ -37,14 +40,9 @@ const ViewFile = () => {
           columns,
           rows: fileDetails.data,
         });
-
-        console.log(
-          new Date(fileDetails.uploadedAt.seconds * 1000).toLocaleString()
-        );
       };
 
       // save data to firestore
-
       setTable();
       // file && saveData();
     }
@@ -54,15 +52,15 @@ const ViewFile = () => {
     <AdminLayout breadcrumbs={["Admin", "Viewfile"]}>
       <div>
         <Divider>
-          <span className="text-lg">{fileDetails && fileDetails.name}</span>
+          <span className="text-lg">{fileDetails && fileDetails.id}</span>
         </Divider>
 
         <Spin spinning={loading} size="large" tip="Loading...">
-          <div className="p-2 font-bold">
+          {/* <div className="p-2 font-bold">
             {fileDetails &&
               fileDetails.uploadedAt &&
               new Date(fileDetails.uploadedAt.seconds * 1000).toLocaleString()}
-          </div>
+          </div> */}
 
           {tableData && (
             <ExcelTable cols={tableData.columns} rows={tableData.rows} />

@@ -10,13 +10,12 @@ import { Result } from "antd";
 import { Link } from "react-router-dom";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
+import PrivateUser from "./PrivateUserRoute";
+import View from "../pages/admin/contributions/ViewAll";
+import ViewUser from "../pages/admin/contributions/ViewUser";
+import NewContribution from "../pages/admin/contributions/NewContribution";
 
 export const useRouter = () => [
-  {
-    path: "/",
-    element: <Home />,
-  },
-
   {
     path: "/admin",
     element: (
@@ -55,6 +54,15 @@ export const useRouter = () => [
   },
 
   {
+    path: "/",
+    element: (
+      <PrivateUser>
+        <Home />
+      </PrivateUser>
+    ),
+  },
+
+  {
     path: "/login",
     element: <Login />,
   },
@@ -69,6 +77,31 @@ export const useRouter = () => [
     element: (
       <PrivateRoute>
         <Privileges />
+      </PrivateRoute>
+    ),
+  },
+  // contribution paths
+  {
+    path: "/admin/contributions",
+    element: (
+      <PrivateRoute>
+        <View />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/admin/contributions/:id",
+    element: (
+      <PrivateRoute>
+        <ViewUser />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/admin/contributions/new",
+    element: (
+      <PrivateRoute>
+        <NewContribution />
       </PrivateRoute>
     ),
   },

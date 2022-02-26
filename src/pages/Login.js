@@ -1,10 +1,42 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { Form, Input, Button, Checkbox, Divider } from "antd";
 
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { error, success } from "../components/Notifications";
+import { Context } from "../utils/MainContext";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 const Login = () => {
+  const { setUser, user } = useContext(Context);
+  const auth = getAuth();
+
+  const navigate = useNavigate();
+
+  const onFinish = async ({ email, password }) => {
+    // fetch users
+
+    // TODO: signin
+    signInWithEmailAndPassword(auth, email, password)
+      .then(async (userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+
+        setUser(user);
+        success("Success", "Login success!");
+
+        navigate("/");
+      })
+      .catch((err) => {
+        error("Error", err.message);
+      });
+  };
+  useEffect(() => {
+    if (user && user.uid) {
+      navigate("/");
+    }
+  }, [navigate, user]);
+
   return (
     <div className="flex h-screen justify-center items-center">
       <div className="bg-slate-200  rounded h-96 lg:w-7/12 w-10/12 xl:w-5/12 flex justify-center items-center">
@@ -12,22 +44,20 @@ const Login = () => {
           name="normal_login"
           className="login-form w-10/12"
           initialValues={{ remember: true }}
-          onFinish={() => {}}
+          onFinish={onFinish}
         >
           <Divider className="uppercase ">
-            <span className="text-xl">Admin-Login</span>{" "}
+            <span className="text-xl">User-Login</span>{" "}
           </Divider>
 
           <Form.Item
-            name="phone"
-            rules={[
-              { required: true, message: "Please input your Phone Number!" },
-            ]}
+            name="email"
+            rules={[{ required: true, message: "Please input your email" }]}
           >
             <Input
               className="p-2.5"
               prefix={<UserOutlined className="site-form-item-icon" />}
-              placeholder="Phone no."
+              placeholder="i.e. email@mail.com"
             />
           </Form.Item>
 
@@ -65,6 +95,10 @@ const Login = () => {
             Or{" "}
             <Link to="/register" className="text-blue-600 hover:underline ">
               &nbsp;Click here to register!
+            </Link>
+            Or <br />
+            <Link to="/admin/login" className="text-blue-600 hover:underline ">
+              &nbsp;Login as admin!
             </Link>
             {/* Or <a href="">register now!</a> */}
           </Form.Item>
