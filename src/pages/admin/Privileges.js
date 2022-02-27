@@ -9,7 +9,7 @@ import {
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../../components/admin/AdminLayout";
 import { error, success } from "../../components/Notifications";
-import { app, db } from "../../utils/firebase";
+import { db } from "../../utils/firebase";
 
 const Privileges = () => {
   const [loading, setLoading] = useState({

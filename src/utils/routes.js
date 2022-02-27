@@ -14,6 +14,8 @@ import View from "../pages/admin/contributions/ViewAll";
 import ViewUser from "../pages/admin/contributions/ViewUser";
 import NewContribution from "../pages/admin/contributions/NewContribution";
 import Deductions from "../pages/admin/deductions/view";
+import Approvals from "../components/Approvals";
+import ApproverRoute from "./ApproverRoute";
 
 export const useRouter = () => [
   {
@@ -49,6 +51,16 @@ export const useRouter = () => [
     element: (
       <PrivateUser>
         <Home />
+      </PrivateUser>
+    ),
+  },
+  {
+    path: "/approve",
+    element: (
+      <PrivateUser>
+        <ApproverRoute>
+          <Approvals />
+        </ApproverRoute>
       </PrivateUser>
     ),
   },

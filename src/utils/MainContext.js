@@ -1,6 +1,8 @@
 import { Spin } from "antd";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { doc, onSnapshot } from "firebase/firestore";
 import { createContext, useEffect, useState } from "react";
+import { db } from "./firebase";
 
 export const Context = createContext();
 
@@ -9,6 +11,7 @@ export const MainContext = ({ children }) => {
   const [normalUser, setNormalUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentView, setCurrentView] = useState(null);
+  const [isApprover, setIsApprover] = useState(false);
 
   useEffect(() => {
     const auth = getAuth();
@@ -22,6 +25,18 @@ export const MainContext = ({ children }) => {
       // console.log(user);
     });
   }, []);
+
+  useEffect(() => {
+    const fetchRoles = () => {
+      onSnapshot(doc(db, "roles", "approve"), (response) => {
+        setIsApprover(
+          user && user.uid && response.data().approver === user.uid
+        );
+      });
+    };
+
+    fetchRoles();
+  }, [user]);
 
   if (loading) {
     return (
@@ -40,6 +55,8 @@ export const MainContext = ({ children }) => {
         setNormalUser,
         currentView,
         setCurrentView,
+        isApprover,
+        setIsApprover,
       }}
     >
       {children}

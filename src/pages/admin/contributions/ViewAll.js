@@ -174,7 +174,7 @@ const View = () => {
         >
           <div className="">
             <label className="font-medium" htmlFor="type">
-              Input Contribution:
+              Add user:
             </label>
             <Dropdown overlay={menu} placement="bottomLeft">
               <div

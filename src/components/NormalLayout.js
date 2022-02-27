@@ -1,5 +1,8 @@
 import { Layout, Menu, Breadcrumb } from "antd";
 import { getAuth, signOut } from "firebase/auth";
+import { useContext } from "react";
+import { Link } from "react-router-dom";
+import { Context } from "../utils/MainContext";
 // import { useContext } from "react";
 // import { useNavigate } from "react-router-dom";
 // import { Context } from "../utils/MainContext";
@@ -8,6 +11,7 @@ const { Header, Content, Footer } = Layout;
 
 const NormalLayout = ({ children, current = "1", breadcrumbs = ["Home"] }) => {
   const auth = getAuth();
+  const { isApprover } = useContext(Context);
 
   return (
     <Layout className="layout min-h-screen">
@@ -19,9 +23,14 @@ const NormalLayout = ({ children, current = "1", breadcrumbs = ["Home"] }) => {
           mode="horizontal"
           defaultSelectedKeys={[current]}
         >
-          {["Home"].map((i, index) => {
-            return <Menu.Item key={index}>{i}</Menu.Item>;
-          })}
+          <Menu.Item className="bg-blue-900 mx-1">
+            <Link to="/">Home</Link>
+          </Menu.Item>
+          {isApprover && (
+            <Menu.Item className="bg-blue-900">
+              <Link to="/approve">Approve</Link>
+            </Menu.Item>
+          )}
 
           <Menu.Item
             className="flex items-center justify-center"
