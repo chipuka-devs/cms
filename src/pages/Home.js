@@ -2,9 +2,9 @@ import { Divider, Spin } from "antd";
 import { useState, useEffect, useContext } from "react";
 import NormalLayout from "../components/NormalLayout";
 import { Context } from "../utils/MainContext";
-import { CustomTable } from "./admin/Admin";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "../utils/firebase";
+import { CustomTable } from "../components/CustomTable";
 
 const Home = () => {
   const [myContributions, setMyContributions] = useState();

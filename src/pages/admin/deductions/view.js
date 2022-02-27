@@ -2,9 +2,9 @@ import { Input, Spin } from "antd";
 import { addDoc, collection, onSnapshot } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../../../components/admin/AdminLayout";
+import { CustomTable } from "../../../components/CustomTable";
 import { error, success } from "../../../components/Notifications";
 import { db } from "../../../utils/firebase";
-import { CustomTable } from "../Admin";
 
 const View = () => {
   const [deduction, setDeduction] = useState({
@@ -118,7 +118,7 @@ const View = () => {
       startLoading("Fetching Deductions . . .");
       onSnapshot(collection(db, "deductions"), (docs) => {
         const cList = [];
-        docs.forEach((d) => cList.push(d.data()));
+        docs.forEach((d, i) => cList.push({ ...d.data(), key: i }));
 
         setFetchedDeductions(cList);
         stopLoading();
@@ -191,6 +191,7 @@ const View = () => {
         <CustomTable
           cols={columns}
           rows={fetchedDeductions && fetchedDeductions}
+          key="title"
           summary={{
             show: true,
             title: "Total Deductions (kshs):",

@@ -1,8 +1,8 @@
 import { Spin } from "antd";
 import { collection, doc, onSnapshot, setDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { CustomTable } from "../pages/admin/Admin";
 import { db } from "../utils/firebase";
+import { CustomTable } from "./CustomTable";
 import NormalLayout from "./NormalLayout";
 import { error, success } from "./Notifications";
 

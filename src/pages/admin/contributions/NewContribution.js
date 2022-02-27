@@ -2,9 +2,9 @@ import { Divider, Input, Spin } from "antd";
 import { collection, doc, onSnapshot, setDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../../../components/admin/AdminLayout";
+import { CustomTable } from "../../../components/CustomTable";
 import { error, success } from "../../../components/Notifications";
 import { db } from "../../../utils/firebase";
-import { CustomTable } from "../Admin";
 
 const NewContribution = () => {
   const [newContribution, setNewContribution] = useState("");

@@ -1,5 +1,3 @@
-import Admin from "../pages/admin/Admin";
-import CreateFile from "../pages/admin/CreateFile";
 import Home from "../pages/Home";
 import Signin from "../pages/admin/Signin";
 import Signup from "../pages/admin/Signup";
@@ -10,32 +8,19 @@ import { Link } from "react-router-dom";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import PrivateUser from "./PrivateUserRoute";
+
 import View from "../pages/admin/contributions/ViewAll";
 import ViewUser from "../pages/admin/contributions/ViewUser";
 import NewContribution from "../pages/admin/contributions/NewContribution";
+import ViewDetailedContribution from "../pages/admin/contributions/ViewDetailedContribution";
+
 import Deductions from "../pages/admin/deductions/view";
+
 import Approvals from "../components/Approvals";
+
 import ApproverRoute from "./ApproverRoute";
 
 export const useRouter = () => [
-  {
-    path: "/admin",
-    element: (
-      <PrivateRoute>
-        <Admin />
-      </PrivateRoute>
-    ),
-  },
-
-  {
-    path: "/admin/new_file",
-    element: (
-      <PrivateRoute>
-        <CreateFile />
-      </PrivateRoute>
-    ),
-  },
-
   {
     path: "/admin/login",
     element: <Signin />,
@@ -101,6 +86,14 @@ export const useRouter = () => [
     ),
   },
   {
+    path: "/admin/contributions/:id/:id",
+    element: (
+      <PrivateRoute>
+        <ViewDetailedContribution />
+      </PrivateRoute>
+    ),
+  },
+  {
     path: "/admin/contributions/new",
     element: (
       <PrivateRoute>
@@ -109,7 +102,7 @@ export const useRouter = () => [
     ),
   },
 
-  // deduciotn paths
+  // deduction paths
   {
     path: "/admin/deductions",
     element: (

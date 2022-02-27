@@ -1,9 +1,8 @@
 import { Input, Dropdown, Menu, Spin } from "antd";
 import React from "react";
 import AdminLayout from "../../../components/admin/AdminLayout";
-import { CustomTable } from "../Admin";
-// import { data, list } from "../../../utils/data";
 import { useState } from "react";
+import "../rowPointer.css";
 import { error, success } from "../../../components/Notifications";
 import {
   collection,
@@ -14,6 +13,7 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "../../../utils/firebase";
+import { CustomTable } from "../../../components/CustomTable";
 
 const ViewUser = () => {
   const uid = window.location.pathname.split("/").slice(-1)[0];
@@ -21,12 +21,14 @@ const ViewUser = () => {
   const [currentContribution, setCurrentContribution] = useState(
     "--Please select Contribution --"
   );
-  const [currentContributionAmount, setCurrentContributionAmount] = useState(0);
   const [listOfContributions, setListOfContributions] = useState([]);
   const [loading, setLoading] = useState({
     isLoading: false,
     loadingMessage: "loading...",
   });
+
+  const [currentContributionAmount, setCurrentContributionAmount] = useState(0);
+  const [userPledge, setUserPledge] = useState(null);
 
   const stopLoading = () => {
     setLoading({
@@ -66,6 +68,7 @@ const ViewUser = () => {
           otherContributions.unshift({
             ...currentCont,
             conts,
+            pledge: userPledge,
           });
 
           const myContributions = {
@@ -108,6 +111,7 @@ const ViewUser = () => {
       const newContribution = {
         id: currentContribution.toLowerCase(),
         contribution: currentContribution,
+        pledge: userPledge,
         conts: [{ amount: parseInt(currentContributionAmount), date }],
       };
 
@@ -154,6 +158,11 @@ const ViewUser = () => {
       return;
     }
 
+    // if (userPledge === 0 || !userPledge || userPledge === null) {
+    //   error("Empty Field", "Please enter a User's Pledge");
+    //   return;
+    // }
+
     // console.log(currentContribution, currentContributionAmount);
     handleContributions();
   };
@@ -168,7 +177,7 @@ const ViewUser = () => {
 
     onSnapshot(q, (docs) => {
       let uList = [];
-      docs.forEach((d) => uList.push(d.data()));
+      docs.forEach((d) => uList.push({ ...d.data(), key: d.id }));
 
       setContributions(uList[0]);
     });
@@ -180,7 +189,7 @@ const ViewUser = () => {
 
     onSnapshot(collection(db, "contributions"), (docs) => {
       let cList = [];
-      docs.forEach((d) => cList.push(d.data()));
+      docs.forEach((d) => cList.push({ ...d.data(), key: d.id }));
 
       setListOfContributions(cList);
       stopLoading();
@@ -264,44 +273,61 @@ const ViewUser = () => {
             Fill in the form below to add a contribution
           </p>
         </div>
-        <form className="flex items-end gap-1 mx-auto" onSubmit={handleSubmit}>
-          <div className="">
-            <label className="font-medium" htmlFor="type">
-              Input Contribution:
-            </label>
-            <Dropdown overlay={menu} placement="bottomLeft">
-              <div
-                className="h-8 bg-white border flex items-center px-3"
-                style={{ width: "300px" }}
-              >
-                {currentContribution}
-              </div>
-            </Dropdown>
-          </div>
+        <form className="mx-auto" onSubmit={handleSubmit}>
+          <div className="flex items-end gap-1 w-full ">
+            <div className="">
+              <label className="font-medium" htmlFor="type">
+                Input Contribution:
+              </label>
+              <Dropdown overlay={menu} placement="bottomLeft">
+                <div
+                  className="h-8 bg-white border flex items-center px-3"
+                  style={{ width: "300px" }}
+                >
+                  {currentContribution}
+                </div>
+              </Dropdown>
+            </div>
 
-          <div className="">
-            <label className="font-medium" htmlFor="type">
-              Input Amount:
-            </label>
-            {/* amount  */}
-            <Input
-              type="number"
-              placeholder="i.e 200 "
-              // value={currentContributionAmount}
-              onChange={(e) => setCurrentContributionAmount(e.target.value)}
-            />
-          </div>
+            <div className="">
+              <label className="font-medium" htmlFor="type">
+                Input Amount:
+              </label>
+              {/* amount  */}
+              <Input
+                type="number"
+                placeholder="i.e 200 "
+                required
+                // value={currentContributionAmount}
+                onChange={(e) => setCurrentContributionAmount(e.target.value)}
+              />
+            </div>
 
-          <button
-            type="submit"
-            className="bg-green-700 px-4 text-white h-8 mb-0"
-          >
-            Update
-          </button>
+            <button
+              type="submit"
+              className="bg-green-700 px-4 text-white h-8 mb-0"
+            >
+              Update
+            </button>
+          </div>
+          <div className="lg:w-2/5 mt-2 gap-1">
+            <div className="">
+              <label className="font-medium" htmlFor="type">
+                Input User's Pledge:
+              </label>
+              {/* amount  */}
+              <Input
+                type="number"
+                placeholder="Pledge amount i.e 200 "
+                value={userPledge}
+                onChange={(e) => setUserPledge(e.target.value)}
+              />
+            </div>
+          </div>
         </form>
 
         <div className="mt-5">
-          <CustomTable cols={columns} rows={tableData} style />
+          <CustomTable cols={columns} rows={tableData} isClickable={true} />
         </div>
       </Spin>
     </AdminLayout>

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { CustomTable } from "../Admin";
 import AdminLayout from "../../../components/admin/AdminLayout";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +6,7 @@ import { Dropdown, Menu, Spin } from "antd";
 import { collection, doc, onSnapshot, setDoc } from "firebase/firestore";
 import { db } from "../../../utils/firebase";
 import { error, success } from "../../../components/Notifications";
+import { CustomTable } from "../../../components/CustomTable";
 
 const View = () => {
   const navigate = useNavigate();
