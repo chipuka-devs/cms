@@ -1,4 +1,4 @@
-import { Input, Spin } from "antd";
+import { Input, Spin, Menu, Dropdown } from "antd";
 import { addDoc, collection, onSnapshot } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../../../components/admin/AdminLayout";
@@ -16,6 +16,8 @@ const View = () => {
     isLoading: false,
     loadingMessage: "loading...",
   });
+  const [listOfContributions, setListOfContributions] = useState([]);
+  const [selectedContribution, setSelectedContribution] = useState();
 
   const stopLoading = () => {
     setLoading({
@@ -46,13 +48,19 @@ const View = () => {
       stopLoading();
       return;
     }
+    if (selectedContribution === "" || !selectedContribution) {
+      error("Error", "Parent contribution required!");
+      stopLoading();
+      return;
+    }
 
     const date = new Date().toLocaleDateString();
 
     const submittedDeduction = {
       ...deduction,
       date,
-      status: "pending",
+      status: "invalid",
+      contribution: selectedContribution,
     };
 
     try {
@@ -105,7 +113,7 @@ const View = () => {
         } else {
           return (
             <span className="px-2 py-1 border border-red-500 text-red-600 bg-red-100">
-              Rejected
+              {status}
             </span>
           );
         }
@@ -118,18 +126,44 @@ const View = () => {
       startLoading("Fetching Deductions . . .");
       onSnapshot(collection(db, "deductions"), (docs) => {
         const cList = [];
-        docs.forEach((d, i) => cList.push({ ...d.data(), key: i }));
+        docs.forEach((d, i) => cList.push({ ...d.data(), id: d.id }));
 
         setFetchedDeductions(cList);
         stopLoading();
       });
     };
 
+    const fetchContributionList = () => {
+      startLoading("Fetching Contribution List...");
+
+      onSnapshot(collection(db, "contributions"), (docs) => {
+        let cList = [];
+        docs.forEach((d) => cList.push({ ...d.data(), key: d.id }));
+
+        setListOfContributions(cList);
+        stopLoading();
+      });
+    };
+
     fetchDeductions();
+    fetchContributionList();
   }, []);
 
+  const menu = (
+    <Menu>
+      {listOfContributions &&
+        listOfContributions.map((item, i) => (
+          <Menu.Item key={i} onClick={() => setSelectedContribution(item.name)}>
+            <span target="_blank" rel="noopener noreferrer">
+              {item.name}
+            </span>
+          </Menu.Item>
+        ))}
+    </Menu>
+  );
+
   return (
-    <AdminLayout current="1" breadcrumbs={["Admin", "Deductions"]}>
+    <AdminLayout current="2" breadcrumbs={["Admin", "Deductions"]}>
       <Spin
         spinning={loading.isLoading}
         size="large"
@@ -144,6 +178,22 @@ const View = () => {
           className="flex items-end gap-1 mx-auto my-2"
           onSubmit={handleSubmit}
         >
+          <div className="">
+            <label className="font-medium" htmlFor="type">
+              Select Contribution:
+            </label>
+            <Dropdown overlay={menu} placement="bottomLeft">
+              <div
+                className="h-8 bg-white border flex items-center px-3"
+                style={{ width: "300px" }}
+              >
+                {selectedContribution
+                  ? selectedContribution
+                  : "--select the parent contribution--"}
+              </div>
+            </Dropdown>
+          </div>
+
           <div className="">
             <label className="font-medium" htmlFor="type">
               Input Title:
@@ -188,22 +238,26 @@ const View = () => {
           </button>
         </form>
 
-        <CustomTable
-          cols={columns}
-          rows={fetchedDeductions && fetchedDeductions}
-          key="title"
-          summary={{
-            show: true,
-            title: "Total Deductions (kshs):",
-            amount:
-              fetchedDeductions &&
-              fetchedDeductions.length > 0 &&
-              fetchedDeductions
-                .map((item) => (item.status === "approved" ? item.amount : 0))
-                .reduce((prev, next) => parseInt(prev) + parseInt(next)),
-          }}
-          style
-        />
+        <div className="user-table">
+          <CustomTable
+            className=""
+            cols={columns}
+            rows={fetchedDeductions && fetchedDeductions}
+            key="title"
+            isClickable={true}
+            summary={{
+              show: true,
+              title: "Total Deductions (kshs):",
+              amount:
+                fetchedDeductions &&
+                fetchedDeductions.length > 0 &&
+                fetchedDeductions
+                  .map((item) => (item.status === "approved" ? item.amount : 0))
+                  .reduce((prev, next) => parseInt(prev) + parseInt(next)),
+            }}
+            style
+          />
+        </div>
       </Spin>
     </AdminLayout>
   );

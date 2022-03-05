@@ -14,11 +14,12 @@ import ViewUser from "../pages/admin/contributions/ViewUser";
 import NewContribution from "../pages/admin/contributions/NewContribution";
 import ViewDetailedContribution from "../pages/admin/contributions/ViewDetailedContribution";
 
-import Deductions from "../pages/admin/deductions/view";
+import Deductions from "../pages/admin/deductions/viewAll";
 
 import Approvals from "../components/Approvals";
 
 import ApproverRoute from "./ApproverRoute";
+import ViewDeduction from "../pages/admin/deductions/ViewDeduction";
 
 export const useRouter = () => [
   {
@@ -108,6 +109,14 @@ export const useRouter = () => [
     element: (
       <PrivateRoute>
         <Deductions />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/admin/deductions/:id",
+    element: (
+      <PrivateRoute>
+        <ViewDeduction />
       </PrivateRoute>
     ),
   },

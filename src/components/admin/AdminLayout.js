@@ -58,12 +58,12 @@ const AdminLayout = ({ children, current = "1", breadcrumbs = ["Admin"] }) => {
             </Menu.Item>
           </Menu.SubMenu>
 
-          <Menu.Item key="4" icon={<KeyOutlined />}>
+          <Menu.Item key="3" icon={<KeyOutlined />}>
             <Link to="/admin/privileges">Roles</Link>
           </Menu.Item>
 
           <Menu.Item
-            key="5"
+            key="4"
             icon={<LogoutOutlined />}
             onClick={() => {
               const auth = getAuth();

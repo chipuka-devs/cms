@@ -18,7 +18,7 @@ import { CustomTable } from "../../../components/CustomTable";
 const ViewUser = () => {
   const uid = window.location.pathname.split("/").slice(-1)[0];
   const [contributions, setContributions] = useState();
-  const [currentContribution, setCurrentContribution] = useState(
+  const [selectedContribution, setSelectedContribution] = useState(
     "--Please select Contribution --"
   );
   const [listOfContributions, setListOfContributions] = useState([]);
@@ -29,6 +29,7 @@ const ViewUser = () => {
 
   const [currentContributionAmount, setCurrentContributionAmount] = useState(0);
   const [userPledge, setUserPledge] = useState(null);
+  const [accessPledge, setAccessPledge] = useState(true);
 
   const stopLoading = () => {
     setLoading({
@@ -52,7 +53,7 @@ const ViewUser = () => {
 
     contribs &&
       contribs.forEach(async (cont) => {
-        const id = currentContribution.toLowerCase();
+        const id = selectedContribution.toLowerCase();
 
         // update contribution if it exists
         if (id === cont.id) {
@@ -109,8 +110,8 @@ const ViewUser = () => {
     // create new Contribution if contribution does not exist
     if (!exists) {
       const newContribution = {
-        id: currentContribution.toLowerCase(),
-        contribution: currentContribution,
+        id: selectedContribution.toLowerCase(),
+        contribution: selectedContribution,
         pledge: userPledge,
         conts: [{ amount: parseInt(currentContributionAmount), date }],
       };
@@ -180,6 +181,7 @@ const ViewUser = () => {
       docs.forEach((d) => uList.push({ ...d.data(), key: d.id }));
 
       setContributions(uList[0]);
+      // console.log(uList[0]);
     });
     stopLoading();
   };
@@ -203,10 +205,25 @@ const ViewUser = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // React.useEffect(() => {
-  //   console.log(contributions);
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [contributions]);
+  React.useEffect(() => {
+    if (selectedContribution) {
+      const selectedConts =
+        contributions &&
+        contributions.contributions.filter(
+          (s) => s.id === selectedContribution.toLowerCase()
+        );
+
+      if (selectedConts && selectedConts[0]) {
+        const pledge = selectedConts[0].pledge;
+        if (pledge) {
+          setAccessPledge(false);
+        } else {
+          setAccessPledge(true);
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedContribution, contributions]);
 
   const columns = [
     {
@@ -249,7 +266,7 @@ const ViewUser = () => {
     <Menu>
       {listOfContributions &&
         listOfContributions.map((item, i) => (
-          <Menu.Item key={i} onClick={() => setCurrentContribution(item.name)}>
+          <Menu.Item key={i} onClick={() => setSelectedContribution(item.name)}>
             <span target="_blank" rel="noopener noreferrer">
               {item.name}
             </span>
@@ -284,7 +301,7 @@ const ViewUser = () => {
                   className="h-8 bg-white border flex items-center px-3"
                   style={{ width: "300px" }}
                 >
-                  {currentContribution}
+                  {selectedContribution}
                 </div>
               </Dropdown>
             </div>
@@ -303,14 +320,6 @@ const ViewUser = () => {
               />
             </div>
 
-            <button
-              type="submit"
-              className="bg-green-700 px-4 text-white h-8 mb-0"
-            >
-              Update
-            </button>
-          </div>
-          <div className="lg:w-2/5 mt-2 gap-1">
             <div className="">
               <label className="font-medium" htmlFor="type">
                 Input User's Pledge:
@@ -319,14 +328,22 @@ const ViewUser = () => {
               <Input
                 type="number"
                 placeholder="Pledge amount i.e 200 "
+                disabled={accessPledge ? false : true}
                 value={userPledge}
                 onChange={(e) => setUserPledge(e.target.value)}
               />
             </div>
+
+            <button
+              type="submit"
+              className="bg-green-700 px-4 text-white h-8 mb-0"
+            >
+              Update
+            </button>
           </div>
         </form>
 
-        <div className="mt-5">
+        <div className="mt-5 user-table">
           <CustomTable cols={columns} rows={tableData} isClickable={true} />
         </div>
       </Spin>

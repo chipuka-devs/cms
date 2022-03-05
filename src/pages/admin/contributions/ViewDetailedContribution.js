@@ -7,7 +7,11 @@ import { CustomTable } from "../../../components/CustomTable";
 
 const ViewDetailedContribution = () => {
   const userId = window.location.pathname.split("/").slice(-2)[0];
-  const contribution = window.location.pathname.split("/").slice(-1)[0];
+  let contribution = window.location.pathname.split("/").slice(-1)[0];
+
+  contribution = contribution.includes("%20")
+    ? contribution.replace("%20", " ")
+    : contribution;
 
   const [loading, setLoading] = useState({
     isLoading: false,
@@ -104,17 +108,20 @@ const ViewDetailedContribution = () => {
               </div>
             </div>
           )}
-          <div>
-            {totalContributions < contributions.pledge ? (
-              <span className="text-red-500 mt-1 ">
-                contributions below target ({totalContributions} kshs)
-              </span>
-            ) : (
-              <span className="text-green-600 mt-1">
-                contributions reached target ({totalContributions} kshs)
-              </span>
-            )}
-          </div>
+          {contributions.pledge && (
+            <div>
+              {totalContributions < contributions.pledge ? (
+                <span className="text-red-500 mt-1 ">
+                  contributions below target remainingAmount: (
+                  {contributions.pledge - totalContributions} kshs)
+                </span>
+              ) : (
+                <span className="text-green-600 mt-1">
+                  contributions reached target ({totalContributions} kshs)
+                </span>
+              )}
+            </div>
+          )}
 
           {/* list contributions */}
 

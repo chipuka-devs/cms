@@ -1,11 +1,11 @@
-.ant-table-row {
+.user-table .ant-table-row {
   cursor: pointer;
 }
 /* .ant-table-row:hover {
   cursor: pointer;
 } */
 
-.ant-table-cell-row-hover {
+.user-table .ant-table-cell-row-hover {
   cursor: pointer;
   background-color: #3d46c530 !important;
 }
