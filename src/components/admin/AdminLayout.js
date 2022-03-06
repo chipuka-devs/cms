@@ -2,7 +2,7 @@ import { Layout, Menu, Breadcrumb } from "antd";
 import {
   LogoutOutlined,
   MinusCircleOutlined,
-  // PlusCircleOutlined,
+  DashboardOutlined,
   KeyOutlined,
   ShareAltOutlined,
 } from "@ant-design/icons";
@@ -15,7 +15,7 @@ import { success } from "../Notifications";
 const { Content, Footer, Sider } = Layout;
 // const { SubMenu } = Menu;
 
-const AdminLayout = ({ children, current = "1", breadcrumbs = ["Admin"] }) => {
+const AdminLayout = ({ children, current = "0", breadcrumbs = ["Admin"] }) => {
   const [collapsed, setCollapsed] = useState();
   const [curr] = useState(current);
 
@@ -31,9 +31,9 @@ const AdminLayout = ({ children, current = "1", breadcrumbs = ["Admin"] }) => {
         <div className="logo" />
 
         <Menu theme="dark" defaultSelectedKeys={[curr]} mode="inline">
-          {/* <Menu.Item key="1" icon={<PieChartOutlined />}>
-            <Link to="/admin">Contributions</Link>
-          </Menu.Item> */}
+          <Menu.Item key="0" icon={<DashboardOutlined />}>
+            <Link to="/admin">Dashboard</Link>
+          </Menu.Item>
 
           <Menu.SubMenu
             key="1"

@@ -1,44 +1,37 @@
-import { Divider, Input, Spin } from "antd";
-import { collection, doc, onSnapshot, setDoc } from "firebase/firestore";
+import { Divider, Dropdown, Menu, Spin } from "antd";
+import {
+  addDoc,
+  collection,
+  onSnapshot,
+  query,
+  where,
+} from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../../../components/admin/AdminLayout";
+import { MonthlyForm } from "../../../components/admin/contributions/MonthlyForm";
+import { ProjectForm } from "../../../components/admin/contributions/ProjectForm";
 import { CustomTable } from "../../../components/CustomTable";
 import { error, success } from "../../../components/Notifications";
 import { db } from "../../../utils/firebase";
 
 const NewContribution = () => {
-  const [newContribution, setNewContribution] = useState("");
   const [loading, setLoading] = useState({
     isLoading: false,
     loadingMessage: "loading...",
   });
-  const [tableData, setTableData] = useState([]);
 
-  const columns = [
-    {
-      title: "Key",
-      dataIndex: "key",
-      key: "key",
-    },
-    {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-    },
-  ];
-  // n
+  const [monthlyContributions, setMonthlyContributions] = useState([]);
+  const [projectContributions, setProjectContributions] = useState([]);
 
-  //   const setTableData = () => {
-  //     let objectList = [];
+  const [contributionCategories] = useState(["monthly", "project"]);
+  const [chosenCategory, setChosenCategory] = useState("monthly");
+  const [newContribution, setNewContribution] = useState({
+    category: chosenCategory,
+  });
 
-  //     list.forEach((i, _index) => {
-  //       const obj = { key: _index + 1, name: i };
-
-  //       objectList.push(obj);
-  //     });
-
-  //     return objectList;
-  //   };
+  const resetState = () => {
+    setNewContribution({});
+  };
 
   const stopLoading = () => {
     setLoading({
@@ -57,22 +50,18 @@ const NewContribution = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!newContribution || newContribution === "") {
-      error("Missing Field", "Contribution required");
-      return;
-    }
+    // console.log(newContribution);
+
     startLoading("Creating Contribution. . .");
 
-    const id = newContribution.toLowerCase();
-
     try {
-      await setDoc(doc(db, "contributions", id), {
-        name: newContribution,
-      });
+      await addDoc(collection(db, "contributions"), newContribution);
 
       setNewContribution("");
 
       stopLoading();
+
+      resetState();
 
       success("Success!", "Contribution Created Successfully!");
     } catch (err) {
@@ -81,29 +70,121 @@ const NewContribution = () => {
         isLoading: false,
         loadingMessage: "",
       });
+
       error("Error:", err.message);
     }
   };
 
+  const menu = (
+    <Menu>
+      {contributionCategories.map((item, i) => {
+        return (
+          <Menu.Item
+            key={i}
+            onClick={() => {
+              setChosenCategory(item);
+              setNewContribution({ ...newContribution, category: item });
+            }}
+          >
+            <span target="_blank" rel="noopener noreferrer">
+              {item}
+            </span>
+          </Menu.Item>
+        );
+      })}
+    </Menu>
+  );
+
   useEffect(() => {
     startLoading("Loading Contributions . . .");
 
-    const unsub = onSnapshot(collection(db, "contributions"), (docs) => {
-      let list = [];
-      let i = 1;
-      docs.forEach((d) => {
-        const loadedContribution = { ...d.data(), key: i };
+    const qMonthly = query(
+      collection(db, "contributions"),
+      where("category", "==", "monthly")
+    );
+    const qProjects = query(
+      collection(db, "contributions"),
+      where("category", "==", "project")
+    );
 
-        list.push(loadedContribution);
-        i++;
+    const fetchMonthly = onSnapshot(qMonthly, (docs) => {
+      let conts = [];
+      docs.forEach((d) => {
+        conts.push(d.data());
       });
-      setTableData(list);
+      // setTableData(list);
+      setMonthlyContributions(conts);
 
       stopLoading();
     });
 
-    return () => unsub();
+    const fetchProject = onSnapshot(qProjects, (docs) => {
+      fetchMonthly();
+
+      let conts = [];
+
+      docs.forEach((d) => {
+        conts.push(d.data());
+      });
+      // setTableData(list);
+      setProjectContributions(conts);
+
+      stopLoading();
+    });
+
+    return () => fetchProject();
   }, []);
+
+  const monthlyColumns = [
+    {
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
+    },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Amount",
+      dataIndex: "amount",
+      key: "amount",
+    },
+  ];
+
+  const projectColumns = [
+    {
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
+    },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Target",
+      dataIndex: "target",
+      key: "target",
+    },
+    {
+      title: "Start Date",
+      dataIndex: "startDate",
+      key: "startDate",
+    },
+    {
+      title: "Deadline",
+      dataIndex: "deadline",
+      key: "deadline",
+    },
+    {
+      title: "Duration",
+      dataIndex: "duration",
+      key: "duration",
+    },
+  ];
 
   //   const tableData = setTableData();
 
@@ -124,20 +205,36 @@ const NewContribution = () => {
           </p>
         </div>
         {/* create new contribution form */}
-        <form
-          className="flex items-end gap-1 mx-auto my-2"
-          onSubmit={handleSubmit}
-        >
-          <div className="">
-            <label className="font-medium" htmlFor="type">
-              Input contribution name:
-            </label>
-            {/* amount  */}
-            <Input
-              type="text"
-              placeholder="i.e ChurchProjects "
-              onChange={(e) => setNewContribution(e.target.value)}
-            />
+
+        {/* contribution category: */}
+        <div className="w-1/2">
+          <span>
+            Please selecte the contribution category (monthly or project)
+          </span>
+
+          <Dropdown overlay={menu} placement="bottomLeft">
+            <div
+              className="h-8 bg-white border flex items-center px-3"
+              style={{ width: "100%" }}
+            >
+              {chosenCategory}
+            </div>
+          </Dropdown>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-3 gap-2 my-4">
+            {chosenCategory === "monthly" ? (
+              <MonthlyForm
+                state={newContribution}
+                setState={setNewContribution}
+              />
+            ) : (
+              <ProjectForm
+                state={newContribution}
+                setState={setNewContribution}
+              />
+            )}
           </div>
 
           <button
@@ -150,7 +247,27 @@ const NewContribution = () => {
 
         {/* view previously created contributions */}
 
-        <CustomTable cols={columns} rows={tableData} style />
+        <div className="flex gap-2 mt-4 ">
+          <div className="w-7/12">
+            <span className="font-bold underline uppercase">Project Table</span>
+            <CustomTable
+              cols={projectColumns}
+              rows={projectContributions}
+              style
+            />
+          </div>
+          <div className="w-5/12">
+            <span className="font-bold underline uppercase">
+              Monthly Contributions Table
+            </span>
+
+            <CustomTable
+              cols={monthlyColumns}
+              rows={monthlyContributions}
+              style
+            />
+          </div>
+        </div>
       </Spin>
     </AdminLayout>
   );

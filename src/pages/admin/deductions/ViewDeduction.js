@@ -9,7 +9,7 @@ import {
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../../../components/admin/AdminLayout";
 import { db } from "../../../utils/firebase";
-import { Input, Checkbox, Dropdown, Menu } from "antd";
+import { Input, Checkbox, Dropdown, Menu, Spin } from "antd";
 import { error, success } from "../../../components/Notifications";
 import { CustomTable } from "../../../components/CustomTable";
 
@@ -222,120 +222,132 @@ const ViewDeduction = () => {
   );
   return (
     <AdminLayout current="2" breadcrumbs={["Admin", "Deductions", `${dId}`]}>
-      <div className="flex gap-4 justify-between">
-        <form className="lg:w-2/4 " onSubmit={handleSubmit}>
-          <div className="flex flex-col  gap-1 w-full ">
-            <div className="">
-              <label className="font-medium" htmlFor="type">
-                Parent Contribution:
-              </label>
-              {/* amount  */}
-              <Input
-                type="text"
-                placeholder="input deduction Contribution"
-                disabled={dContribution === "" || !dContribution ? false : true}
-                value={dContribution}
-                onChange={(e) => setDContribution(e.target.value)}
-              />
-            </div>
-            <div className="">
-              <label className="font-medium" htmlFor="type">
-                Deduction Title:
-              </label>
-              {/* amount  */}
-              <Input
-                type="text"
-                placeholder="input deduction title"
-                disabled={dTitle === "" || !dTitle ? false : true}
-                value={dTitle}
-                onChange={(e) => setDTitle(e.target.value)}
-              />
-            </div>
-            <div className="">
-              <label className="font-medium" htmlFor="type">
-                Deduction Amount:
-              </label>
-              {/* amount  */}
-              <Input
-                type="number"
-                placeholder="Pledge amount i.e 200 "
-                disabled={dAmount === "" || !dAmount ? false : true}
-                value={dAmount}
-                onChange={(e) => setDAmount(e.target.value)}
-              />
-            </div>
-            <div className="">
-              <label className="font-medium" htmlFor="type">
-                Deduction Comment:
-              </label>
-              {/* amount  */}
-              <Input.TextArea
-                rows={4}
-                placeholder="Deduction comment "
-                // disabled={dComment === "" || !dComment ? false : true}
-                value={dComment}
-                onChange={(e) => setDComment(e.target.value)}
-              />
-            </div>
-            <button
-              type="submit"
-              className="bg-green-700 px-4 text-white h-8 mb-0"
-            >
-              Update
-            </button>
-          </div>
-        </form>
-
-        <div className="lg:w-2/4 flex flex-col gap-2 p-2 bg-gray-50 rounded">
-          <span>Please specify those who are to be deducted</span>
-          <span>
-            If the deduction is not individual please check the box below
-          </span>
-
-          {/* is not individual */}
-          <div className="flex justify-between pr-8">
-            <span>is a group contribution</span>
-            <Checkbox value={isGroup} onChange={() => setIsGroup(!isGroup)}>
-              Checkbox
-            </Checkbox>
-          </div>
-
-          {!isGroup && (
-            <div>
-              <div className=" ">
+      <Spin
+        spinning={loading.isLoading}
+        size="large"
+        tip={loading.loadingMessage}
+      >
+        <div className="flex gap-4 justify-between">
+          <form className="lg:w-2/4 " onSubmit={handleSubmit}>
+            <div className="flex flex-col  gap-1 w-full ">
+              <div className="">
                 <label className="font-medium" htmlFor="type">
-                  Select user(s) To Deduct from:
+                  Parent Contribution:
                 </label>
-                <div className="flex gap-2">
-                  <Dropdown className="" overlay={menu} placement="bottomLeft">
-                    <div
-                      className="h-8 bg-white border flex items-center px-3"
-                      style={{ width: "100%" }}
-                    >
-                      {selectedContributor.name
-                        ? selectedContributor.name
-                        : selectedContributor}
-                    </div>
-                  </Dropdown>
-                  <button
-                    onClick={addContributor}
-                    type="submit"
-                    className="bg-green-700 px-4 text-white h-8 mb-0"
-                  >
-                    Add
-                  </button>
-                </div>
+                {/* amount  */}
+                <Input
+                  type="text"
+                  placeholder="input deduction Contribution"
+                  disabled={
+                    dContribution === "" || !dContribution ? false : true
+                  }
+                  value={dContribution}
+                  onChange={(e) => setDContribution(e.target.value)}
+                />
               </div>
-
-              <CustomTable
-                cols={columns}
-                rows={deductionContributors}
-                isClickable={true}
-              />
+              <div className="">
+                <label className="font-medium" htmlFor="type">
+                  Deduction Title:
+                </label>
+                {/* amount  */}
+                <Input
+                  type="text"
+                  placeholder="input deduction title"
+                  disabled={dTitle === "" || !dTitle ? false : true}
+                  value={dTitle}
+                  onChange={(e) => setDTitle(e.target.value)}
+                />
+              </div>
+              <div className="">
+                <label className="font-medium" htmlFor="type">
+                  Deduction Amount:
+                </label>
+                {/* amount  */}
+                <Input
+                  type="number"
+                  placeholder="Pledge amount i.e 200 "
+                  disabled={dAmount === "" || !dAmount ? false : true}
+                  value={dAmount}
+                  onChange={(e) => setDAmount(e.target.value)}
+                />
+              </div>
+              <div className="">
+                <label className="font-medium" htmlFor="type">
+                  Deduction Comment:
+                </label>
+                {/* amount  */}
+                <Input.TextArea
+                  rows={4}
+                  placeholder="Deduction comment "
+                  // disabled={dComment === "" || !dComment ? false : true}
+                  value={dComment}
+                  onChange={(e) => setDComment(e.target.value)}
+                />
+              </div>
+              <button
+                type="submit"
+                className="bg-green-700 px-4 text-white h-8 mb-0"
+              >
+                Update
+              </button>
             </div>
-          )}
+          </form>
+
+          <div className="lg:w-2/4 flex flex-col gap-2 p-2 bg-gray-50 rounded">
+            <span>Please specify those who are to be deducted</span>
+            <span>
+              If the deduction is not individual please check the box below
+            </span>
+
+            {/* is not individual */}
+            <div className="flex justify-between pr-8">
+              <span>is a group contribution</span>
+              <Checkbox value={isGroup} onChange={() => setIsGroup(!isGroup)}>
+                Checkbox
+              </Checkbox>
+            </div>
+
+            {!isGroup && (
+              <div>
+                <div className=" ">
+                  <label className="font-medium" htmlFor="type">
+                    Select user(s) To Deduct from:
+                  </label>
+                  <div className="flex gap-2">
+                    <Dropdown
+                      className=""
+                      overlay={menu}
+                      placement="bottomLeft"
+                    >
+                      <div
+                        className="h-8 bg-white border flex items-center px-3"
+                        style={{ width: "100%" }}
+                      >
+                        {selectedContributor.name
+                          ? selectedContributor.name
+                          : selectedContributor}
+                      </div>
+                    </Dropdown>
+                    <button
+                      onClick={addContributor}
+                      type="submit"
+                      className="bg-green-700 px-4 text-white h-8 mb-0"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
+
+                <CustomTable
+                  cols={columns}
+                  rows={deductionContributors}
+                  isClickable={true}
+                />
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      </Spin>
     </AdminLayout>
   );
 };

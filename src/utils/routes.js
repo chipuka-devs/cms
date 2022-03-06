@@ -20,6 +20,7 @@ import Approvals from "../components/Approvals";
 
 import ApproverRoute from "./ApproverRoute";
 import ViewDeduction from "../pages/admin/deductions/ViewDeduction";
+import { Dashboard } from "../pages/admin/Dashboard";
 
 export const useRouter = () => [
   {
@@ -59,6 +60,15 @@ export const useRouter = () => [
   {
     path: "/register",
     element: <Register />,
+  },
+
+  {
+    path: "/admin",
+    element: (
+      <PrivateRoute>
+        <Dashboard />
+      </PrivateRoute>
+    ),
   },
 
   {

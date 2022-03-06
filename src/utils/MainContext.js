@@ -1,6 +1,6 @@
 import { Spin } from "antd";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { doc, onSnapshot } from "firebase/firestore";
+import { collection, doc, getDocs, onSnapshot } from "firebase/firestore";
 import { createContext, useEffect, useState } from "react";
 import { db } from "./firebase";
 
@@ -35,7 +35,35 @@ export const MainContext = ({ children }) => {
       });
     };
 
+    const fetchUserContributions = async () => {
+      setLoading(true);
+
+      // fetchContributions
+      let allContributions = [];
+
+      const querySnapshot = await getDocs(collection(db, "contributions"));
+      querySnapshot.forEach((c) =>
+        allContributions.push({ ...c.data(), id: c.id })
+      );
+
+      onSnapshot(collection(db, "user_contributions"), (res) => {
+        if (res) {
+          res.forEach((d) => {
+            const contribution = d.data().contributions;
+            const totalAmount = contribution
+              .map((item) => item.amount)
+              .reduce((prev, next) => parseInt(prev) + parseInt(next));
+
+            console.log(totalAmount);
+            console.log(contribution);
+          });
+        }
+      });
+      setLoading(false);
+    };
+
     fetchRoles();
+    fetchUserContributions();
   }, [user]);
 
   if (loading) {
