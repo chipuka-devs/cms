@@ -1,18 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import AdminLayout from "../../../components/admin/AdminLayout";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { Dropdown, Menu, Spin } from "antd";
-import { collection, doc, onSnapshot, setDoc } from "firebase/firestore";
+import { Spin } from "antd";
+import {
+  collection,
+  onSnapshot,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { db } from "../../../utils/firebase";
-import { error, success } from "../../../components/Notifications";
 import { CustomTable } from "../../../components/CustomTable";
+import { Context } from "../../../utils/MainContext";
 
 const View = () => {
   const navigate = useNavigate();
-  const [users, setUsers] = useState([]);
 
-  const [selectedUser, setSelectedUser] = useState(null);
+  const { allUsers } = useContext(Context);
 
   const [userContributions, setUserContributions] = useState([]);
   const [loading, setLoading] = useState({
@@ -34,92 +39,53 @@ const View = () => {
     });
   };
 
-  const AddUserToList = async (e) => {
-    e.preventDefault();
-    startLoading("Adding User . . .");
-
-    if (!selectedUser) {
-      error("Error", "Please Select a user");
-      stopLoading();
-      return;
-    }
-
-    const userDetails = {
-      uid: selectedUser.uid,
-      name: selectedUser.name,
-      email: selectedUser.email,
-      total: 0,
-    };
-
-    try {
-      await setDoc(doc(db, "user_contributions", selectedUser.uid), {
-        ...userDetails,
-      });
-
-      success("Success!", "User added successfully!");
-      setSelectedUser(null);
-      stopLoading();
-    } catch (err) {
-      stopLoading();
-      error("Error", err.message);
-    }
-  };
-
-  const userExits = (user) => {
-    return userContributions.some(function (el) {
-      return el.name === user;
-    });
-  };
-
-  // fetch all users
   useEffect(() => {
-    const fetchUsers = () => {
-      startLoading("Fetching Users . . .");
-      onSnapshot(collection(db, "users"), (docs) => {
-        const fetchedUsers = [];
-        docs.forEach((d) => fetchedUsers.push(d.data()));
-
-        setUsers(fetchedUsers);
-        stopLoading();
-      });
-    };
-    fetchUsers();
-  }, []);
-
-  // fetch user Contributions
-  useEffect(() => {
+    startLoading("Fetching Users . . .");
     const fetchUserContributions = () => {
-      startLoading("Fetching Users . . .");
       onSnapshot(collection(db, "user_contributions"), (docs) => {
         const cList = [];
         docs.forEach((d) => cList.push(d.data()));
 
-        setUserContributions(cList);
+        setUserContributions([]);
+
+        allUsers.forEach(async (u) => {
+          if (cList.some((item) => item.user === u.id)) {
+            const q = await query(
+              collection(db, "user_contributions"),
+              where("user", "==", u.id)
+            );
+
+            const thisUserContributions = await getDocs(q);
+
+            const contributionsAmounts = [];
+
+            thisUserContributions.forEach((cont) =>
+              contributionsAmounts.push({ ...cont.data() })
+            );
+
+            const currentUserTotal = contributionsAmounts
+              .map((item) => item.amount)
+              .reduce((prev, next) => parseInt(prev) + parseInt(next));
+
+            stopLoading();
+            setUserContributions((prev) => [
+              ...prev,
+              {
+                name: u.name,
+                email: u.email,
+                total: currentUserTotal,
+                key: u.uid,
+              },
+            ]);
+          }
+        });
+
         stopLoading();
       });
     };
 
     fetchUserContributions();
-  }, []);
-
-  const menu = (
-    <Menu>
-      {users &&
-        users.map((item, i) => {
-          if (!userExits(item.name)) {
-            return (
-              <Menu.Item key={i} onClick={() => setSelectedUser(item)}>
-                <span target="_blank" rel="noopener noreferrer">
-                  {item.name}
-                </span>
-              </Menu.Item>
-            );
-          }
-
-          return null;
-        })}
-    </Menu>
-  );
+  }, [allUsers]);
 
   const columns = [
     {
@@ -146,7 +112,7 @@ const View = () => {
         <>
           {
             <button
-              onClick={() => c.uid && navigate(`/admin/contributions/${c.uid}`)}
+              onClick={() => c.key && navigate(`/admin/contributions/${c.key}`)}
               className="p-2 bg-blue-500 rounded text-white"
             >
               View
@@ -168,31 +134,12 @@ const View = () => {
         size="large"
         tip={loading.loadingMessage}
       >
-        <form
-          className="flex items-end gap-1 mx-auto my-2"
-          onSubmit={AddUserToList}
-        >
-          <div className="">
-            <label className="font-medium" htmlFor="type">
-              Add user:
-            </label>
-            <Dropdown overlay={menu} placement="bottomLeft">
-              <div
-                className="h-8 bg-white border flex items-center px-3"
-                style={{ width: "300px" }}
-              >
-                {selectedUser ? selectedUser.name : "--select user--"}
-              </div>
-            </Dropdown>
-          </div>
-
-          <button
-            type="submit"
-            className="bg-green-700 px-4 text-white h-8 mb-0"
-          >
-            Add user
-          </button>
-        </form>
+        <div className="">
+          <Link to="new" className="text-blue-500 hover:underline">
+            Click here &nbsp;
+          </Link>
+          to add new User
+        </div>
 
         <CustomTable cols={columns} rows={tableData} style />
       </Spin>

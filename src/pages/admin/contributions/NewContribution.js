@@ -1,93 +1,80 @@
-import { Divider, Dropdown, Menu, Spin } from "antd";
-import {
-  addDoc,
-  collection,
-  onSnapshot,
-  query,
-  where,
-} from "firebase/firestore";
-import React, { useEffect, useState } from "react";
+import { Dropdown, Input, Menu, Spin } from "antd";
+import { addDoc, collection } from "firebase/firestore";
+import { useContext, useState } from "react";
 import AdminLayout from "../../../components/admin/AdminLayout";
-import { MonthlyForm } from "../../../components/admin/contributions/MonthlyForm";
-import { ProjectForm } from "../../../components/admin/contributions/ProjectForm";
-import { CustomTable } from "../../../components/CustomTable";
 import { error, success } from "../../../components/Notifications";
 import { db } from "../../../utils/firebase";
+import { Context } from "../../../utils/MainContext";
 
 const NewContribution = () => {
+  const { allUsers, allContributions } = useContext(Context);
+
   const [loading, setLoading] = useState({
     isLoading: false,
     loadingMessage: "loading...",
   });
-
-  const [monthlyContributions, setMonthlyContributions] = useState([]);
-  const [projectContributions, setProjectContributions] = useState([]);
-
-  const [contributionCategories] = useState(["monthly", "project"]);
-  const [chosenCategory, setChosenCategory] = useState("monthly");
-  const [newContribution, setNewContribution] = useState({
-    category: chosenCategory,
-  });
-
-  const resetState = () => {
-    setNewContribution({});
-  };
-
-  const stopLoading = () => {
-    setLoading({
-      isLoading: false,
-      loadingMessage: "",
-    });
-  };
-
-  const startLoading = (message) => {
-    setLoading({
-      isLoading: true,
-      loadingMessage: message,
-    });
-  };
+  const [selectedContribution, setSelectedContribution] = useState(
+    "--Please select Contribution --"
+  );
+  const [selectedUser, setSelectedUser] = useState("--Please select User --");
+  const [newContribution, setNewContribution] = useState({});
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading({ isLoading: true, loadingMessage: "Adding contribution..." });
 
-    // console.log(newContribution);
-
-    startLoading("Creating Contribution. . .");
+    if (!newContribution.amount) {
+      error("Error", "Please input contribution amount");
+      return;
+    }
+    if (!selectedUser.name) {
+      error("Error", "Please Select User");
+      return;
+    }
+    if (!selectedContribution.name) {
+      error("Error", "Please Select Contribution");
+      return;
+    }
 
     try {
-      await addDoc(collection(db, "contributions"), newContribution);
+      // add contribution
+      if (newContribution && newContribution.amount) {
+        await addDoc(collection(db, "user_contributions"), {
+          amount: newContribution.amount,
+          user: selectedUser.uid,
+          contribution: selectedContribution.id,
+          doc: new Date().toLocaleDateString(),
+        });
+      }
 
-      setNewContribution("");
+      if (newContribution.pledge) {
+        await addDoc(collection(db, "pledges"), {
+          amount: newContribution.pledge,
+          user: selectedUser.id,
+          contribution: selectedContribution.id,
+        });
+      }
 
-      stopLoading();
+      setLoading({ isLoading: false });
 
-      resetState();
-
-      success("Success!", "Contribution Created Successfully!");
+      success("Success!", "Contribution added successfully!");
     } catch (err) {
-      setLoading({
-        ...loading,
-        isLoading: false,
-        loadingMessage: "",
-      });
-
-      error("Error:", err.message);
+      error("Error", err.message);
     }
   };
 
   const menu = (
     <Menu>
-      {contributionCategories.map((item, i) => {
+      {allContributions.map((item, i) => {
         return (
           <Menu.Item
             key={i}
             onClick={() => {
-              setChosenCategory(item);
-              setNewContribution({ ...newContribution, category: item });
+              setSelectedContribution(item);
             }}
           >
             <span target="_blank" rel="noopener noreferrer">
-              {item}
+              {item.name}
             </span>
           </Menu.Item>
         );
@@ -95,96 +82,24 @@ const NewContribution = () => {
     </Menu>
   );
 
-  useEffect(() => {
-    startLoading("Loading Contributions . . .");
-
-    const qMonthly = query(
-      collection(db, "contributions"),
-      where("category", "==", "monthly")
-    );
-    const qProjects = query(
-      collection(db, "contributions"),
-      where("category", "==", "project")
-    );
-
-    const fetchMonthly = onSnapshot(qMonthly, (docs) => {
-      let conts = [];
-      docs.forEach((d) => {
-        conts.push(d.data());
-      });
-      // setTableData(list);
-      setMonthlyContributions(conts);
-
-      stopLoading();
-    });
-
-    const fetchProject = onSnapshot(qProjects, (docs) => {
-      fetchMonthly();
-
-      let conts = [];
-
-      docs.forEach((d) => {
-        conts.push(d.data());
-      });
-      // setTableData(list);
-      setProjectContributions(conts);
-
-      stopLoading();
-    });
-
-    return () => fetchProject();
-  }, []);
-
-  const monthlyColumns = [
-    {
-      title: "Category",
-      dataIndex: "category",
-      key: "category",
-    },
-    {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-    },
-    {
-      title: "Amount",
-      dataIndex: "amount",
-      key: "amount",
-    },
-  ];
-
-  const projectColumns = [
-    {
-      title: "Category",
-      dataIndex: "category",
-      key: "category",
-    },
-    {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-    },
-    {
-      title: "Target",
-      dataIndex: "target",
-      key: "target",
-    },
-    {
-      title: "Start Date",
-      dataIndex: "startDate",
-      key: "startDate",
-    },
-    {
-      title: "Deadline",
-      dataIndex: "deadline",
-      key: "deadline",
-    },
-    {
-      title: "Duration",
-      dataIndex: "duration",
-      key: "duration",
-    },
-  ];
+  const usersMenu = (
+    <Menu>
+      {allUsers.map((item, i) => {
+        return (
+          <Menu.Item
+            key={i}
+            onClick={() => {
+              setSelectedUser(item);
+            }}
+          >
+            <span target="_blank" rel="noopener noreferrer">
+              {item.name}
+            </span>
+          </Menu.Item>
+        );
+      })}
+    </Menu>
+  );
 
   //   const tableData = setTableData();
 
@@ -195,79 +110,83 @@ const NewContribution = () => {
         size="large"
         tip={loading.loadingMessage}
       >
-        <Divider>
-          <span className="text-lg">Create Contribution</span>
-        </Divider>
-
-        <div>
-          <p className="text-gray-500">
-            Fill in the form below to create a new contribution
-          </p>
-        </div>
-        {/* create new contribution form */}
-
-        {/* contribution category: */}
-        <div className="w-1/2">
-          <span>
-            Please selecte the contribution category (monthly or project)
-          </span>
-
-          <Dropdown overlay={menu} placement="bottomLeft">
-            <div
-              className="h-8 bg-white border flex items-center px-3"
-              style={{ width: "100%" }}
-            >
-              {chosenCategory}
+        <form className=" w-8/12" onSubmit={handleSubmit}>
+          <div className="flex flex-col gap-3 w-full ">
+            <div className="">
+              <label className="font-medium" htmlFor="type">
+                Select User To add:
+              </label>
+              <Dropdown overlay={usersMenu} placement="bottomLeft">
+                <div
+                  className="h-8 bg-white border flex items-center px-3 w-full"
+                  st
+                >
+                  {selectedUser && selectedUser.name
+                    ? selectedUser.name
+                    : selectedUser}
+                </div>
+              </Dropdown>
             </div>
-          </Dropdown>
-        </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-3 gap-2 my-4">
-            {chosenCategory === "monthly" ? (
-              <MonthlyForm
-                state={newContribution}
-                setState={setNewContribution}
+            <div className="">
+              <label className="font-medium" htmlFor="type">
+                Input Contribution:
+              </label>
+              <Dropdown overlay={menu} placement="bottomLeft">
+                <div
+                  className="h-8 bg-white border flex items-center px-3 w-full"
+                  st
+                >
+                  {selectedContribution && selectedContribution.name
+                    ? selectedContribution.name
+                    : selectedContribution}
+                </div>
+              </Dropdown>
+            </div>
+
+            <div className="">
+              <label className="font-medium" htmlFor="type">
+                Input Amount:
+              </label>
+              {/* amount  */}
+              <Input
+                type="number"
+                placeholder="i.e 200 "
+                required
+                onChange={(e) =>
+                  setNewContribution({
+                    ...newContribution,
+                    amount: e.target.value,
+                  })
+                }
               />
-            ) : (
-              <ProjectForm
-                state={newContribution}
-                setState={setNewContribution}
+            </div>
+
+            <div className="">
+              <label className="font-medium" htmlFor="type">
+                Input User's Pledge:
+              </label>
+              {/* amount  */}
+              <Input
+                type="number"
+                placeholder="Pledge amount i.e 200 (optional)"
+                onChange={(e) =>
+                  setNewContribution({
+                    ...newContribution,
+                    pledge: e.target.value,
+                  })
+                }
               />
-            )}
+            </div>
+
+            <button
+              type="submit"
+              className="bg-green-700 px-4 text-white h-8 mb-0 font-medium"
+            >
+              ADD CONTRIBUTION
+            </button>
           </div>
-
-          <button
-            type="submit"
-            className="bg-green-700 px-4 text-white h-8 mb-0"
-          >
-            Create
-          </button>
         </form>
-
-        {/* view previously created contributions */}
-
-        <div className="flex gap-2 mt-4 ">
-          <div className="w-7/12">
-            <span className="font-bold underline uppercase">Project Table</span>
-            <CustomTable
-              cols={projectColumns}
-              rows={projectContributions}
-              style
-            />
-          </div>
-          <div className="w-5/12">
-            <span className="font-bold underline uppercase">
-              Monthly Contributions Table
-            </span>
-
-            <CustomTable
-              cols={monthlyColumns}
-              rows={monthlyContributions}
-              style
-            />
-          </div>
-        </div>
       </Spin>
     </AdminLayout>
   );

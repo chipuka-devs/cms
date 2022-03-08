@@ -47,7 +47,7 @@ export const CustomTable = ({
         if (isClickable) {
           return {
             onClick: () => {
-              navigate(`${record.id}`);
+              navigate(`${record.key}`);
               setCurrentView(record);
             }, // click row
           };

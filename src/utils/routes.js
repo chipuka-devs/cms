@@ -11,7 +11,7 @@ import PrivateUser from "./PrivateUserRoute";
 
 import View from "../pages/admin/contributions/ViewAll";
 import ViewUser from "../pages/admin/contributions/ViewUser";
-import NewContribution from "../pages/admin/contributions/NewContribution";
+import CreateContribution from "../pages/admin/contributions/CreateContribution";
 import ViewDetailedContribution from "../pages/admin/contributions/ViewDetailedContribution";
 
 import Deductions from "../pages/admin/deductions/viewAll";
@@ -21,6 +21,7 @@ import Approvals from "../components/Approvals";
 import ApproverRoute from "./ApproverRoute";
 import ViewDeduction from "../pages/admin/deductions/ViewDeduction";
 import { Dashboard } from "../pages/admin/Dashboard";
+import NewContribution from "../pages/admin/contributions/NewContribution";
 
 export const useRouter = () => [
   {
@@ -104,6 +105,16 @@ export const useRouter = () => [
       </PrivateRoute>
     ),
   },
+
+  {
+    path: "/admin/contributions/create",
+    element: (
+      <PrivateRoute>
+        <CreateContribution />
+      </PrivateRoute>
+    ),
+  },
+
   {
     path: "/admin/contributions/new",
     element: (

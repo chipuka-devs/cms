@@ -43,6 +43,11 @@ const AdminLayout = ({ children, current = "0", breadcrumbs = ["Admin"] }) => {
             <Menu.Item>
               <Link to="/admin/contributions">View</Link>
             </Menu.Item>
+
+            <Menu.Item>
+              <Link to="/admin/contributions/create">Create</Link>
+            </Menu.Item>
+
             <Menu.Item>
               <Link to="/admin/contributions/new">New</Link>
             </Menu.Item>

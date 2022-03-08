@@ -9,9 +9,9 @@ const ViewDetailedContribution = () => {
   const userId = window.location.pathname.split("/").slice(-2)[0];
   let contribution = window.location.pathname.split("/").slice(-1)[0];
 
-  contribution = contribution.includes("%20")
-    ? contribution.replace("%20", " ")
-    : contribution;
+  // contribution = contribution.includes("%20")
+  //   ? contribution.replace("%20", " ")
+  //   : contribution;
 
   const [loading, setLoading] = useState({
     isLoading: false,
@@ -42,37 +42,46 @@ const ViewDetailedContribution = () => {
   };
   // load user's conts
   useEffect(() => {
-    if (contribution) {
-      startLoading("Fetching contributions . . .");
-      const fetchContributions = () => {
-        const q = query(
-          collection(db, "user_contributions"),
-          where("uid", "==", userId)
-        );
+    startLoading("Fetching user Contributions . . .");
+    const fetchUserContributions = () => {
+      const userContributionsRef = collection(db, "user_contributions");
 
-        onSnapshot(q, (docs) => {
-          let uList = [];
-          docs.forEach((d) => uList.push({ ...d.data(), key: d.id }));
+      const q = query(userContributionsRef, where("user", "==", userId));
 
-          const currentUser = uList[0];
+      onSnapshot(q, (docs) => {
+        const currentUserContributions = [];
 
-          currentUser.contributions.forEach(
-            (c) => c.id === contribution && c && setContributions(c)
-          );
+        docs.forEach((doc) => currentUserContributions.push(doc.data()));
 
-          stopLoading();
+        const groupedContributions = currentUserContributions.reduce(function (
+          r,
+          a
+        ) {
+          r[a.contribution] = r[a.contribution] || [];
+          r[a.contribution].push(a);
+          return r;
+        },
+        Object.create(null));
+
+        Object.entries(groupedContributions).forEach((ent, i) => {
+          if (ent[0] === contribution) {
+            setContributions(ent[1]);
+          }
         });
-      };
 
-      fetchContributions();
-    }
+        stopLoading();
+      });
+      stopLoading();
+    };
+
+    fetchUserContributions();
   }, [contribution, userId]);
 
   const columns = [
     {
       title: "Date",
-      dataIndex: "date",
-      key: "date",
+      dataIndex: "doc",
+      key: "doc",
     },
     {
       title: "Amount",
@@ -128,7 +137,7 @@ const ViewDetailedContribution = () => {
           <div className="lg:w-10/12 mt-3">
             <CustomTable
               cols={columns}
-              rows={contributions.conts && contributions.conts}
+              rows={contributions && contributions}
               span={1}
               summary={{
                 show: true,
