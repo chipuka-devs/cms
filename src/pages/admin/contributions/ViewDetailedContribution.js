@@ -9,10 +9,6 @@ const ViewDetailedContribution = () => {
   const userId = window.location.pathname.split("/").slice(-2)[0];
   let contribution = window.location.pathname.split("/").slice(-1)[0];
 
-  // contribution = contribution.includes("%20")
-  //   ? contribution.replace("%20", " ")
-  //   : contribution;
-
   const [loading, setLoading] = useState({
     isLoading: false,
     loadingMessage: "loading...",

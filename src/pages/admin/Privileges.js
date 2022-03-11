@@ -104,7 +104,7 @@ const Privileges = () => {
   );
 
   return (
-    <AdminLayout current="3" breadcrumbs={["Admin", "Privileges"]}>
+    <AdminLayout current="4" breadcrumbs={["Admin", "Privileges"]}>
       <Spin
         spinning={loading.isLoading}
         size="large"

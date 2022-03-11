@@ -1,23 +1,34 @@
 import { Input, Spin, Menu, Dropdown } from "antd";
-import { addDoc, collection, onSnapshot } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  onSnapshot,
+  query,
+  where,
+} from "firebase/firestore";
+import React, { useContext, useEffect, useState } from "react";
 import AdminLayout from "../../../components/admin/AdminLayout";
 import { CustomTable } from "../../../components/CustomTable";
 import { error, success } from "../../../components/Notifications";
 import { db } from "../../../utils/firebase";
+import { Context } from "../../../utils/MainContext";
 
 const View = () => {
+  const { allContributions } = useContext(Context);
+
   const [deduction, setDeduction] = useState({
-    amount: null,
     title: "",
   });
-  const [fetchedDeductions, setFetchedDeductions] = useState([]);
+  const [deductions, setDeductions] = useState([]);
+
   const [loading, setLoading] = useState({
     isLoading: false,
     loadingMessage: "loading...",
   });
-  const [listOfContributions, setListOfContributions] = useState([]);
-  const [selectedContribution, setSelectedContribution] = useState();
+  const [selectedContribution, setSelectedContribution] = useState({});
 
   const stopLoading = () => {
     setLoading({
@@ -33,47 +44,177 @@ const View = () => {
     });
   };
 
+  const calculateTotalContributions = async (cId) => {
+    startLoading("Validating Deduction");
+    const q = query(
+      collection(db, "user_contributions"),
+      where("contribution", "==", cId)
+    );
+
+    try {
+      const results = await getDocs(q);
+
+      const resultingContributions = [];
+      results.forEach((r) => {
+        resultingContributions.push(r.data());
+      });
+      const totalContributions =
+        resultingContributions.length > 0
+          ? resultingContributions
+              .map((item) => item.amount)
+              .reduce((prev, next) => parseInt(prev) + parseInt(next))
+          : 0;
+
+      stopLoading();
+      return totalContributions;
+    } catch (err) {
+      error("Error", err.message);
+    }
+  };
+
+  const calculateTotalDeductions = async (cId) => {
+    startLoading("Validating Deduction");
+    const q = query(
+      collection(db, "deductions"),
+      where("contribution", "==", cId)
+    );
+
+    try {
+      const results = await getDocs(q);
+
+      const resultingContributions = [];
+      results.forEach((r) => {
+        resultingContributions.push(r.data());
+      });
+      const totalContributions =
+        resultingContributions.length > 0
+          ? resultingContributions
+              .map((item) => (item.amount ? item.amount : 0))
+              .reduce((prev, next) => parseInt(prev) + parseInt(next))
+          : 0;
+
+      stopLoading();
+      return totalContributions;
+    } catch (err) {
+      error("Error", err.message);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    startLoading("Adding Deduction . . .");
-    //   check if fields are null
 
     if (deduction.title === "") {
       error("Error", "Deduction title required!");
       stopLoading();
       return;
     }
-    if (deduction.amount === null) {
-      error("Error", "Deduction amount required!");
-      stopLoading();
-      return;
-    }
+
     if (selectedContribution === "" || !selectedContribution) {
       error("Error", "Parent contribution required!");
       stopLoading();
       return;
     }
 
-    const date = new Date().toLocaleDateString();
+    if (selectedContribution.category === "monthly") {
+      const totalC = await calculateTotalContributions(selectedContribution.id);
+      const totalD = await calculateTotalDeductions(selectedContribution.id);
 
-    const submittedDeduction = {
-      ...deduction,
-      date,
-      status: "invalid",
-      contribution: selectedContribution,
-    };
+      const isValid =
+        totalC - totalD > 0 && totalC >= selectedContribution.amount;
 
-    try {
-      await addDoc(collection(db, "deductions"), submittedDeduction);
+      if (isValid) {
+        const submittedDeduction = {
+          ...deduction,
+          submissionDate: new Date().toLocaleDateString(),
+          status: "pending",
+          contribution: selectedContribution.id,
+          amount: selectedContribution.amount,
+        };
 
-      success("Success!", "Deduction added successfully! awaiting approval");
-      setDeduction({ amount: null, title: "" });
-      stopLoading();
-    } catch (err) {
-      stopLoading();
-      error("Error", err.message);
+        try {
+          await addDoc(collection(db, "deductions"), submittedDeduction);
+
+          success(
+            "Success!",
+            "Deduction added successfully! awaiting approval"
+          );
+
+          stopLoading();
+        } catch (err) {
+          stopLoading();
+
+          error("Error", err.message);
+        }
+      } else {
+        error("Error", "Not valid");
+      }
+    } else {
+      const contrib = await getDoc(
+        doc(db, "contributions", selectedContribution.id)
+      );
+
+      const contributionTarget = parseInt(contrib.data().target);
+
+      const isValid =
+        (await calculateTotalContributions) >= contributionTarget &&
+        (await calculateTotalContributions) - (await calculateTotalDeductions) >
+          0;
+      if (isValid) {
+        const submittedDeduction = {
+          ...deduction,
+          submissionDate: new Date().toLocaleDateString(),
+          status: "pending",
+          contribution: selectedContribution.id,
+          amount: selectedContribution.amount,
+        };
+
+        try {
+          await addDoc(collection(db, "deductions"), submittedDeduction);
+
+          success(
+            "Success!",
+            "Deduction added successfully! awaiting approval"
+          );
+
+          stopLoading();
+        } catch (err) {
+          stopLoading();
+
+          error("Error", err.message);
+        }
+      } else {
+        error("Error", "Contribution Target not reached!");
+      }
     }
   };
+
+  useEffect(() => {
+    const fetchDeductions = () => {
+      onSnapshot(collection(db, "deductions"), (results) => {
+        setDeductions([]);
+        results.forEach(async (r) => {
+          const contribution = await allContributions.filter(
+            (item) => item.id === r.data().contribution
+          )[0];
+
+          setDeductions((prev) => [
+            {
+              key: r.id,
+              amount: r.data().amount,
+              contribution: contribution.name,
+              category: contribution.category,
+              status: r.data().status,
+              date: r.data().submissionDate,
+              title: r.data().title,
+            },
+            ...prev,
+          ]);
+        });
+      });
+    };
+
+    fetchDeductions();
+  }, [allContributions]);
 
   const columns = [
     {
@@ -91,6 +232,12 @@ const View = () => {
       title: "Amount",
       dataIndex: "amount",
       key: "amount",
+    },
+
+    {
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
     },
 
     {
@@ -121,44 +268,15 @@ const View = () => {
     },
   ];
 
-  useEffect(() => {
-    const fetchDeductions = () => {
-      startLoading("Fetching Deductions . . .");
-      onSnapshot(collection(db, "deductions"), (docs) => {
-        const cList = [];
-        docs.forEach((d, i) => cList.push({ ...d.data(), id: d.id }));
-
-        setFetchedDeductions(cList);
-        stopLoading();
-      });
-    };
-
-    const fetchContributionList = () => {
-      startLoading("Fetching Contribution List...");
-
-      onSnapshot(collection(db, "contributions"), (docs) => {
-        let cList = [];
-        docs.forEach((d) => cList.push({ ...d.data(), key: d.id }));
-
-        setListOfContributions(cList);
-        stopLoading();
-      });
-    };
-
-    fetchDeductions();
-    fetchContributionList();
-  }, []);
-
   const menu = (
     <Menu>
-      {listOfContributions &&
-        listOfContributions.map((item, i) => (
-          <Menu.Item key={i} onClick={() => setSelectedContribution(item.name)}>
-            <span target="_blank" rel="noopener noreferrer">
-              {item.name}
-            </span>
-          </Menu.Item>
-        ))}
+      {allContributions.map((item, i) => (
+        <Menu.Item key={i} onClick={() => setSelectedContribution(item)}>
+          <span target="_blank" rel="noopener noreferrer">
+            {item.name}
+          </span>
+        </Menu.Item>
+      ))}
     </Menu>
   );
 
@@ -187,8 +305,8 @@ const View = () => {
                 className="h-8 bg-white border flex items-center px-3"
                 style={{ width: "300px" }}
               >
-                {selectedContribution
-                  ? selectedContribution
+                {selectedContribution.name
+                  ? selectedContribution.name
                   : "--select the parent contribution--"}
               </div>
             </Dropdown>
@@ -212,23 +330,24 @@ const View = () => {
             />
           </div>
 
-          <div className="">
-            <label className="font-medium" htmlFor="type">
-              Input Amount:
-            </label>
-            {/* amount  */}
-            <Input
-              type="number"
-              placeholder="i.e 200 "
-              value={deduction.amount}
-              onChange={(e) =>
-                setDeduction({
-                  ...deduction,
-                  amount: e.target.value,
-                })
-              }
-            />
-          </div>
+          {selectedContribution && selectedContribution.category === "project" && (
+            <div className="">
+              <label className="font-medium" htmlFor="type">
+                Input Amount:
+              </label>
+              {/* amount  */}
+              <Input
+                type="number"
+                placeholder="i.e 200 "
+                onChange={(e) =>
+                  setDeduction({
+                    ...deduction,
+                    amount: e.target.value,
+                  })
+                }
+              />
+            </div>
+          )}
 
           <button
             type="submit"
@@ -242,16 +361,16 @@ const View = () => {
           <CustomTable
             className=""
             cols={columns}
-            rows={fetchedDeductions && fetchedDeductions}
+            rows={deductions}
             key="title"
             isClickable={true}
             summary={{
               show: true,
               title: "Total Deductions (kshs):",
               amount:
-                fetchedDeductions &&
-                fetchedDeductions.length > 0 &&
-                fetchedDeductions
+                deductions &&
+                deductions.length > 0 &&
+                deductions
                   .map((item) => (item.status === "approved" ? item.amount : 0))
                   .reduce((prev, next) => parseInt(prev) + parseInt(next)),
             }}

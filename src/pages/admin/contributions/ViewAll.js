@@ -69,13 +69,13 @@ const View = () => {
 
             stopLoading();
             setUserContributions((prev) => [
-              ...prev,
               {
                 name: u.name,
                 email: u.email,
                 total: currentUserTotal,
                 key: u.uid,
               },
+              ...prev,
             ]);
           }
         });
@@ -135,10 +135,13 @@ const View = () => {
         tip={loading.loadingMessage}
       >
         <div className="">
-          <Link to="new" className="text-blue-500 hover:underline">
-            Click here &nbsp;
+          <Link
+            to="new"
+            className="text-blue-500 hover:underline font-medium text-base"
+          >
+            Click here
           </Link>
-          to add new User
+          &nbsp; to add new User
         </div>
 
         <CustomTable cols={columns} rows={tableData} style />

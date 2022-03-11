@@ -11,3 +11,11 @@
 .ant-form-item-label {
   width: 200px !important;
 }
+
+.ant-table-filter-dropdown-btns .ant-btn {
+  color: rgb(121, 121, 121) !important;
+}
+
+.ant-table-filter-dropdown-btns .ant-btn:hover {
+  color: whitesmoke !important;
+}

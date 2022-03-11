@@ -5,12 +5,14 @@ import {
   DashboardOutlined,
   KeyOutlined,
   ShareAltOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import { useState } from "react";
 // import { Context } from "../../utils/MainContext";
 import { Link } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
 import { success } from "../Notifications";
+import analysisIcon from "../../assets/analysis.svg";
 
 const { Content, Footer, Sider } = Layout;
 // const { SubMenu } = Menu;
@@ -41,6 +43,10 @@ const AdminLayout = ({ children, current = "0", breadcrumbs = ["Admin"] }) => {
             title="Contributions"
           >
             <Menu.Item>
+              <Link to="/admin/contributions/all">View All</Link>
+            </Menu.Item>
+
+            <Menu.Item>
               <Link to="/admin/contributions">View</Link>
             </Menu.Item>
 
@@ -63,12 +69,38 @@ const AdminLayout = ({ children, current = "0", breadcrumbs = ["Admin"] }) => {
             </Menu.Item>
           </Menu.SubMenu>
 
-          <Menu.Item key="3" icon={<KeyOutlined />}>
+          <Menu.SubMenu
+            key="3"
+            icon={<img src={analysisIcon} alt="analysis" className="w-6" />}
+            title="Analysis"
+          >
+            <Menu.Item>
+              <Link to="/admin/analysis/monthly">Monthly Budget</Link>
+            </Menu.Item>
+
+            <Menu.Item>
+              <Link to="/admin/analysis/project">Project Budget</Link>
+            </Menu.Item>
+
+            <Menu.Item>
+              <Link to="/admin/analysis/m_summary">Monthly Summary</Link>
+            </Menu.Item>
+
+            <Menu.Item>
+              <Link to="/admin/analysis/o_summary">Overall Summary</Link>
+            </Menu.Item>
+          </Menu.SubMenu>
+
+          <Menu.Item key="4" icon={<KeyOutlined />}>
             <Link to="/admin/privileges">Roles</Link>
           </Menu.Item>
 
+          <Menu.Item key="5" icon={<UserOutlined />}>
+            <Link to="/admin/users">Users</Link>
+          </Menu.Item>
+
           <Menu.Item
-            key="4"
+            key="6"
             icon={<LogoutOutlined />}
             onClick={() => {
               const auth = getAuth();

@@ -22,6 +22,14 @@ import ApproverRoute from "./ApproverRoute";
 import ViewDeduction from "../pages/admin/deductions/ViewDeduction";
 import { Dashboard } from "../pages/admin/Dashboard";
 import NewContribution from "../pages/admin/contributions/NewContribution";
+import { AllContributions } from "../pages/admin/contributions/AllContributions";
+import { ViewUsers } from "../pages/admin/ViewUsers";
+import {
+  Monthly,
+  MonthlySummary,
+  OverallSummary,
+  Project,
+} from "../pages/admin/analysis";
 
 export const useRouter = () => [
   {
@@ -63,6 +71,7 @@ export const useRouter = () => [
     element: <Register />,
   },
 
+  // <Admin Paths/>
   {
     path: "/admin",
     element: (
@@ -89,6 +98,16 @@ export const useRouter = () => [
       </PrivateRoute>
     ),
   },
+
+  {
+    path: "/admin/contributions/all",
+    element: (
+      <PrivateRoute>
+        <AllContributions />
+      </PrivateRoute>
+    ),
+  },
+
   {
     path: "/admin/contributions/:id",
     element: (
@@ -123,6 +142,7 @@ export const useRouter = () => [
       </PrivateRoute>
     ),
   },
+  // Contributions paths end
 
   // deduction paths
   {
@@ -141,6 +161,56 @@ export const useRouter = () => [
       </PrivateRoute>
     ),
   },
+  // Deducitons end
+
+  {
+    path: "/admin/users",
+    element: (
+      <PrivateRoute>
+        <ViewUsers />
+      </PrivateRoute>
+    ),
+  },
+
+  // analysis paths
+  {
+    path: "/admin/analysis/monthly",
+    element: (
+      <PrivateRoute>
+        <Monthly />
+      </PrivateRoute>
+    ),
+  },
+
+  {
+    path: "/admin/analysis/project",
+    element: (
+      <PrivateRoute>
+        <Project />
+      </PrivateRoute>
+    ),
+  },
+
+  {
+    path: "/admin/analysis/m_summary",
+    element: (
+      <PrivateRoute>
+        <MonthlySummary />
+      </PrivateRoute>
+    ),
+  },
+
+  {
+    path: "/admin/analysis/o_summary",
+    element: (
+      <PrivateRoute>
+        <OverallSummary />
+      </PrivateRoute>
+    ),
+  },
+  // end of analysis paths
+
+  // <Admin Paths end/>
   {
     path: "*",
     element: (

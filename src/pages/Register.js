@@ -24,6 +24,7 @@ const Register = () => {
             uid: userCredential.user.uid,
             isAdmin: false,
             role: "nUser",
+            joinedAt: new Date().toLocaleDateString(),
           });
 
           success("Success!", "User registered successfully!");
