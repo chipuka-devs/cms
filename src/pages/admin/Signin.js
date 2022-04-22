@@ -14,7 +14,7 @@ const Signin = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
         success("Success!", "Login successful!");
-        navigate("/admin/contributions");
+        navigate("/admin/");
       })
       .catch((err) => {
         error("Error!", err.message);
@@ -23,7 +23,7 @@ const Signin = () => {
 
   return (
     <div className="flex h-screen justify-center items-center">
-      <div className="bg-slate-200  rounded h-96 lg:w-7/12 w-10/12 xl:w-5/12 flex justify-center items-center">
+      <div className="bg-slate-200  rounded h-96 lg:w-7/12 w-[95%] xl:w-5/12 flex justify-center items-center">
         <Form
           name="normal_login"
           className="login-form w-10/12"
@@ -68,20 +68,25 @@ const Signin = () => {
             </a> */}
           </Form.Item>
 
-          <Form.Item>
+          <Form.Item className="text-center">
             <Button
               type="primary"
               htmlType="submit"
-              className="login-form-button text-black mr-6"
+              className="login-form-button text-black mr-6 my-2 w-[80%]"
             >
               Log in
             </Button>
-            Or{" "}
             <Link
               to="/admin/register"
               className="text-blue-600 hover:underline "
             >
-              &nbsp;Click here to register!
+              &nbsp;
+              <br />
+              Click here to register!
+            </Link>{" "}
+            &nbsp; Or &nbsp;
+            <Link to="/login" className="text-blue-600 hover:underline ">
+              &nbsp;Login as normal user!
             </Link>
             {/* Or <a href="">register now!</a> */}
           </Form.Item>

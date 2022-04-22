@@ -9,17 +9,18 @@ import { Context } from "./MainContext";
 const PrivateRoute = ({ children }) => {
   const { user } = useContext(Context);
   const [loading, setLoading] = useState(false);
-  const [friends, setFriends] = useState([]);
+  const [userRole, setUserRole] = useState([]);
 
   useEffect(() => {
-    setLoading(true);
-    const unsub = onSnapshot(doc(db, "files", "admins"), (doc) => {
-      setFriends(doc.data().admins);
-      setLoading(false);
-    });
-
-    return () => unsub();
-  }, []);
+    if (user) {
+      setLoading(true);
+      const unsub = onSnapshot(doc(db, "users", user?.uid), (doc) => {
+        setUserRole(doc.data().role);
+        setLoading(false);
+      });
+      return () => unsub();
+    }
+  }, [user]);
 
   if (loading) {
     return (
@@ -30,7 +31,7 @@ const PrivateRoute = ({ children }) => {
   }
 
   return user ? (
-    friends.includes(user.uid) ? (
+    userRole === "admin" ? (
       <>{children}</>
     ) : (
       <Unauthorized />

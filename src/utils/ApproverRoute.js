@@ -7,6 +7,7 @@ import { Context } from "./MainContext";
 const ApproverRoute = ({ children }) => {
   const { isApprover } = useContext(Context);
   //   const [loading, setLoading] = useState(false);
+  console.log(isApprover);
 
   return isApprover && isApprover ? <>{children}</> : <Navigate to="/" />;
 };

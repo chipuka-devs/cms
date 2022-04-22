@@ -4,6 +4,24 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  .nav li {
+    @apply px-3 py-2 text-base font-medium cursor-pointer mx-1;
+  }
+
+  .nav li.current {
+    @apply border-b-2 border-blue-400 text-blue-400 uppercase;
+  }
+
+  .profile_list > div {
+    @apply p-2 flex flex-col gap-1;
+  }
+
+  /* .recharts-default-legend {
+    @apply  grid-cols-3 !important;
+  } */
+}
+
 * {
   font-family: "Montserrat", sans-serif !important;
 }
@@ -18,4 +36,8 @@
 
 .ant-table-filter-dropdown-btns .ant-btn:hover {
   color: whitesmoke !important;
+}
+
+.ant-popover-content button {
+  color: rgb(71, 71, 71);
 }

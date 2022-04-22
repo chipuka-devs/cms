@@ -7,6 +7,7 @@ import {
   getDocs,
   onSnapshot,
   query,
+  serverTimestamp,
   where,
 } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
@@ -129,6 +130,7 @@ const View = () => {
           status: "pending",
           contribution: selectedContribution.id,
           amount: selectedContribution.amount,
+          createdAt: serverTimestamp(),
         };
 
         try {
@@ -148,6 +150,26 @@ const View = () => {
       } else {
         error("Error", "Not valid");
       }
+    } else if (selectedContribution.name === "other") {
+      const submittedDeduction = {
+        ...deduction,
+        submissionDate: new Date().toLocaleDateString(),
+        status: "pending",
+        contribution: null,
+        createdAt: serverTimestamp(),
+      };
+
+      try {
+        await addDoc(collection(db, "deductions"), submittedDeduction);
+
+        success("Success!", "Deduction added successfully! awaiting approval");
+
+        stopLoading();
+      } catch (err) {
+        stopLoading();
+
+        error("Error", err.message);
+      }
     } else {
       const contrib = await getDoc(
         doc(db, "contributions", selectedContribution.id)
@@ -166,6 +188,7 @@ const View = () => {
           status: "pending",
           contribution: selectedContribution.id,
           amount: selectedContribution.amount,
+          createdAt: serverTimestamp(),
         };
 
         try {
@@ -197,18 +220,33 @@ const View = () => {
             (item) => item.id === r.data().contribution
           )[0];
 
-          setDeductions((prev) => [
-            {
-              key: r.id,
-              amount: r.data().amount,
-              contribution: contribution.name,
-              category: contribution.category,
-              status: r.data().status,
-              date: r.data().submissionDate,
-              title: r.data().title,
-            },
-            ...prev,
-          ]);
+          if (contribution) {
+            setDeductions((prev) => [
+              {
+                key: r.id,
+                amount: r.data().amount,
+                contribution: contribution.name,
+                category: contribution.category,
+                status: r.data().status,
+                date: r.data().submissionDate,
+                title: r.data().title,
+              },
+              ...prev,
+            ]);
+          } else {
+            setDeductions((prev) => [
+              {
+                key: r.id,
+                amount: r.data().amount,
+                contribution: "",
+                category: "Other",
+                status: r.data().status,
+                date: r.data().submissionDate,
+                title: r.data().title,
+              },
+              ...prev,
+            ]);
+          }
         });
       });
     };
@@ -277,6 +315,11 @@ const View = () => {
           </span>
         </Menu.Item>
       ))}
+      <Menu.Item onClick={() => setSelectedContribution({ name: "other" })}>
+        <span target="_blank" rel="noopener noreferrer">
+          Other...
+        </span>
+      </Menu.Item>
     </Menu>
   );
 
@@ -305,7 +348,7 @@ const View = () => {
                 className="h-8 bg-white border flex items-center px-3"
                 style={{ width: "300px" }}
               >
-                {selectedContribution.name
+                {selectedContribution?.name
                   ? selectedContribution.name
                   : "--select the parent contribution--"}
               </div>
@@ -330,24 +373,26 @@ const View = () => {
             />
           </div>
 
-          {selectedContribution && selectedContribution.category === "project" && (
-            <div className="">
-              <label className="font-medium" htmlFor="type">
-                Input Amount:
-              </label>
-              {/* amount  */}
-              <Input
-                type="number"
-                placeholder="i.e 200 "
-                onChange={(e) =>
-                  setDeduction({
-                    ...deduction,
-                    amount: e.target.value,
-                  })
-                }
-              />
-            </div>
-          )}
+          {selectedContribution &&
+            (selectedContribution.category === "project" ||
+              selectedContribution?.name === "other") && (
+              <div className="">
+                <label className="font-medium" htmlFor="type">
+                  Input Amount:
+                </label>
+                {/* amount  */}
+                <Input
+                  type="number"
+                  placeholder="i.e 200 "
+                  onChange={(e) =>
+                    setDeduction({
+                      ...deduction,
+                      amount: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            )}
 
           <button
             type="submit"

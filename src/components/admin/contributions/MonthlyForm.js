@@ -26,7 +26,7 @@ export const MonthlyForm = ({ state, setState }) => {
         {/* amount  */}
         <Input
           type="number"
-          placeholder="input target amount per month"
+          placeholder="input target amount"
           value={state.amount}
           onChange={(e) => setState({ ...state, amount: e.target.value })}
         />

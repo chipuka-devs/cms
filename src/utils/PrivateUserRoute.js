@@ -5,13 +5,12 @@ import { Context } from "./MainContext";
 
 const PrivateUser = ({ children }) => {
   const { user } = useContext(Context);
-  //   const [loading, setLoading] = useState(false);
 
-  // useEffect(() => {
-  //   console.log(normalUser);
-  // }, [normalUser]);
-
-  return user && user.uid ? <>{children}</> : <Navigate to="/login" />;
+  return user && user?.role === "normal_user" && user.uid ? (
+    <>{children}</>
+  ) : (
+    <Navigate to="/login" />
+  );
 };
 
 export default PrivateUser;

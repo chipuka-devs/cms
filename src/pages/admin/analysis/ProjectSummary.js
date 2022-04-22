@@ -4,18 +4,8 @@ import AdminLayout from "../../../components/admin/AdminLayout";
 import { CustomTable } from "../../../components/CustomTable";
 import { AContext } from "../../../utils/AnalysisContext";
 import { Context } from "../../../utils/MainContext";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
-import { Bar } from "react-chartjs-2";
 
-export const OverallSummary = () => {
+export const ProjectSummary = () => {
   const { yearBasedProjectContributions, years } = useContext(AContext);
   const { allUsers, allContributions } = useContext(Context);
   const [selectedYear, setSelectedMonth] = useState([years[0]]);
@@ -118,23 +108,6 @@ export const OverallSummary = () => {
           };
 
           tData.push(cDetails);
-        } else {
-          const totalContributionAmount = c[1]
-            .map((item) => item.amount)
-            .reduce((prev, next) => parseInt(prev) + parseInt(next));
-
-          //   console.log(currentCont);
-
-          const cDetails = {
-            key: currentCont.id,
-            amount: totalContributionAmount,
-            contribution: c[0],
-            budget: currentCont.amount,
-            balance:
-              parseInt(totalContributionAmount) - parseInt(currentCont.amount),
-          };
-
-          tData.push(cDetails);
         }
       });
       setTableData(tData);
@@ -156,7 +129,7 @@ export const OverallSummary = () => {
   );
   return (
     <AdminLayout current="2" breadcrumbs={["Admin", "analysis", "project"]}>
-      <Divider className="font-medium">Overall Summary</Divider>
+      <Divider className="font-medium">Yearly Project Summary</Divider>
 
       <div className="flex items-end gap-1 w-full py-3 ">
         <div className="">
@@ -182,72 +155,6 @@ export const OverallSummary = () => {
           title: "Total",
         }}
       />
-
-      <Chart d={tableData} />
     </AdminLayout>
   );
-};
-
-const Chart = ({ d }) => {
-  const { allContributions } = useContext(Context);
-  const [dataSet, setDataSet] = useState([]);
-  useEffect(() => {
-    let dSet = [];
-    d?.forEach((item) => {
-      item?.balance > 0
-        ? dSet.push({
-            label: item.contribution,
-            data: { [item.contribution]: item.balance },
-            backgroundColor: "rgb(34,197,142)",
-            stack: "Stack 0",
-          })
-        : dSet.push({
-            label: item.contribution,
-            data: { [item.contribution]: item.balance },
-            backgroundColor: "rgb(254,202,202)",
-            stack: "Stack 0",
-          });
-    });
-
-    setDataSet(dSet);
-  }, [allContributions, d]);
-
-  ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend
-  );
-
-  const labels = [];
-  const options = {
-    plugins: {
-      title: {
-        display: true,
-        text: "Overall Summary Chart:",
-      },
-    },
-    responsive: true,
-    interaction: {
-      mode: "index",
-      intersect: false,
-    },
-    scales: {
-      x: {
-        stacked: true,
-      },
-      y: {
-        stacked: true,
-      },
-    },
-  };
-
-  const data = {
-    labels,
-    datasets: [...dataSet],
-  };
-
-  return <Bar options={options} data={data} />;
 };

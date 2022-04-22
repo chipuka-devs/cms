@@ -15,50 +15,34 @@ import {
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
-export const OverallSummary = () => {
+export const NetBalance = () => {
   const { yearBasedProjectContributions, years } = useContext(AContext);
   const { allUsers, allContributions } = useContext(Context);
   const [selectedYear, setSelectedMonth] = useState([years[0]]);
-  const [tableData, setTableData] = useState();
+  const [tableData, setTableData] = useState([{ surplus: 0 }, { deficit: 0 }]);
 
   const columns = [
     {
       title: "Name",
-      dataIndex: "contribution",
-      key: "contribution",
+      dataIndex: "name",
+      key: "name",
     },
+
     {
       title: "Amount",
       dataIndex: "amount",
       key: "amount",
-    },
-    {
-      title: "Budget",
-      dataIndex: "budget",
-      key: "budget",
-    },
-
-    {
-      title: "Surplus/Deficit",
-      dataIndex: "balance",
-      key: "balance",
-      render: (_, { balance }) => {
-        if (balance > 0) {
-          return (
-            <div className="bg-green-200 m-0 w-24 text-green-500 font-medium text-center p-1">
-              {balance}
-            </div>
-          );
-        } else if (balance < 0) {
+      render: (_, { amount }) => {
+        if (amount < 0) {
           return (
             <div className="bg-red-200 m-0 w-24 text-center text-red-500 font-medium p-1">
-              {balance}
+              {amount}
             </div>
           );
         } else {
           return (
-            <div className="bg-blue-200 text-blue-600 m-0 w-24 text-center font-medium p-1">
-              {balance}
+            <div className="bg-green-200 m-0 w-24 text-center text-green-500 font-medium p-1">
+              {amount}
             </div>
           );
         }
@@ -94,7 +78,8 @@ export const OverallSummary = () => {
           return r;
         }, Object.create(null));
 
-      const tData = [];
+      let surplus = 0;
+      let deficit = 0;
 
       Object.entries(userContributionsGroupedByCont).forEach((c) => {
         const currentCont = allContributions.filter(
@@ -107,40 +92,31 @@ export const OverallSummary = () => {
             .reduce((prev, next) => parseInt(prev) + parseInt(next));
 
           //   console.log(currentCont);
+          const balance =
+            parseInt(totalContributionAmount) - parseInt(currentCont.target);
 
-          const cDetails = {
-            key: currentCont.id,
-            amount: totalContributionAmount,
-            contribution: c[0],
-            budget: currentCont.target,
-            balance:
-              parseInt(totalContributionAmount) - parseInt(currentCont.target),
-          };
+          balance < 0 ? (deficit += balance) : (surplus += balance);
 
-          tData.push(cDetails);
+          //   tData.push(cDetails);
         } else {
           const totalContributionAmount = c[1]
             .map((item) => item.amount)
             .reduce((prev, next) => parseInt(prev) + parseInt(next));
 
-          //   console.log(currentCont);
+          const balance =
+            parseInt(totalContributionAmount) - parseInt(currentCont.amount);
 
-          const cDetails = {
-            key: currentCont.id,
-            amount: totalContributionAmount,
-            contribution: c[0],
-            budget: currentCont.amount,
-            balance:
-              parseInt(totalContributionAmount) - parseInt(currentCont.amount),
-          };
-
-          tData.push(cDetails);
+          balance < 0 ? (deficit += balance) : (surplus += balance);
         }
       });
-      setTableData(tData);
+      setTableData([
+        { name: "Surplus", amount: surplus },
+        { name: "Deficit", amount: deficit },
+      ]);
     };
 
     getTotalUserContributions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allContributions, allUsers, yearBasedProjectContributions, selectedYear]);
 
   const menu_months = (
@@ -156,7 +132,7 @@ export const OverallSummary = () => {
   );
   return (
     <AdminLayout current="2" breadcrumbs={["Admin", "analysis", "project"]}>
-      <Divider className="font-medium">Overall Summary</Divider>
+      <Divider className="font-medium">NetBalance</Divider>
 
       <div className="flex items-end gap-1 w-full py-3 ">
         <div className="">
@@ -174,44 +150,35 @@ export const OverallSummary = () => {
         </div>
       </div>
 
-      <CustomTable
-        cols={columns}
-        rows={tableData && tableData}
-        summary={{
-          cellTotal: true,
-          title: "Total",
-        }}
-      />
-
+      <CustomTable cols={columns} rows={tableData} />
       <Chart d={tableData} />
     </AdminLayout>
   );
 };
 
+export const options = {
+  plugins: {
+    title: {
+      display: true,
+      text: "Net Balance Chart:",
+    },
+  },
+  responsive: true,
+  interaction: {
+    mode: "index",
+    intersect: false,
+  },
+  scales: {
+    x: {
+      stacked: true,
+    },
+    y: {
+      stacked: true,
+    },
+  },
+};
+
 const Chart = ({ d }) => {
-  const { allContributions } = useContext(Context);
-  const [dataSet, setDataSet] = useState([]);
-  useEffect(() => {
-    let dSet = [];
-    d?.forEach((item) => {
-      item?.balance > 0
-        ? dSet.push({
-            label: item.contribution,
-            data: { [item.contribution]: item.balance },
-            backgroundColor: "rgb(34,197,142)",
-            stack: "Stack 0",
-          })
-        : dSet.push({
-            label: item.contribution,
-            data: { [item.contribution]: item.balance },
-            backgroundColor: "rgb(254,202,202)",
-            stack: "Stack 0",
-          });
-    });
-
-    setDataSet(dSet);
-  }, [allContributions, d]);
-
   ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -221,32 +188,24 @@ const Chart = ({ d }) => {
     Legend
   );
 
-  const labels = [];
-  const options = {
-    plugins: {
-      title: {
-        display: true,
-        text: "Overall Summary Chart:",
-      },
-    },
-    responsive: true,
-    interaction: {
-      mode: "index",
-      intersect: false,
-    },
-    scales: {
-      x: {
-        stacked: true,
-      },
-      y: {
-        stacked: true,
-      },
-    },
-  };
+  const labels = ["Type"];
 
   const data = {
     labels,
-    datasets: [...dataSet],
+    datasets: [
+      {
+        label: "Surplus",
+        data: { Type: d[0]?.amount },
+        backgroundColor: "rgb(34,197,142)",
+        stack: "Stack 0",
+      },
+      {
+        label: "Deficit",
+        data: { Type: d[1]?.amount },
+        backgroundColor: "rgb(254,202,202)",
+        stack: "Stack 0",
+      },
+    ],
   };
 
   return <Bar options={options} data={data} />;

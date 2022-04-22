@@ -2,10 +2,10 @@ import { Layout, Menu, Breadcrumb } from "antd";
 import {
   LogoutOutlined,
   MinusCircleOutlined,
-  DashboardOutlined,
   KeyOutlined,
   ShareAltOutlined,
-  UserOutlined,
+  BarChartOutlined,
+  MoneyCollectOutlined,
 } from "@ant-design/icons";
 import { useState } from "react";
 // import { Context } from "../../utils/MainContext";
@@ -29,12 +29,17 @@ const AdminLayout = ({ children, current = "0", breadcrumbs = ["Admin"] }) => {
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Sider collapsible collapsed={collapsed} onCollapse={onCollapse}>
+      <Sider
+        collapsible
+        collapsed={collapsed}
+        onCollapse={onCollapse}
+        width={235}
+      >
         <div className="logo" />
 
         <Menu theme="dark" defaultSelectedKeys={[curr]} mode="inline">
-          <Menu.Item key="0" icon={<DashboardOutlined />}>
-            <Link to="/admin">Dashboard</Link>
+          <Menu.Item key="0" icon={<BarChartOutlined />}>
+            <Link to="/admin/">Dashboard</Link>
           </Menu.Item>
 
           <Menu.SubMenu
@@ -43,34 +48,56 @@ const AdminLayout = ({ children, current = "0", breadcrumbs = ["Admin"] }) => {
             title="Contributions"
           >
             <Menu.Item>
-              <Link to="/admin/contributions/all">View All</Link>
+              <Link to="/admin/users">Member Details</Link>
+            </Menu.Item>
+
+            {/* <Menu.Item>
+              <Link to="/admin/contributions">User Contributions</Link>
+            </Menu.Item> */}
+
+            <Menu.Item>
+              <Link to="/admin/contributions/monthly/new">Monthly Budget</Link>
             </Menu.Item>
 
             <Menu.Item>
-              <Link to="/admin/contributions">View</Link>
+              <Link to="/admin/contributions/pledges">Project Pledges</Link>
             </Menu.Item>
 
             <Menu.Item>
-              <Link to="/admin/contributions/create">Create</Link>
+              <Link to="/admin/contributions/project/new">
+                Projects Classifications
+              </Link>
             </Menu.Item>
 
             <Menu.Item>
-              <Link to="/admin/contributions/new">New</Link>
+              <Link to="/admin/contributions/annual/new">Annual Budget</Link>
+            </Menu.Item>
+
+            <Menu.Item>
+              <Link to="/admin/contributions/monthly">
+                Monthly Contributions
+              </Link>
+            </Menu.Item>
+
+            <Menu.Item>
+              <Link to="/admin/contributions/project">
+                Project Contributions
+              </Link>
+            </Menu.Item>
+
+            <Menu.Item>
+              <Link to="/admin/contributions/voluntary">
+                Voluntary Contributions
+              </Link>
+            </Menu.Item>
+
+            <Menu.Item>
+              <Link to="/admin/contributions/annual">Annual Contributions</Link>
             </Menu.Item>
           </Menu.SubMenu>
 
           <Menu.SubMenu
             key="2"
-            icon={<MinusCircleOutlined className="text-2xl" />}
-            title="Deductions"
-          >
-            <Menu.Item>
-              <Link to="/admin/deductions">View</Link>
-            </Menu.Item>
-          </Menu.SubMenu>
-
-          <Menu.SubMenu
-            key="3"
             icon={<img src={analysisIcon} alt="analysis" className="w-6" />}
             title="Analysis"
           >
@@ -87,16 +114,34 @@ const AdminLayout = ({ children, current = "0", breadcrumbs = ["Admin"] }) => {
             </Menu.Item>
 
             <Menu.Item>
+              <Link to="/admin/analysis/p_summary">Project Summary</Link>
+            </Menu.Item>
+
+            <Menu.Item>
               <Link to="/admin/analysis/o_summary">Overall Summary</Link>
+            </Menu.Item>
+
+            <Menu.Item>
+              <Link to="/admin/analysis/net">Net Balance</Link>
             </Menu.Item>
           </Menu.SubMenu>
 
-          <Menu.Item key="4" icon={<KeyOutlined />}>
-            <Link to="/admin/privileges">Roles</Link>
+          <Menu.SubMenu
+            key="3"
+            icon={<MinusCircleOutlined className="text-2xl" />}
+            title="Expenditures"
+          >
+            <Menu.Item>
+              <Link to="/admin/deductions">View</Link>
+            </Menu.Item>
+          </Menu.SubMenu>
+
+          <Menu.Item key="4" icon={<MoneyCollectOutlined />}>
+            <Link to="/admin/income-statement">Income Statement</Link>
           </Menu.Item>
 
-          <Menu.Item key="5" icon={<UserOutlined />}>
-            <Link to="/admin/users">Users</Link>
+          <Menu.Item key="5" icon={<KeyOutlined />}>
+            <Link to="/admin/privileges">Roles</Link>
           </Menu.Item>
 
           <Menu.Item

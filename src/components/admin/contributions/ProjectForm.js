@@ -34,21 +34,10 @@ export const ProjectForm = ({ state, setState }) => {
         {/* amount  */}
         <Input
           type="number"
+          required
           placeholder="input target amount per month"
           value={state.target}
           onChange={(e) => setState({ ...state, target: e.target.value })}
-        />
-      </div>
-
-      {/* duration */}
-      <div className="">
-        <label className="font-medium">Project Duration(in months):</label>
-        {/* date  */}
-        <Input
-          type="number"
-          placeholder="i.e. 3"
-          value={state.duration}
-          onChange={(e) => setState({ ...state, duration: e.target.value })}
         />
       </div>
 
@@ -58,6 +47,7 @@ export const ProjectForm = ({ state, setState }) => {
         {/* date  */}
         <Input
           type="date"
+          required
           placeholder="select the starting day"
           value={state.startDate}
           onChange={(e) =>
@@ -77,25 +67,12 @@ export const ProjectForm = ({ state, setState }) => {
           type="date"
           placeholder="select the deadline"
           value={state.deadline}
+          required
           onChange={(e) =>
             setState({
               ...state,
               deadline: e.target.value,
             })
-          }
-        />
-      </div>
-
-      {/* amount per month */}
-      <div className="">
-        <label className="font-medium">Amount contributed per month:</label>
-        {/* amount  */}
-        <Input
-          type="number"
-          placeholder="i.e. 10000"
-          value={state.amountPerMonth}
-          onChange={(e) =>
-            setState({ ...state, amountPerMonth: e.target.value })
           }
         />
       </div>

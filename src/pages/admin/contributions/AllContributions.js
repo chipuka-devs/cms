@@ -51,8 +51,8 @@ export const AllContributions = () => {
             date: d.data().doc,
             member: currentUser.name,
             amount: d.data().amount,
-            classification: currentContribution.category,
-            purpose: currentContribution.name,
+            classification: currentContribution && currentContribution.category,
+            purpose: currentContribution && currentContribution.name,
           };
 
           cList.unshift(contributionDetails);

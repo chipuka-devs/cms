@@ -5,41 +5,45 @@ import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { error, success } from "../components/Notifications";
 import { Context } from "../utils/MainContext";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../utils/firebase";
 
 const Login = () => {
   const { setUser, user } = useContext(Context);
-  const auth = getAuth();
 
   const navigate = useNavigate();
 
-  const onFinish = async ({ email, password }) => {
+  const onFinish = async ({ phone, password }) => {
     // fetch users
-
     // TODO: signin
-    signInWithEmailAndPassword(auth, email, password)
-      .then(async (userCredential) => {
-        // Signed in
-        const user = userCredential.user;
+    const thisUser = await getDoc(doc(db, "users", phone));
 
-        setUser(user);
-        success("Success", "Login success!");
+    if (thisUser.data()) {
+      const validPassword = thisUser.data().password === password;
 
-        navigate("/");
-      })
-      .catch((err) => {
-        error("Error", err.message);
-      });
+      if (validPassword) {
+        setUser(thisUser.data());
+
+        success("SUCCESS!", "User Logged in successfully!");
+      } else {
+        error("ERROR:", "Incorrect phone or password!");
+      }
+    } else {
+      error(
+        "ERROR:",
+        "The account does not exist! contact admin for registration"
+      );
+    }
   };
   useEffect(() => {
-    if (user && user.uid) {
+    if (user && user?.role === "normal_user" && user.uid) {
       navigate("/");
     }
   }, [navigate, user]);
 
   return (
     <div className="flex h-screen justify-center items-center">
-      <div className="bg-slate-200  rounded h-96 lg:w-7/12 w-10/12 xl:w-5/12 flex justify-center items-center">
+      <div className="bg-slate-200  rounded h-96 lg:w-7/12 w-[95%] xl:w-5/12 flex justify-center items-center">
         <Form
           name="normal_login"
           className="login-form w-10/12"
@@ -51,13 +55,15 @@ const Login = () => {
           </Divider>
 
           <Form.Item
-            name="email"
-            rules={[{ required: true, message: "Please input your email" }]}
+            name="phone"
+            rules={[
+              { required: true, message: "Please input your phone number" },
+            ]}
           >
             <Input
               className="p-2.5"
               prefix={<UserOutlined className="site-form-item-icon" />}
-              placeholder="i.e. email@mail.com"
+              placeholder="Enter phone number"
             />
           </Form.Item>
 
@@ -84,21 +90,21 @@ const Login = () => {
           </a> */}
           </Form.Item>
 
-          <Form.Item>
+          <Form.Item className="text-center">
             <Button
               type="primary"
               htmlType="submit"
-              className="login-form-button text-black mr-6"
+              className="login-form-button text-black mr-6 my-2 w-[80%]"
             >
               Log in
             </Button>
-            Or{" "}
+            <br />
             <Link to="/register" className="text-blue-600 hover:underline ">
               &nbsp;Click here to register!
             </Link>
-            Or <br />
+            &nbsp;Or&nbsp;
             <Link to="/admin/login" className="text-blue-600 hover:underline ">
-              &nbsp;Login as admin!
+              Login as admin!
             </Link>
             {/* Or <a href="">register now!</a> */}
           </Form.Item>

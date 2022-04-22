@@ -130,18 +130,28 @@ const Approvals = () => {
       render: (_, d) => {
         return (
           <>
-            <button
-              className="py-1 px-2 bg-green-400 font-medium mr-1"
-              onClick={() => approveDeduction(d)}
-            >
-              Approve
-            </button>
-            <button
-              className="py-1 px-2 bg-red-400 font-medium mr-1"
-              onClick={() => rejectDeduction(d)}
-            >
-              Reject
-            </button>
+            {d?.status !== "approved" ? (
+              <div className="flex">
+                <button
+                  className="py-1 px-2 bg-green-400 font-medium mr-1"
+                  onClick={() => approveDeduction(d)}
+                >
+                  Approve
+                </button>
+                <button
+                  className="py-1 px-2 bg-red-400 font-medium mr-1"
+                  onClick={() => rejectDeduction(d)}
+                >
+                  Reject
+                </button>
+              </div>
+            ) : (
+              <div className="flex">
+                <button className="py-1 px-2 text-gray-50 rounded bg-slate-400 font-medium mr-1">
+                  NULL
+                </button>
+              </div>
+            )}
           </>
         );
       },

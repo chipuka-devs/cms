@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { AnalysisContext } from "./utils/AnalysisContext";
 import { MainContext } from "./utils/MainContext";
 import { useRouter } from "./utils/routes";
 
@@ -8,14 +9,16 @@ function App() {
   return (
     <div className="App">
       <MainContext>
-        <BrowserRouter>
-          <Routes>
-            {routes &&
-              routes.map((r) => (
-                <Route exact key={r.path} path={r.path} element={r.element} />
-              ))}
-          </Routes>
-        </BrowserRouter>
+        <AnalysisContext>
+          <BrowserRouter>
+            <Routes>
+              {routes &&
+                routes.map((r) => (
+                  <Route exact key={r.path} path={r.path} element={r.element} />
+                ))}
+            </Routes>
+          </BrowserRouter>
+        </AnalysisContext>
       </MainContext>
     </div>
   );

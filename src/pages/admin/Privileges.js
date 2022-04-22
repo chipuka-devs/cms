@@ -36,7 +36,6 @@ const Privileges = () => {
     const role = {
       approver: selectedUser.uid,
     };
-    console.log(selectedUser);
 
     try {
       await setDoc(doc(db, "roles", "approve"), {
@@ -104,7 +103,7 @@ const Privileges = () => {
   );
 
   return (
-    <AdminLayout current="4" breadcrumbs={["Admin", "Privileges"]}>
+    <AdminLayout current="5" breadcrumbs={["Admin", "Privileges"]}>
       <Spin
         spinning={loading.isLoading}
         size="large"
