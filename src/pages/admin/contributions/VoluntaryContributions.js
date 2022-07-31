@@ -256,7 +256,22 @@ export const VoluntaryContributions = () => {
             </button>
           </div>
         </form>
-        <CustomTable cols={columns} rows={voluntaryContributions} style />
+        <CustomTable
+          cols={columns}
+          rows={voluntaryContributions}
+          style
+          showBg={false}
+          summary={{
+            show: true,
+            title: "Total Contributions (kshs)",
+            amount:
+              voluntaryContributions.length > 0 &&
+              voluntaryContributions?.reduce(
+                (prev, next) => parseInt(prev) + parseInt(next?.amount),
+                0
+              ),
+          }}
+        />
       </Spin>
     </>
   );

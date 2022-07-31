@@ -10,6 +10,7 @@ export const CustomTable = ({
   summary,
   key,
   span = 2,
+  showBg = true,
 }) => {
   const navigate = useNavigate();
   const { setCurrentView } = useContext(Context);
@@ -27,7 +28,9 @@ export const CustomTable = ({
         if (summary && summary.show) {
           return (
             <Table.Summary fixed>
-              <Table.Summary.Row className="bg-slate-500 text-white">
+              <Table.Summary.Row
+                className={showBg && "bg-slate-500 text-white"}
+              >
                 <Table.Summary.Cell index={0} colSpan={span}>
                   <span className="font-medium uppercase">{summary.title}</span>
                 </Table.Summary.Cell>

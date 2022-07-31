@@ -305,7 +305,22 @@ export const MonthlyContributions = () => {
             </button>
           </div>
         </form>
-        <CustomTable cols={columns} rows={tableData} style />
+        <CustomTable
+          cols={columns}
+          rows={tableData}
+          style
+          showBg={false}
+          summary={{
+            show: true,
+            title: "Total Contributions (kshs)",
+            amount:
+              userContributions.length > 0 &&
+              userContributions?.reduce(
+                (prev, next) => parseInt(prev) + parseInt(next?.amount),
+                0
+              ),
+          }}
+        />
       </Spin>
     </>
   );
