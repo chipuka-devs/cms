@@ -1,8 +1,19 @@
 import React, { useContext, useEffect, useState } from "react";
-import { DatePicker, Divider, Dropdown, Input, Menu, Spin } from "antd";
+import {
+  Button,
+  DatePicker,
+  Divider,
+  Dropdown,
+  Input,
+  Menu,
+  Popconfirm,
+  Spin,
+} from "antd";
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   onSnapshot,
   orderBy,
   query,
@@ -12,6 +23,7 @@ import { db } from "../../../utils/firebase";
 import { CustomTable } from "../../../components/CustomTable";
 import { Context } from "../../../utils/MainContext";
 import { error, success } from "../../../components/Notifications";
+import moment from "moment";
 
 export const MonthlyContributions = () => {
   const { allUsers, allContributions } = useContext(Context);
@@ -29,7 +41,11 @@ export const MonthlyContributions = () => {
   );
   const [selectedUser, setSelectedUser] = useState("--Please select User --");
 
-  const [currentContribution, setCurrentContribution] = useState({});
+  const [currentContribution, setCurrentContribution] = useState({
+    doc: "",
+    amount: "",
+  });
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const stopLoading = () => {
     setLoading({
@@ -90,6 +106,39 @@ export const MonthlyContributions = () => {
     } catch (err) {
       setLoading({ isLoading: false });
       error("Error", err.message);
+    }
+  };
+
+  const handleUpdate = (contrib) => {
+    // setUpdate((prev) => ({ ...prev, mode: true, contribution: contrib }));
+    setIsUpdating(true);
+    console.log(contrib);
+
+    setSelectedContribution(contrib?.purpose);
+    setSelectedUser(contrib?.member);
+    setCurrentContribution((prev) => ({
+      ...prev,
+      doc: contributionNames?.date,
+      amount: contrib?.amount,
+    }));
+  };
+
+  const handleDelete = async (id) => {
+    // setUpdate((prev) => ({ ...prev, mode: true, contribution: contrib }));
+    try {
+      await deleteDoc(doc(db, "user_contributions", id));
+
+      stopLoading();
+
+      success("Success!", "Contribution Deleted Successfully!");
+    } catch (err) {
+      setLoading({
+        ...loading,
+        isLoading: false,
+        loadingMessage: "",
+      });
+
+      error("Error:", err.message);
     }
   };
 
@@ -189,6 +238,37 @@ export const MonthlyContributions = () => {
       filters: [...contributionNames],
       onFilter: (value, record) => record.purpose.startsWith(value),
     },
+    {
+      title: "Actions",
+      dataIndex: "actions",
+      key: "actions",
+      render: (_, data) => (
+        <>
+          <Button
+            className="bg-blue-600 font-medium text-gray-100"
+            onClick={() => {
+              handleUpdate(data);
+            }}
+          >
+            Edit
+          </Button>
+          &nbsp;
+          <Popconfirm
+            title="Are you sure to delete this Contribution?"
+            onConfirm={() => handleDelete(data?.key)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button
+              className="bg-red-600 font-medium text-gray-100"
+              // onClick={() => handleDelete(data)}
+            >
+              Delete
+            </Button>
+          </Popconfirm>
+        </>
+      ),
+    },
   ];
   // name total_amount email actions
   const menu = (
@@ -250,7 +330,11 @@ export const MonthlyContributions = () => {
               <label className="font-medium" htmlFor="type">
                 Select User:
               </label>
-              <Dropdown overlay={uMenu} placement="bottomLeft">
+              <Dropdown
+                overlay={uMenu}
+                placement="bottomLeft"
+                // disabled={isUpdating}
+              >
                 <div
                   className="h-8 bg-white border flex items-center px-3"
                   style={{ width: "300px" }}
@@ -269,7 +353,7 @@ export const MonthlyContributions = () => {
                 type="number"
                 placeholder="i.e 200 "
                 required
-                // value={currentContributionAmount}
+                value={currentContribution?.amount}
                 onChange={(e) =>
                   setCurrentContribution({
                     user: selectedUser.uid,
@@ -280,22 +364,27 @@ export const MonthlyContributions = () => {
               />
             </div>
 
-            <div className="">
-              <label className="font-medium" htmlFor="type">
-                Contribution Date:
-              </label>
-              <br />
-              {/* amount  */}
-              <DatePicker
-                onChange={(_date, dateString) =>
-                  setCurrentContribution((prev) => ({
-                    ...prev,
+            {!isUpdating && (
+              <div className="">
+                <label className="font-medium" htmlFor="type">
+                  Contribution Date:
+                </label>
+                <br />
+                {/* amount  */}
+                <DatePicker
+                  // defaultValue={new Date(
+                  //   currentContribution?.doc
+                  // ).toLocaleDateString()}
+                  onChange={(_date, dateString) =>
+                    setCurrentContribution((prev) => ({
+                      ...prev,
 
-                    doc: new Date(dateString).toLocaleDateString(),
-                  }))
-                }
-              />
-            </div>
+                      doc: new Date(dateString).toLocaleDateString(),
+                    }))
+                  }
+                />
+              </div>
+            )}
 
             <button
               type="submit"

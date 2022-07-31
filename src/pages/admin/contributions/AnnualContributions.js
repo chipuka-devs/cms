@@ -1,8 +1,19 @@
 import React, { useContext, useEffect, useState } from "react";
-import { DatePicker, Divider, Dropdown, Input, Menu, Spin } from "antd";
+import {
+  Button,
+  DatePicker,
+  Divider,
+  Dropdown,
+  Input,
+  Menu,
+  Popconfirm,
+  Spin,
+} from "antd";
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   onSnapshot,
   orderBy,
   query,
@@ -79,6 +90,25 @@ export const AnnualContributions = () => {
       success("Success!", "Contribution added successfully!");
     } catch (err) {
       error("Error", err.message);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    // setUpdate((prev) => ({ ...prev, mode: true, contribution: contrib }));
+    try {
+      await deleteDoc(doc(db, "user_contributions", id));
+
+      stopLoading();
+
+      success("Success!", "Contribution Deleted Successfully!");
+    } catch (err) {
+      setLoading({
+        ...loading,
+        isLoading: false,
+        loadingMessage: "",
+      });
+
+      error("Error:", err.message);
     }
   };
 
@@ -177,6 +207,38 @@ export const AnnualContributions = () => {
       key: "purpose",
       filters: [...contributionNames],
       onFilter: (value, record) => record.purpose.startsWith(value),
+    },
+    {
+      title: "Actions",
+      dataIndex: "actions",
+      key: "actions",
+      render: (_, data) => (
+        <>
+          <Button
+            className="bg-blue-600 font-medium text-gray-100"
+            // onClick={() => {
+            //   setIsEditing(true);
+            //   setNewContribution(data);
+            // }}
+          >
+            Edit
+          </Button>
+          &nbsp;
+          <Popconfirm
+            title="Are you sure to delete this Contribution?"
+            onConfirm={() => handleDelete(data?.key)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button
+              className="bg-red-600 font-medium text-gray-100"
+              // onClick={() => handleDelete(data)}
+            >
+              Delete
+            </Button>
+          </Popconfirm>
+        </>
+      ),
     },
   ];
   // name total_amount email actions

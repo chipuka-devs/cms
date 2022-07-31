@@ -37,7 +37,7 @@ export const CustomTable = ({
                 <Table.Summary.Cell index={1} colSpan={span}>
                   <span
                     className="font-medium uppercase"
-                    style={{ fontSize: "17px" }}
+                    style={{ fontSize: "16px" }}
                   >
                     {parseInt(summary.amount).toLocaleString()}
                   </span>
