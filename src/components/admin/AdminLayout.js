@@ -1,166 +1,46 @@
-import { Layout, Menu, Breadcrumb } from "antd";
-import {
-  LogoutOutlined,
-  MinusCircleOutlined,
-  KeyOutlined,
-  ShareAltOutlined,
-  BarChartOutlined,
-  MoneyCollectOutlined,
-} from "@ant-design/icons";
-import { useState } from "react";
+import { Layout, Breadcrumb } from "antd";
+
 // import { Context } from "../../utils/MainContext";
-import { Link } from "react-router-dom";
-import { getAuth, signOut } from "firebase/auth";
-import { success } from "../Notifications";
-import analysisIcon from "../../assets/analysis.svg";
+import { Route, Routes } from "react-router-dom";
+
+import MenuBar from "./Menu";
+import { AdminRoutes } from "../../utils/AdminRoutes";
+import PrivateRoute from "../../utils/PrivateAdminRoute";
+// import ViewAllContributions from "../../pages/admin/contributions/ViewAll";
+import MonthlyBudget from "../../pages/admin/contributions/MonthlyBudget";
+import { MonthlyContributions } from "../../pages/admin/contributions/MonthlyContributions";
+import { ProjectContributions } from "../../pages/admin/contributions/ProjectContributions";
+import { VoluntaryContributions } from "../../pages/admin/contributions/VoluntaryContributions";
+import { AnnualContributions } from "../../pages/admin/contributions/AnnualContributions";
+import ProjectBudget from "../../pages/admin/contributions/ProjectBudget";
+import { Pledges } from "../../pages/admin/contributions/Pledges";
+import AnnualBudget from "../../pages/admin/contributions/AnnualBudget";
+import {
+  Monthly,
+  MonthlySummary,
+  OverallSummary,
+  Project,
+} from "../../pages/admin/analysis";
+import { ProjectSummary } from "../../pages/admin/analysis/ProjectSummary";
+import { NetBalance } from "../../pages/admin/analysis/NetBalance";
+import Deductions from "../../pages/admin/deductions/viewAll";
+import { IncomeStatement } from "../../pages/admin/IncomeStatement";
+import Privileges from "../../pages/admin/Privileges";
 
 const { Content, Footer, Sider } = Layout;
 // const { SubMenu } = Menu;
 
-const AdminLayout = ({ children, current = "0", breadcrumbs = ["Admin"] }) => {
-  const [collapsed, setCollapsed] = useState();
-  const [curr] = useState(current);
-
-  // const { user } = useContext(Context);
-
-  const onCollapse = (collapsed) => {
-    setCollapsed(collapsed);
-  };
-
+const AdminLayout = ({ breadcrumbs = ["Admin"] }) => {
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider
-        collapsible
-        collapsed={collapsed}
-        onCollapse={onCollapse}
-        width={235}
+        // collapsible
+        // collapsed={collapsed}
+        // onCollapse={onCollapse}
+        width={250}
       >
         <div className="logo" />
-
-        <Menu theme="dark" defaultSelectedKeys={[curr]} mode="inline">
-          <Menu.Item key="0" icon={<BarChartOutlined />}>
-            <Link to="/admin/">Dashboard</Link>
-          </Menu.Item>
-
-          <Menu.SubMenu
-            key="1"
-            icon={<ShareAltOutlined className="text-2xl" />}
-            title="Contributions"
-          >
-            <Menu.Item>
-              <Link to="/admin/users">Member Details</Link>
-            </Menu.Item>
-
-            {/* <Menu.Item>
-              <Link to="/admin/contributions">User Contributions</Link>
-            </Menu.Item> */}
-
-            <Menu.Item>
-              <Link to="/admin/contributions/monthly/new">Monthly Budget</Link>
-            </Menu.Item>
-
-            <Menu.Item>
-              <Link to="/admin/contributions/pledges">Project Pledges</Link>
-            </Menu.Item>
-
-            <Menu.Item>
-              <Link to="/admin/contributions/project/new">
-                Projects Classifications
-              </Link>
-            </Menu.Item>
-
-            <Menu.Item>
-              <Link to="/admin/contributions/annual/new">Annual Budget</Link>
-            </Menu.Item>
-
-            <Menu.Item>
-              <Link to="/admin/contributions/monthly">
-                Monthly Contributions
-              </Link>
-            </Menu.Item>
-
-            <Menu.Item>
-              <Link to="/admin/contributions/project">
-                Project Contributions
-              </Link>
-            </Menu.Item>
-
-            <Menu.Item>
-              <Link to="/admin/contributions/voluntary">
-                Voluntary Contributions
-              </Link>
-            </Menu.Item>
-
-            <Menu.Item>
-              <Link to="/admin/contributions/annual">Annual Contributions</Link>
-            </Menu.Item>
-          </Menu.SubMenu>
-
-          <Menu.SubMenu
-            key="2"
-            icon={<img src={analysisIcon} alt="analysis" className="w-6" />}
-            title="Analysis"
-          >
-            <Menu.Item>
-              <Link to="/admin/analysis/monthly">Monthly Budget</Link>
-            </Menu.Item>
-
-            <Menu.Item>
-              <Link to="/admin/analysis/project">Project Budget</Link>
-            </Menu.Item>
-
-            <Menu.Item>
-              <Link to="/admin/analysis/m_summary">Monthly Summary</Link>
-            </Menu.Item>
-
-            <Menu.Item>
-              <Link to="/admin/analysis/p_summary">Project Summary</Link>
-            </Menu.Item>
-
-            <Menu.Item>
-              <Link to="/admin/analysis/o_summary">Overall Summary</Link>
-            </Menu.Item>
-
-            <Menu.Item>
-              <Link to="/admin/analysis/net">Net Balance</Link>
-            </Menu.Item>
-          </Menu.SubMenu>
-
-          <Menu.SubMenu
-            key="3"
-            icon={<MinusCircleOutlined className="text-2xl" />}
-            title="Expenditures"
-          >
-            <Menu.Item>
-              <Link to="/admin/deductions">View</Link>
-            </Menu.Item>
-          </Menu.SubMenu>
-
-          <Menu.Item key="4" icon={<MoneyCollectOutlined />}>
-            <Link to="/admin/income-statement">Income Statement</Link>
-          </Menu.Item>
-
-          <Menu.Item key="5" icon={<KeyOutlined />}>
-            <Link to="/admin/privileges">Roles</Link>
-          </Menu.Item>
-
-          <Menu.Item
-            key="6"
-            icon={<LogoutOutlined />}
-            onClick={() => {
-              const auth = getAuth();
-              signOut(auth)
-                .then(() => {
-                  success("success", "Log out successful!");
-                })
-                .catch((error) => {
-                  error("Error!", error.message);
-                });
-            }}
-          >
-            Sign-out
-          </Menu.Item>
-        </Menu>
+        <MenuBar />
       </Sider>
 
       <Layout className="site-layout">
@@ -179,12 +59,206 @@ const AdminLayout = ({ children, current = "0", breadcrumbs = ["Admin"] }) => {
             className="site-layout-background p-4"
             style={{ minHeight: 360 }}
           >
-            {children}
+            {/* {children} */}
+            <Routes>
+              {AdminRoutes.map((r, index) => (
+                <Route key={index} path={r.path} element={r.element} />
+              ))}
+              {/* <Route
+                path="/contributions/"
+                element={<ViewAllContributions />}
+              /> */}
+
+              {/* contributions */}
+              <>
+                {/* budget */}
+                <>
+                  <Route
+                    path={"/contributions/monthly/new"}
+                    exact
+                    element={
+                      <PrivateRoute>
+                        <MonthlyBudget />
+                      </PrivateRoute>
+                    }
+                  />
+
+                  <Route
+                    path={"/contributions/project/new"}
+                    exact
+                    element={
+                      <PrivateRoute>
+                        <ProjectBudget />
+                      </PrivateRoute>
+                    }
+                  />
+
+                  <Route
+                    path={"/contributions/Pledges"}
+                    exact
+                    element={
+                      <PrivateRoute>
+                        <Pledges />
+                      </PrivateRoute>
+                    }
+                  />
+
+                  <Route
+                    path={"/contributions/annual/new"}
+                    exact
+                    element={
+                      <PrivateRoute>
+                        <AnnualBudget />
+                      </PrivateRoute>
+                    }
+                  />
+                </>
+                {/* budget */}
+
+                <Route
+                  path={"/contributions/monthly"}
+                  exact
+                  element={
+                    <PrivateRoute>
+                      <MonthlyContributions />
+                    </PrivateRoute>
+                  }
+                />
+
+                <Route
+                  path={"/contributions/project"}
+                  exact
+                  element={
+                    <PrivateRoute>
+                      <ProjectContributions />
+                    </PrivateRoute>
+                  }
+                />
+
+                <Route
+                  path={"/contributions/voluntary"}
+                  exact
+                  element={
+                    <PrivateRoute>
+                      <VoluntaryContributions />
+                    </PrivateRoute>
+                  }
+                />
+
+                <Route
+                  path={"/contributions/annual"}
+                  exact
+                  element={
+                    <PrivateRoute>
+                      <AnnualContributions />
+                    </PrivateRoute>
+                  }
+                />
+              </>
+              {/* contributions */}
+
+              {/* Analysis */}
+              <>
+                <Route
+                  path={"/analysis/monthly"}
+                  exact
+                  element={
+                    <PrivateRoute>
+                      <Monthly />
+                    </PrivateRoute>
+                  }
+                />
+
+                <Route
+                  path={"/analysis/Project"}
+                  exact
+                  element={
+                    <PrivateRoute>
+                      <Project />
+                    </PrivateRoute>
+                  }
+                />
+
+                <Route
+                  path={"/analysis/m_summary"}
+                  exact
+                  element={
+                    <PrivateRoute>
+                      <MonthlySummary />
+                    </PrivateRoute>
+                  }
+                />
+
+                <Route
+                  path={"/analysis/p_summary"}
+                  exact
+                  element={
+                    <PrivateRoute>
+                      <ProjectSummary />
+                    </PrivateRoute>
+                  }
+                />
+
+                <Route
+                  path={"/analysis/o_summary"}
+                  exact
+                  element={
+                    <PrivateRoute>
+                      <OverallSummary />
+                    </PrivateRoute>
+                  }
+                />
+
+                <Route
+                  path={"/analysis/net"}
+                  exact
+                  element={
+                    <PrivateRoute>
+                      <NetBalance />
+                    </PrivateRoute>
+                  }
+                />
+              </>
+              {/* End of Analysis */}
+
+              {/* Expenditures */}
+
+              <Route
+                path={"/deductions"}
+                exact
+                element={
+                  <PrivateRoute>
+                    <Deductions />
+                  </PrivateRoute>
+                }
+              />
+              {/* End of Expenditures */}
+
+              <Route
+                path={"/income-statement"}
+                exact
+                element={
+                  <PrivateRoute>
+                    <IncomeStatement />
+                  </PrivateRoute>
+                }
+              />
+
+              <Route
+                path={"/privileges"}
+                exact
+                element={
+                  <PrivateRoute>
+                    <Privileges />
+                  </PrivateRoute>
+                }
+              />
+            </Routes>
           </div>
         </Content>
 
-        <Footer style={{ textAlign: "center" }}>
-          Excel to Json ©2022 Created by Pekstar Coders
+        <Footer className="text-xs" style={{ textAlign: "center" }}>
+          CMS ©2022 built by chipuka-devs
         </Footer>
       </Layout>
     </Layout>

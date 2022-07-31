@@ -4,16 +4,8 @@ import AdminLayout from "../../../components/admin/AdminLayout";
 import { CustomTable } from "../../../components/CustomTable";
 import { AContext } from "../../../utils/AnalysisContext";
 import { Context } from "../../../utils/MainContext";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
-import { Bar } from "react-chartjs-2";
+
+// import { Bar } from "react-chartjs-2";
 
 export const OverallSummary = () => {
   const { yearBasedProjectContributions, years } = useContext(AContext);
@@ -31,11 +23,13 @@ export const OverallSummary = () => {
       title: "Amount",
       dataIndex: "amount",
       key: "amount",
+      render: (_, item) => parseInt(item?.amount).toLocaleString(),
     },
     {
       title: "Budget",
       dataIndex: "budget",
       key: "budget",
+      render: (_, item) => parseInt(item?.budget).toLocaleString(),
     },
 
     {
@@ -46,19 +40,19 @@ export const OverallSummary = () => {
         if (balance > 0) {
           return (
             <div className="bg-green-200 m-0 w-24 text-green-500 font-medium text-center p-1">
-              {balance}
+              {balance.toLocaleString()}
             </div>
           );
         } else if (balance < 0) {
           return (
             <div className="bg-red-200 m-0 w-24 text-center text-red-500 font-medium p-1">
-              {balance}
+              {balance.toLocaleString()}
             </div>
           );
         } else {
           return (
             <div className="bg-blue-200 text-blue-600 m-0 w-24 text-center font-medium p-1">
-              {balance}
+              {balance.toLocaleString()}
             </div>
           );
         }
@@ -155,7 +149,7 @@ export const OverallSummary = () => {
     </Menu>
   );
   return (
-    <AdminLayout current="2" breadcrumbs={["Admin", "analysis", "project"]}>
+    <>
       <Divider className="font-medium">Overall Summary</Divider>
 
       <div className="flex items-end gap-1 w-full py-3 ">
@@ -182,72 +176,70 @@ export const OverallSummary = () => {
           title: "Total",
         }}
       />
-
-      <Chart d={tableData} />
-    </AdminLayout>
+    </>
   );
 };
 
-const Chart = ({ d }) => {
-  const { allContributions } = useContext(Context);
-  const [dataSet, setDataSet] = useState([]);
-  useEffect(() => {
-    let dSet = [];
-    d?.forEach((item) => {
-      item?.balance > 0
-        ? dSet.push({
-            label: item.contribution,
-            data: { [item.contribution]: item.balance },
-            backgroundColor: "rgb(34,197,142)",
-            stack: "Stack 0",
-          })
-        : dSet.push({
-            label: item.contribution,
-            data: { [item.contribution]: item.balance },
-            backgroundColor: "rgb(254,202,202)",
-            stack: "Stack 0",
-          });
-    });
+// const Chart = ({ d }) => {
+//   const { allContributions } = useContext(Context);
+//   const [dataSet, setDataSet] = useState([]);
+//   useEffect(() => {
+//     let dSet = [];
+//     d?.forEach((item) => {
+//       item?.balance > 0
+//         ? dSet.push({
+//             label: item.contribution,
+//             data: { [item.contribution]: item.balance },
+//             backgroundColor: "rgb(34,197,142)",
+//             stack: "Stack 0",
+//           })
+//         : dSet.push({
+//             label: item.contribution,
+//             data: { [item.contribution]: item.balance },
+//             backgroundColor: "rgb(254,202,202)",
+//             stack: "Stack 0",
+//           });
+//     });
 
-    setDataSet(dSet);
-  }, [allContributions, d]);
+//     setDataSet(dSet);
+//   }, [allContributions, d]);
 
-  ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend
-  );
+//   ChartJS.register(
+//     CategoryScale,
+//     LinearScale,
+//     BarElement,
+//     Title,
+//     Tooltip,
+//     Legend
+//   );
 
-  const labels = [];
-  const options = {
-    plugins: {
-      title: {
-        display: true,
-        text: "Overall Summary Chart:",
-      },
-    },
-    responsive: true,
-    interaction: {
-      mode: "index",
-      intersect: false,
-    },
-    scales: {
-      x: {
-        stacked: true,
-      },
-      y: {
-        stacked: true,
-      },
-    },
-  };
+//   const labels = [];
+//   const options = {
+//     plugins: {
+//       title: {
+//         display: true,
+//         text: "Overall Summary Chart:",
+//       },
+//     },
+//     responsive: true,
+//     interaction: {
+//       mode: "index",
+//       intersect: false,
+//     },
+//     scales: {
+//       x: {
+//         stacked: true,
+//       },
+//       y: {
+//         stacked: true,
+//       },
+//     },
+//   };
 
-  const data = {
-    labels,
-    datasets: [...dataSet],
-  };
+//   const data = {
+//     labels,
+//     datasets: [...dataSet],
+//   };
 
-  return <Bar options={options} data={data} />;
-};
+//   return <Bar options={options} data={data} />;
+// };

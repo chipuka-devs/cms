@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import AdminLayout from "../../../components/admin/AdminLayout";
 import { AContext } from "../../../utils/AnalysisContext";
 import { Context } from "../../../utils/MainContext";
 import { Divider, Menu, Dropdown } from "antd";
@@ -8,9 +7,17 @@ import { CustomTable } from "../../../components/CustomTable";
 export const Monthly = () => {
   const { allUsers, allContributions } = useContext(Context);
   const { monthlyBasedContributions, months } = useContext(AContext);
-  const [selectedMonth, setSelectedMonth] = useState("March");
-  const [selectedContribution, setSelectedContribution] = useState("Breakfast");
+  const [selectedMonth, setSelectedMonth] = useState(
+    months[new Date().getMonth()]
+  );
+  const [selectedContribution, setSelectedContribution] = useState("");
   const [tableData, setTableData] = useState([]);
+
+  useEffect(() => {
+    setSelectedContribution(
+      allContributions?.filter((item) => item?.category === "monthly")[0]
+    );
+  }, [allContributions]);
 
   useEffect(() => {
     const getTotalUserContributions = () => {
@@ -78,11 +85,11 @@ export const Monthly = () => {
 
     getTotalUserContributions();
   }, [
+    selectedMonth,
     allContributions,
     allUsers,
     monthlyBasedContributions,
     selectedContribution,
-    selectedMonth,
   ]);
 
   const columns = [
@@ -95,6 +102,7 @@ export const Monthly = () => {
       title: "Amount",
       dataIndex: "amount",
       key: "amount",
+      render: (_, item) => parseInt(item?.amount).toLocaleString(),
     },
     {
       title: "Budget",
@@ -110,19 +118,19 @@ export const Monthly = () => {
         if (balance > 0) {
           return (
             <div className="bg-green-200 m-0 w-24 text-green-500 font-medium text-center p-1">
-              {balance}
+              {balance.toLocaleString()}
             </div>
           );
         } else if (balance < 0) {
           return (
             <div className="bg-red-200 m-0 w-24 text-center text-red-500 font-medium p-1">
-              {balance}
+              {balance.toLocaleString()}
             </div>
           );
         } else {
           return (
             <div className="bg-blue-200 text-blue-600 m-0 w-24 text-center font-medium p-1">
-              {balance}
+              {balance.toLocaleString()}
             </div>
           );
         }
@@ -160,7 +168,7 @@ export const Monthly = () => {
   );
 
   return (
-    <AdminLayout current="2" breadcrumbs={["Admin", "analysis", "monthly"]}>
+    <>
       <Divider className="font-medium">Monthly Budget Analysis</Divider>
 
       <div className="flex items-end gap-1 w-full py-3 ">
@@ -203,6 +211,6 @@ export const Monthly = () => {
         rows={tableData && tableData}
         style
       />
-    </AdminLayout>
+    </>
   );
 };

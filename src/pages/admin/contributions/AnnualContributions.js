@@ -1,10 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
 import AdminLayout from "../../../components/admin/AdminLayout";
-import { Divider, Dropdown, Input, Menu, Spin } from "antd";
+import { DatePicker, Divider, Dropdown, Input, Menu, Spin } from "antd";
 import {
   addDoc,
   collection,
   onSnapshot,
+  orderBy,
+  query,
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../../../utils/firebase";
@@ -68,7 +70,7 @@ export const AnnualContributions = () => {
           amount: currentContribution.amount,
           user: selectedUser.uid,
           contribution: selectedContribution.id,
-          doc: new Date().toLocaleDateString(),
+          doc: currentContribution.doc,
           createdAt: serverTimestamp(),
         });
       }
@@ -84,7 +86,12 @@ export const AnnualContributions = () => {
   useEffect(() => {
     startLoading("Fetching Users . . .");
     const fetchUserContributions = () => {
-      onSnapshot(collection(db, "user_contributions"), (docs) => {
+      const q = query(
+        collection(db, "user_contributions"),
+        orderBy("createdAt")
+      );
+
+      onSnapshot(q, (docs) => {
         const cList = [];
         docs.forEach((d) => {
           const currentUser = allUsers.filter(
@@ -156,6 +163,7 @@ export const AnnualContributions = () => {
       title: "Amount",
       dataIndex: "amount",
       key: "amount",
+      render: (_, item) => parseInt(item?.amount).toLocaleString(),
     },
 
     {
@@ -202,13 +210,13 @@ export const AnnualContributions = () => {
   const tableData = userContributions;
 
   return (
-    <AdminLayout current="1" breadcrumbs={["Admin", "contributions"]}>
+    <>
       <Spin
         spinning={loading.isLoading}
         size="large"
         tip={loading.loadingMessage}
       >
-        <Divider className="font-medium">Monthly Contributions</Divider>
+        <Divider className="font-medium">Annual Contributions</Divider>
 
         <form className="mx-auto my-2" onSubmit={handleSubmit}>
           <div className="flex items-end gap-1 w-full ">
@@ -256,9 +264,26 @@ export const AnnualContributions = () => {
                   setCurrentContribution({
                     user: selectedUser.uid,
                     contribution: selectedContribution.key,
-                    doc: new Date().toLocaleDateString(),
                     amount: e.target.value,
                   })
+                }
+              />
+            </div>
+
+            <div className="">
+              <label className="font-medium" htmlFor="type">
+                Contribution Date:
+              </label>
+              <br />
+              {/* amount  */}
+              <DatePicker
+                defaultValue={currentContribution?.doc}
+                onChange={(_date, dateString) =>
+                  setCurrentContribution((prev) => ({
+                    ...prev,
+
+                    doc: new Date(dateString).toLocaleDateString(),
+                  }))
                 }
               />
             </div>
@@ -273,6 +298,6 @@ export const AnnualContributions = () => {
         </form>
         <CustomTable cols={columns} rows={tableData} style />
       </Spin>
-    </AdminLayout>
+    </>
   );
 };

@@ -67,10 +67,10 @@ const useContributions = () => {
   function getTotalContributions() {
     const contributions = state?.userContributions;
 
-    if (contributions) {
+    if (contributions && contributions?.length > 0) {
       const total = contributions
-        .map((item) => item.amount)
-        .reduce((prev, next) => parseInt(prev) + parseInt(next));
+        ?.map((item) => item?.amount)
+        ?.reduce((prev, next) => parseInt(prev) + parseInt(next));
 
       return total;
     } else {
@@ -94,10 +94,11 @@ const useContributions = () => {
       });
 
     const total =
-      arr.length > 0 &&
-      arr
-        .map((item) => item?.amount)
-        .reduce((prev, next) => parseInt(prev) + parseInt(next));
+      arr.length > 0
+        ? arr
+            .map((item) => item?.amount)
+            .reduce((prev, next) => parseInt(prev) + parseInt(next))
+        : 0;
 
     return total;
   }
@@ -108,7 +109,7 @@ const useContributions = () => {
     const contArr = [];
 
     yearBasedProjectContributions &&
-      Object.values(yearBasedProjectContributions)[0].forEach((c) => {
+      Object.values(yearBasedProjectContributions)[0]?.forEach((c) => {
         const currentUser = allUsers.filter((item) => item.uid === c.user)[0];
         const currentContribution = allContributions.filter(
           (item) => item.id === c.contribution
@@ -278,6 +279,7 @@ const useContributions = () => {
           ?.name;
         item &&
           contsArr.push({
+            id: k,
             name: item,
             value: parseInt(totalContributionAmount),
           });
@@ -309,6 +311,7 @@ const useContributions = () => {
           ?.name;
         item &&
           dedsArr.push({
+            id: k,
             name: item,
             value: parseInt(totalDeductionAmount),
           });

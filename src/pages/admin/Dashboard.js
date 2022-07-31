@@ -34,7 +34,7 @@ export const Dashboard = () => {
   ];
 
   return (
-    <AdminLayout current="0" breadcrumbs={["ADMIN", "Dashboard"]}>
+    <>
       <div
         className=" grid grid-cols-3 justify-between gap-5 p-2 rounded-sm text-white"
         style={{
@@ -46,7 +46,7 @@ export const Dashboard = () => {
           <span className="font-extrabold text-lg">Total Contributions</span>
 
           <span className="text-2xl font-bold text-center">
-            {getTotalContributions().toLocaleString()}
+            {getTotalContributions()?.toLocaleString()}
             <span className="text-sm pl-1">kshs</span>
           </span>
         </Card>
@@ -55,7 +55,7 @@ export const Dashboard = () => {
           <span className="font-extrabold text-lg ">Budget</span>
 
           <span className="text-2xl font-bold text-center">
-            {getTotalBudget().toLocaleString()}
+            {getTotalBudget()?.toLocaleString()}
             <span className="text-sm pl-1">kshs</span>
           </span>
         </Card>
@@ -64,7 +64,7 @@ export const Dashboard = () => {
           <span className="font-extrabold text-lg">Surplus/Deficit</span>
 
           <span className="text-2xl font-bold text-center">
-            {getSurplusDeficit()?.total.toLocaleString()}
+            {getSurplusDeficit()?.total?.toLocaleString()}
             <span className="text-sm pl-1">kshs</span>
           </span>
         </Card>
@@ -79,7 +79,7 @@ export const Dashboard = () => {
           <PiChart state={state} colors={colors} />
         </div>
       </div>
-    </AdminLayout>
+    </>
   );
 };
 

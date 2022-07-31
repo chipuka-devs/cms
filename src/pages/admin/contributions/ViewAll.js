@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import AdminLayout from "../../../components/admin/AdminLayout";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { Spin } from "antd";
@@ -14,7 +13,7 @@ import { db } from "../../../utils/firebase";
 import { CustomTable } from "../../../components/CustomTable";
 import { Context } from "../../../utils/MainContext";
 
-const View = () => {
+const ViewAllContributions = () => {
   const navigate = useNavigate();
 
   const { allUsers } = useContext(Context);
@@ -128,7 +127,7 @@ const View = () => {
   const tableData = userContributions;
 
   return (
-    <AdminLayout current="1" breadcrumbs={["Admin", "contributions"]}>
+    <>
       <Spin
         spinning={loading.isLoading}
         size="large"
@@ -146,8 +145,8 @@ const View = () => {
 
         <CustomTable cols={columns} rows={tableData} style />
       </Spin>
-    </AdminLayout>
+    </>
   );
 };
 
-export default View;
+export default ViewAllContributions;

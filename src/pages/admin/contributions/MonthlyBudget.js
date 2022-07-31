@@ -1,9 +1,12 @@
-import { Divider, Spin } from "antd";
+import { Button, Divider, Popconfirm, Spin } from "antd";
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   onSnapshot,
   query,
+  setDoc,
   where,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
@@ -18,6 +21,8 @@ const MonthlyBudget = () => {
     isLoading: false,
     loadingMessage: "loading...",
   });
+
+  const [isEditing, setIsEditing] = useState(false);
 
   const [monthlyContributions, setMonthlyContributions] = useState([]);
 
@@ -43,16 +48,43 @@ const MonthlyBudget = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const d = {
+      ...newContribution,
+      category: "monthly",
+    };
+
+    if (isEditing) {
+      try {
+        await setDoc(doc(db, "contributions", d?.key), d);
+
+        setNewContribution("");
+
+        stopLoading();
+
+        resetState();
+
+        setIsEditing(false);
+
+        success("Success!", "Contribution Updated Successfully!");
+      } catch (err) {
+        setLoading({
+          ...loading,
+          isLoading: false,
+          loadingMessage: "",
+        });
+
+        error("Error:", err.message);
+      }
+
+      return;
+    }
 
     // console.log(newContribution);
 
     startLoading("Creating Contribution. . .");
 
     try {
-      await addDoc(collection(db, "contributions"), {
-        ...newContribution,
-        category: "monthly",
-      });
+      await addDoc(collection(db, "contributions"), d);
 
       setNewContribution("");
 
@@ -61,6 +93,24 @@ const MonthlyBudget = () => {
       resetState();
 
       success("Success!", "Contribution Created Successfully!");
+    } catch (err) {
+      setLoading({
+        ...loading,
+        isLoading: false,
+        loadingMessage: "",
+      });
+
+      error("Error:", err.message);
+    }
+  };
+
+  const deleteContribution = async (id) => {
+    try {
+      await deleteDoc(doc(db, "contributions", id));
+
+      stopLoading();
+
+      success("Success!", "Contribution Deleted Successfully!");
     } catch (err) {
       setLoading({
         ...loading,
@@ -110,15 +160,41 @@ const MonthlyBudget = () => {
       dataIndex: "amount",
       key: "amount",
     },
+    {
+      title: "Actions",
+      dataIndex: "actions",
+      key: "actions",
+      render: (_, data) => (
+        <>
+          <Button
+            className="bg-blue-600 font-medium text-gray-100"
+            onClick={() => {
+              setIsEditing(true);
+              setNewContribution(data);
+            }}
+          >
+            Edit
+          </Button>
+          &nbsp;
+          <Popconfirm
+            title="Are you sure to delete this Contribution?"
+            onConfirm={() => deleteContribution(data?.key)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button className="bg-red-600 font-medium text-gray-100">
+              Delete
+            </Button>
+          </Popconfirm>
+        </>
+      ),
+    },
   ];
 
   //   const tableData = setTableData();
 
   return (
-    <AdminLayout
-      current="1"
-      breadcrumbs={["Admin", "contributions", `Monthly`]}
-    >
+    <>
       <Spin
         spinning={loading.isLoading}
         size="large"
@@ -147,7 +223,7 @@ const MonthlyBudget = () => {
             type="submit"
             className="bg-green-700 px-4 text-white h-8 mb-0"
           >
-            Create
+            {isEditing ? "Update" : "Create"}
           </button>
         </form>
 
@@ -167,7 +243,7 @@ const MonthlyBudget = () => {
           </div>
         </div>
       </Spin>
-    </AdminLayout>
+    </>
   );
 };
 

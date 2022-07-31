@@ -36,7 +36,7 @@ export const CustomTable = ({
                     className="font-medium uppercase"
                     style={{ fontSize: "17px" }}
                   >
-                    {summary.amount}
+                    {parseInt(summary.amount).toLocaleString()}
                   </span>
                 </Table.Summary.Cell>
               </Table.Summary.Row>
@@ -54,9 +54,8 @@ export const CustomTable = ({
                     {pData.length > 0 &&
                       pData
                         .map((item) => item && item.amount)
-                        .reduce(
-                          (prev, next) => parseInt(prev) + parseInt(next)
-                        )}
+                        .reduce((prev, next) => parseInt(prev) + parseInt(next))
+                        .toLocaleString()}
                   </span>
                 </Table.Summary.Cell>{" "}
                 <Table.Summary.Cell index={1} colSpan={1}>
@@ -64,9 +63,8 @@ export const CustomTable = ({
                     {pData.length > 0 &&
                       pData
                         .map((item) => item && item.budget)
-                        .reduce(
-                          (prev, next) => parseInt(prev) + parseInt(next)
-                        )}
+                        .reduce((prev, next) => parseInt(prev) + parseInt(next))
+                        .toLocaleString()}
                   </span>
                 </Table.Summary.Cell>{" "}
                 <Table.Summary.Cell index={1} colSpan={1}>
@@ -74,15 +72,16 @@ export const CustomTable = ({
                     {pData.length > 0 &&
                     pData
                       .map((item) => item.balance)
-                      .reduce((prev, next) => parseInt(prev) + parseInt(next)) >
-                      0 ? (
+                      .reduce((prev, next) => parseInt(prev) + parseInt(next))
+                      .toLocaleString() > 0 ? (
                       <div className="bg-green-200 m-0 w-24 text-green-500 font-medium text-center p-1">
                         {pData.length > 0 &&
                           pData
                             .map((item) => item.balance)
                             .reduce(
                               (prev, next) => parseInt(prev) + parseInt(next)
-                            )}
+                            )
+                            .toLocaleString()}
                       </div>
                     ) : pData.length > 0 &&
                       pData
@@ -96,7 +95,8 @@ export const CustomTable = ({
                             .map((item) => item.balance)
                             .reduce(
                               (prev, next) => parseInt(prev) + parseInt(next)
-                            )}
+                            )
+                            .toLocaleString()}
                       </div>
                     ) : (
                       <div className="bg-blue-200 text-blue-600 m-0 w-24 text-center font-medium p-1">
@@ -105,7 +105,8 @@ export const CustomTable = ({
                             .map((item) => item.balance)
                             .reduce(
                               (prev, next) => parseInt(prev) + parseInt(next)
-                            )}
+                            )
+                            .toLocaleString()}
                       </div>
                     )}
                   </span>

@@ -4,16 +4,16 @@ import AdminLayout from "../../../components/admin/AdminLayout";
 import { CustomTable } from "../../../components/CustomTable";
 import { AContext } from "../../../utils/AnalysisContext";
 import { Context } from "../../../utils/MainContext";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
-import { Bar } from "react-chartjs-2";
+// import {
+//   Chart as ChartJS,
+//   CategoryScale,
+//   LinearScale,
+//   BarElement,
+//   Title,
+//   Tooltip,
+//   Legend,
+// } from "chart.js";
+// import { Bar } from "react-chartjs-2";
 
 export const NetBalance = () => {
   const { yearBasedProjectContributions, years } = useContext(AContext);
@@ -36,13 +36,13 @@ export const NetBalance = () => {
         if (amount < 0) {
           return (
             <div className="bg-red-200 m-0 w-24 text-center text-red-500 font-medium p-1">
-              {amount}
+              {amount?.toLocaleString()}
             </div>
           );
         } else {
           return (
             <div className="bg-green-200 m-0 w-24 text-center text-green-500 font-medium p-1">
-              {amount}
+              {amount?.toLocaleString()}
             </div>
           );
         }
@@ -131,7 +131,7 @@ export const NetBalance = () => {
     </Menu>
   );
   return (
-    <AdminLayout current="2" breadcrumbs={["Admin", "analysis", "project"]}>
+    <>
       <Divider className="font-medium">NetBalance</Divider>
 
       <div className="flex items-end gap-1 w-full py-3 ">
@@ -151,62 +151,61 @@ export const NetBalance = () => {
       </div>
 
       <CustomTable cols={columns} rows={tableData} />
-      <Chart d={tableData} />
-    </AdminLayout>
+    </>
   );
 };
 
-export const options = {
-  plugins: {
-    title: {
-      display: true,
-      text: "Net Balance Chart:",
-    },
-  },
-  responsive: true,
-  interaction: {
-    mode: "index",
-    intersect: false,
-  },
-  scales: {
-    x: {
-      stacked: true,
-    },
-    y: {
-      stacked: true,
-    },
-  },
-};
+// export const options = {
+//   plugins: {
+//     title: {
+//       display: true,
+//       text: "Net Balance Chart:",
+//     },
+//   },
+//   responsive: true,
+//   interaction: {
+//     mode: "index",
+//     intersect: false,
+//   },
+//   scales: {
+//     x: {
+//       stacked: true,
+//     },
+//     y: {
+//       stacked: true,
+//     },
+//   },
+// };
 
-const Chart = ({ d }) => {
-  ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend
-  );
+// const Chart = ({ d }) => {
+//   ChartJS.register(
+//     CategoryScale,
+//     LinearScale,
+//     BarElement,
+//     Title,
+//     Tooltip,
+//     Legend
+//   );
 
-  const labels = ["Type"];
+//   const labels = ["Type"];
 
-  const data = {
-    labels,
-    datasets: [
-      {
-        label: "Surplus",
-        data: { Type: d[0]?.amount },
-        backgroundColor: "rgb(34,197,142)",
-        stack: "Stack 0",
-      },
-      {
-        label: "Deficit",
-        data: { Type: d[1]?.amount },
-        backgroundColor: "rgb(254,202,202)",
-        stack: "Stack 0",
-      },
-    ],
-  };
+//   const data = {
+//     labels,
+//     datasets: [
+//       {
+//         label: "Surplus",
+//         data: { Type: d[0]?.amount },
+//         backgroundColor: "rgb(34,197,142)",
+//         stack: "Stack 0",
+//       },
+//       {
+//         label: "Deficit",
+//         data: { Type: d[1]?.amount },
+//         backgroundColor: "rgb(254,202,202)",
+//         stack: "Stack 0",
+//       },
+//     ],
+//   };
 
-  return <Bar options={options} data={data} />;
-};
+//   return <Bar options={options} data={data} />;
+// };

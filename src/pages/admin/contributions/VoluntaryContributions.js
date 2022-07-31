@@ -1,14 +1,13 @@
-import { Divider, Dropdown, Input, Menu, Spin } from "antd";
+import { DatePicker, Divider, Dropdown, Input, Menu, Spin } from "antd";
 import {
   addDoc,
   collection,
   onSnapshot,
   query,
-  serverTimestamp,
+  Timestamp,
   where,
 } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
-import AdminLayout from "../../../components/admin/AdminLayout";
 import { CustomTable } from "../../../components/CustomTable";
 import { error, success } from "../../../components/Notifications";
 import { db } from "../../../utils/firebase";
@@ -23,6 +22,7 @@ export const VoluntaryContributions = () => {
     },
     name: "",
     amount: "",
+    doc: null,
   });
   const [voluntaryContributions, setVoluntaryContributions] = useState([]);
 
@@ -71,7 +71,7 @@ export const VoluntaryContributions = () => {
           user: user.uid,
           type: "voluntary",
           contribution: name,
-          doc: serverTimestamp(),
+          doc: Timestamp.fromDate(new Date(voluntaryContribution?.doc)),
         });
       }
 
@@ -106,9 +106,7 @@ export const VoluntaryContributions = () => {
 
           cList.unshift({
             date: d.data()?.doc?.seconds
-              ? new Date(
-                  d.data()?.doc?.seconds * 1000
-                ).toLocaleDateString()
+              ? new Date(d.data()?.doc?.seconds * 1000).toLocaleDateString()
               : new Date(d.data().timestamp).toLocaleDateString(),
             purpose: d.data()?.contribution,
             amount: d.data()?.amount,
@@ -159,6 +157,7 @@ export const VoluntaryContributions = () => {
       title: "Amount",
       dataIndex: "amount",
       key: "amount",
+      render: (_, item) => parseInt(item?.amount).toLocaleString(),
     },
 
     {
@@ -169,7 +168,7 @@ export const VoluntaryContributions = () => {
   ];
 
   return (
-    <AdminLayout current="1" breadcrumbs={["Admin", "contributions"]}>
+    <>
       <Spin
         spinning={loading.isLoading}
         size="large"
@@ -231,6 +230,24 @@ export const VoluntaryContributions = () => {
               />
             </div>
 
+            <div className="">
+              <label className="font-medium" htmlFor="type">
+                Contribution Date:
+              </label>
+              <br />
+              {/* amount  */}
+              <DatePicker
+                defaultValue={voluntaryContribution?.doc}
+                onChange={(_date, dateString) =>
+                  setVoluntaryContribution((prev) => ({
+                    ...prev,
+
+                    doc: new Date(dateString).toLocaleDateString(),
+                  }))
+                }
+              />
+            </div>
+
             <button
               type="submit"
               className="bg-green-700 px-4 text-white h-8 mb-0"
@@ -241,6 +258,6 @@ export const VoluntaryContributions = () => {
         </form>
         <CustomTable cols={columns} rows={voluntaryContributions} style />
       </Spin>
-    </AdminLayout>
+    </>
   );
 };

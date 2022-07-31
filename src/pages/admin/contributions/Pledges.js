@@ -1,18 +1,21 @@
 import React, { useContext, useEffect, useState } from "react";
 import AdminLayout from "../../../components/admin/AdminLayout";
-import { Divider, Dropdown, Input, Menu, Spin } from "antd";
+import { Button, Divider, Dropdown, Input, Menu, Popconfirm, Spin } from "antd";
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   onSnapshot,
   orderBy,
   query,
   serverTimestamp,
+  setDoc,
 } from "firebase/firestore";
 import { db } from "../../../utils/firebase";
 import { CustomTable } from "../../../components/CustomTable";
 import { Context } from "../../../utils/MainContext";
-import { error } from "../../../components/Notifications";
+import { error, success } from "../../../components/Notifications";
 
 export const Pledges = () => {
   const { allUsers, allContributions } = useContext(Context);
@@ -26,12 +29,15 @@ export const Pledges = () => {
     "--Please select Contribution --"
   );
   const [selectedUser, setSelectedUser] = useState("--Please select User --");
-  const [userPledge, setUserPledge] = useState(null);
+  const [userPledge, setUserPledge] = useState(0);
+  const [selectedId, setSelectedId] = useState("");
 
   const [loading, setLoading] = useState({
     isLoading: false,
     loadingMessage: "loading...",
   });
+
+  const [isEditing, setIsEditing] = useState(false);
 
   const stopLoading = () => {
     setLoading({
@@ -49,35 +55,82 @@ export const Pledges = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    startLoading("Adding user Pledge . . .");
+    const d = {
+      amount: userPledge,
+      user: selectedUser.uid,
+      contribution: selectedContribution.id,
+      createdAt: serverTimestamp(),
+    };
 
-    // check if current pledges include pledge
-    const isIncluded =
-      pledges.filter(
-        (e) =>
-          e.contribution_id === selectedContribution.id &&
-          e.user === selectedUser.uid
-      ).length > 0;
+    if (isEditing) {
+      try {
+        await setDoc(doc(db, "pledges", selectedId), d);
 
-    if (isIncluded) {
-      error("ERROR", "Pledge already Exists!");
+        setSelectedContribution("");
+        setSelectedUser("");
+        setUserPledge(0);
 
-      stopLoading();
+        stopLoading();
+
+        setIsEditing(false);
+
+        success("Success!", "Pledge Updated Successfully!");
+      } catch (err) {
+        setLoading({
+          ...loading,
+          isLoading: false,
+          loadingMessage: "",
+        });
+
+        error("Error:", err.message);
+      }
       return;
-    }
+    } else {
+      startLoading("Adding user Pledge . . .");
 
-    if (userPledge) {
-      await addDoc(collection(db, "pledges"), {
-        amount: userPledge,
-        user: selectedUser.uid,
-        contribution: selectedContribution.id,
-        createdAt: serverTimestamp(),
-      });
+      // check if current pledges include pledge
+      const isIncluded =
+        pledges.filter(
+          (e) =>
+            e.contribution_id === selectedContribution.id &&
+            e.user === selectedUser.uid
+        ).length > 0;
 
-      stopLoading();
+      if (isIncluded) {
+        error("ERROR", "Pledge already Exists!");
+
+        stopLoading();
+        return;
+      }
+
+      if (userPledge) {
+        await addDoc(collection(db, "pledges"), {
+          ...d,
+          createdAt: serverTimestamp(),
+        });
+
+        stopLoading();
+      }
     }
   };
 
+  const handleDelete = async (id) => {
+    try {
+      await deleteDoc(doc(db, "pledges", id));
+
+      stopLoading();
+
+      success("Success!", "Pledge Deleted Successfully!");
+    } catch (err) {
+      setLoading({
+        ...loading,
+        isLoading: false,
+        loadingMessage: "",
+      });
+
+      error("Error:", err.message);
+    }
+  };
   useEffect(() => {
     const fetchPledges = async () => {
       startLoading("Fetching Pledges . . .");
@@ -97,6 +150,7 @@ export const Pledges = () => {
 
             const pledge = {
               member: cUser.name,
+              member_id: doc.data().user,
               contribution: cContribution.name,
               pledge: doc.data().amount,
               key: doc.id,
@@ -152,6 +206,48 @@ export const Pledges = () => {
       title: "Pledge",
       dataIndex: "pledge",
       key: "pledge",
+      render: (_, item) => parseInt(item.pledge).toLocaleString(),
+    },
+    {
+      title: "Actions",
+      dataIndex: "actions",
+      key: "actions",
+      render: (_, data) => (
+        <>
+          <Button
+            className="bg-blue-600 font-medium text-gray-100"
+            onClick={() => {
+              setIsEditing(true);
+              setSelectedId(data?.key);
+              setUserPledge(data?.pledge);
+              setSelectedContribution(
+                allContributions?.filter(
+                  (item) => item?.id === data?.contribution_id
+                )[0]
+              );
+              setSelectedUser(
+                allUsers.filter((item) => item?.id === data?.member_id)[0]
+              );
+            }}
+          >
+            Edit
+          </Button>
+          &nbsp;
+          <Popconfirm
+            title="Are you sure to delete this Pledge?"
+            onConfirm={() => handleDelete(data?.key)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button
+              className="bg-red-600 font-medium text-gray-100"
+              // onClick={() => handleDelete(data)}
+            >
+              Delete
+            </Button>
+          </Popconfirm>
+        </>
+      ),
     },
   ];
   // name total_amount email actions
@@ -185,7 +281,7 @@ export const Pledges = () => {
   );
 
   return (
-    <AdminLayout current="1" breadcrumbs={["Admin", "contributions"]}>
+    <>
       <Spin
         spinning={loading.isLoading}
         size="large"
@@ -232,7 +328,7 @@ export const Pledges = () => {
                 type="number"
                 placeholder="Pledge amount i.e 200 "
                 // disabled={accessPledge ? false : true}
-                // value={userPledge && userPledge.amount && userPledge.amount}
+                value={userPledge}
                 onChange={(e) => setUserPledge(e.target.value)}
               />
             </div>
@@ -241,15 +337,15 @@ export const Pledges = () => {
               type="submit"
               className="bg-green-700 px-4 text-white h-8 mb-0"
             >
-              ADD
+              {isEditing ? "Update" : "Create"}
             </button>
           </div>
         </form>
 
-        <Divider className="font-medium">All Contributions</Divider>
+        <Divider className="font-medium">All Pledges</Divider>
 
         <CustomTable cols={columns} rows={tableData} style />
       </Spin>
-    </AdminLayout>
+    </>
   );
 };

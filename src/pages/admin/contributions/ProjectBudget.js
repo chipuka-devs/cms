@@ -1,10 +1,13 @@
-import { Divider, Spin } from "antd";
+import { Button, Divider, Popconfirm, Spin } from "antd";
 import {
   addDoc,
   collection,
   onSnapshot,
   query,
   where,
+  setDoc,
+  deleteDoc,
+  doc,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../../../components/admin/AdminLayout";
@@ -26,6 +29,7 @@ const ProjectBudget = () => {
   const [projectContributions, setProjectContributions] = useState([]);
 
   const [newContribution, setNewContribution] = useState({});
+  const [isEditing, setIsEditing] = useState(false);
 
   const resetState = () => {
     setNewContribution({});
@@ -48,38 +52,82 @@ const ProjectBudget = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { deadline, startDate, target } = newContribution;
+    if (isEditing) {
+      try {
+        await setDoc(
+          doc(db, "contributions", newContribution?.key),
+          newContribution
+        );
 
-    const isValid =
-      validateDate(startDate, deadline) &&
-      validateDate(new Date(), deadline) &&
-      validateDate(new Date(), new Date(startDate));
+        stopLoading();
 
-    if (!isValid) {
-      error("Error!", "Please provide valid dates!");
+        setIsEditing(false);
+
+        setNewContribution({});
+
+        success("Success!", "Project Updated Successfully!");
+      } catch (err) {
+        setLoading({
+          ...loading,
+          isLoading: false,
+          loadingMessage: "",
+        });
+
+        error("Error:", err.message);
+      }
       return;
+    } else {
+      const { deadline, startDate, target } = newContribution;
+
+      const isValid =
+        validateDate(startDate, deadline) &&
+        validateDate(new Date(), deadline) &&
+        validateDate(new Date(), new Date(startDate));
+
+      if (!isValid) {
+        error("Error!", "Please provide valid dates!");
+        return;
+      }
+
+      const nOfMonths = calculateDifferenceInMonths(startDate, deadline);
+      const averageAmount = Math.floor(target / nOfMonths);
+
+      startLoading("Creating Contribution. . .");
+
+      try {
+        await addDoc(collection(db, "contributions"), {
+          ...newContribution,
+          duration: nOfMonths,
+          amountPerMonth: averageAmount,
+          category: "project",
+        });
+
+        setNewContribution("");
+
+        stopLoading();
+
+        resetState();
+
+        success("Success!", "Contribution Created Successfully!");
+      } catch (err) {
+        setLoading({
+          ...loading,
+          isLoading: false,
+          loadingMessage: "",
+        });
+
+        error("Error:", err.message);
+      }
     }
+  };
 
-    const nOfMonths = calculateDifferenceInMonths(startDate, deadline);
-    const averageAmount = Math.floor(target / nOfMonths);
-
-    startLoading("Creating Contribution. . .");
-
+  const handleDelete = async (id) => {
     try {
-      await addDoc(collection(db, "contributions"), {
-        ...newContribution,
-        duration: nOfMonths,
-        amountPerMonth: averageAmount,
-        category: "project",
-      });
-
-      setNewContribution("");
+      await deleteDoc(doc(db, "contributions", id));
 
       stopLoading();
 
-      resetState();
-
-      success("Success!", "Contribution Created Successfully!");
+      success("Success!", "Project Deleted Successfully!");
     } catch (err) {
       setLoading({
         ...loading,
@@ -129,6 +177,7 @@ const ProjectBudget = () => {
       title: "Target",
       dataIndex: "target",
       key: "target",
+      render: (_, item) => parseInt(item?.target).toLocaleString(),
     },
     {
       title: "Start Date",
@@ -149,13 +198,46 @@ const ProjectBudget = () => {
       title: " Monthly Contribution",
       dataIndex: "amountPerMonth",
       key: "amountPerMonth",
+      render: (_, item) => parseInt(item?.amountPerMonth).toLocaleString(),
+    },
+    {
+      title: "Actions",
+      dataIndex: "actions",
+      key: "actions",
+      render: (_, data) => (
+        <>
+          <Button
+            className="bg-blue-600 font-medium text-gray-100"
+            onClick={() => {
+              setIsEditing(true);
+              setNewContribution(data);
+            }}
+          >
+            Edit
+          </Button>
+          &nbsp;
+          <Popconfirm
+            title="Are you sure to delete this Project?"
+            onConfirm={() => handleDelete(data?.key)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button
+              className="bg-red-600 font-medium text-gray-100"
+              // onClick={() => handleDelete(data)}
+            >
+              Delete
+            </Button>
+          </Popconfirm>
+        </>
+      ),
     },
   ];
 
   //   const tableData = setTableData();
 
   return (
-    <AdminLayout current="1" breadcrumbs={["Admin", "contributions", `new`]}>
+    <>
       <Spin
         spinning={loading.isLoading}
         size="large"
@@ -184,7 +266,7 @@ const ProjectBudget = () => {
             type="submit"
             className="bg-green-700 px-4 text-white h-8 mb-0"
           >
-            Create
+            {isEditing ? "Update" : "Create"}
           </button>
         </form>
 
@@ -198,7 +280,7 @@ const ProjectBudget = () => {
           <CustomTable cols={projectColumns} rows={projectContributions} />
         </div>
       </Spin>
-    </AdminLayout>
+    </>
   );
 };
 

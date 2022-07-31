@@ -17,7 +17,7 @@ import { error, success } from "../../../components/Notifications";
 import { db } from "../../../utils/firebase";
 import { Context } from "../../../utils/MainContext";
 
-const View = () => {
+const Deductions = () => {
   const { allContributions } = useContext(Context);
 
   const [deduction, setDeduction] = useState({
@@ -119,9 +119,102 @@ const View = () => {
     if (selectedContribution.category === "monthly") {
       const totalC = await calculateTotalContributions(selectedContribution.id);
       const totalD = await calculateTotalDeductions(selectedContribution.id);
+      const isValid =
+        totalC - totalD > 0 && totalC - totalD >= deduction?.amount;
+
+      if (isValid) {
+        const submittedDeduction = {
+          ...deduction,
+          submissionDate: new Date().toLocaleDateString(),
+          status: "pending",
+          contribution: selectedContribution.id,
+          createdAt: serverTimestamp(),
+        };
+
+        try {
+          await addDoc(collection(db, "deductions"), submittedDeduction);
+
+          success(
+            "Success!",
+            "Deduction added successfully! awaiting approval"
+          );
+
+          stopLoading();
+        } catch (err) {
+          stopLoading();
+
+          error("Error", err.message);
+        }
+      } else {
+        error("Error", "Not valid");
+      }
+    } else if (selectedContribution.name === "other") {
+      let totalVoluntaryContributions = 0;
+      let totalVoluntaryDeductions = 0;
+
+      const querySnapshot = await getDocs(collection(db, "user_contributions"));
+      const deductions = await getDocs(collection(db, "deductions"));
+      querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        const type = doc.data().type;
+        const amount = parseInt(doc.data().amount);
+
+        if (type) {
+          totalVoluntaryContributions += amount;
+        }
+      });
+
+      deductions.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        const type = doc.data().contribution;
+        const amount = parseInt(doc.data().amount);
+
+        if (type === null) {
+          totalVoluntaryDeductions += amount;
+        }
+      });
+
+      const balance =
+        parseInt(totalVoluntaryContributions) -
+        parseInt(totalVoluntaryDeductions);
+      const valid = balance > 0 && deduction?.amount <= balance;
+
+      const submittedDeduction = {
+        ...deduction,
+        submissionDate: new Date().toLocaleDateString(),
+        status: "pending",
+        contribution: null,
+        createdAt: serverTimestamp(),
+      };
+
+      if (valid) {
+        try {
+          await addDoc(collection(db, "deductions"), submittedDeduction);
+          success(
+            "Success!",
+            "Deduction added successfully! awaiting approval"
+          );
+          stopLoading();
+        } catch (err) {
+          stopLoading();
+          error("Error", err.message);
+        }
+      } else {
+        error("Error", "Insufficient funds!");
+      }
+    } else if (selectedContribution.category === "project") {
+      const contrib = await getDoc(
+        doc(db, "contributions", selectedContribution.id)
+      );
+
+      const totalC = await calculateTotalContributions(selectedContribution.id);
+      const totalD = await calculateTotalDeductions(selectedContribution.id);
+
+      const contributionTarget = parseInt(contrib.data().target);
 
       const isValid =
-        totalC - totalD > 0 && totalC >= selectedContribution.amount;
+        parseInt(totalC) - parseInt(totalD) > 0 &&
+        parseInt(totalC) >= contributionTarget;
 
       if (isValid) {
         const submittedDeduction = {
@@ -148,39 +241,22 @@ const View = () => {
           error("Error", err.message);
         }
       } else {
-        error("Error", "Not valid");
+        error("Error", "Contribution Target not reached!");
       }
-    } else if (selectedContribution.name === "other") {
-      const submittedDeduction = {
-        ...deduction,
-        submissionDate: new Date().toLocaleDateString(),
-        status: "pending",
-        contribution: null,
-        createdAt: serverTimestamp(),
-      };
-
-      try {
-        await addDoc(collection(db, "deductions"), submittedDeduction);
-
-        success("Success!", "Deduction added successfully! awaiting approval");
-
-        stopLoading();
-      } catch (err) {
-        stopLoading();
-
-        error("Error", err.message);
-      }
-    } else {
+    } else if (selectedContribution.category === "annual") {
       const contrib = await getDoc(
         doc(db, "contributions", selectedContribution.id)
       );
 
-      const contributionTarget = parseInt(contrib.data().target);
+      const totalC = await calculateTotalContributions(selectedContribution.id);
+      const totalD = await calculateTotalDeductions(selectedContribution.id);
+
+      const contributionTarget = parseInt(contrib.data().amount);
 
       const isValid =
-        (await calculateTotalContributions) >= contributionTarget &&
-        (await calculateTotalContributions) - (await calculateTotalDeductions) >
-          0;
+        parseInt(totalC) - parseInt(totalD) > 0 &&
+        parseInt(totalC) >= contributionTarget;
+
       if (isValid) {
         const submittedDeduction = {
           ...deduction,
@@ -214,7 +290,6 @@ const View = () => {
   useEffect(() => {
     const fetchDeductions = () => {
       onSnapshot(collection(db, "deductions"), (results) => {
-        setDeductions([]);
         results.forEach(async (r) => {
           const contribution = await allContributions.filter(
             (item) => item.id === r.data().contribution
@@ -222,6 +297,7 @@ const View = () => {
 
           if (contribution) {
             setDeductions((prev) => [
+              ...prev,
               {
                 key: r.id,
                 amount: r.data().amount,
@@ -231,10 +307,10 @@ const View = () => {
                 date: r.data().submissionDate,
                 title: r.data().title,
               },
-              ...prev,
             ]);
           } else {
             setDeductions((prev) => [
+              ...prev,
               {
                 key: r.id,
                 amount: r.data().amount,
@@ -244,7 +320,6 @@ const View = () => {
                 date: r.data().submissionDate,
                 title: r.data().title,
               },
-              ...prev,
             ]);
           }
         });
@@ -324,7 +399,7 @@ const View = () => {
   );
 
   return (
-    <AdminLayout current="2" breadcrumbs={["Admin", "Deductions"]}>
+    <>
       <Spin
         spinning={loading.isLoading}
         size="large"
@@ -373,26 +448,24 @@ const View = () => {
             />
           </div>
 
-          {selectedContribution &&
-            (selectedContribution.category === "project" ||
-              selectedContribution?.name === "other") && (
-              <div className="">
-                <label className="font-medium" htmlFor="type">
-                  Input Amount:
-                </label>
-                {/* amount  */}
-                <Input
-                  type="number"
-                  placeholder="i.e 200 "
-                  onChange={(e) =>
-                    setDeduction({
-                      ...deduction,
-                      amount: e.target.value,
-                    })
-                  }
-                />
-              </div>
-            )}
+          {
+            <div className="">
+              <label className="font-medium" htmlFor="type">
+                Input Amount:
+              </label>
+              {/* amount  */}
+              <Input
+                type="number"
+                placeholder="i.e 200 "
+                onChange={(e) =>
+                  setDeduction({
+                    ...deduction,
+                    amount: e.target.value,
+                  })
+                }
+              />
+            </div>
+          }
 
           <button
             type="submit"
@@ -423,8 +496,8 @@ const View = () => {
           />
         </div>
       </Spin>
-    </AdminLayout>
+    </>
   );
 };
 
-export default View;
+export default Deductions;

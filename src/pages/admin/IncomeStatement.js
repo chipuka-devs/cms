@@ -1,5 +1,4 @@
 import React from "react";
-import AdminLayout from "../../components/admin/AdminLayout";
 import useContributions from "../../utils/hooks/useContributions";
 
 export const IncomeStatement = () => {
@@ -16,11 +15,14 @@ export const IncomeStatement = () => {
     const contributions = getTotalGroupedContributions();
 
     setIncome({ expenditures, contributions });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [getGroupedExpenditures, getTotalGroupedContributions]);
+
+  let tCont = 0;
+  let tDed = 0;
+  let tBal = 0;
 
   return (
-    <AdminLayout current="4" breadcrumbs={["ADMIN", "income-statement"]}>
+    <>
       {/* <pre>{JSON.stringify(groupedContributions)}</pre> */}
 
       <div className="w-10/12 bg-white p-5 mx-auto">
@@ -38,41 +40,76 @@ export const IncomeStatement = () => {
           <thead className="">
             <tr className=" bg-[#002140] w-full text-base uppercase text-white font-normal">
               <th className="border-gray-100 border-[1px] p-2 w-6/12">Title</th>
-              <th className="border-gray-100 border-[1px] p-2 ">Debit</th>
-              <th className="border-gray-100 border-[1px] p-2 ">Credit</th>
+              <th className="border-gray-100 border-[1px] p-2 ">
+                Contributions
+              </th>
+              <th className="border-gray-100 border-[1px] p-2 ">
+                Expenditures
+              </th>
+              <th className="border-gray-100 border-[1px] p-2 ">Balance</th>
             </tr>
           </thead>
 
+          {/* <pre>{JSON.stringify(stmt)}</pre> */}
           <tbody>
-            {/* {income?.contributions?.map()} */}
-            <tr className=" w-full text-base text-black font-medium">
-              <td className="border-black border-[1px] p-2 w-6/12">
-                Breakfast Contribution
-              </td>
-              <td className="border-black border-[1px] p-2 ">
-                {income?.expenditures[0]?.value}
-              </td>
-              <td className="border-black border-[1px] p-2 ">
-                {income?.contributions[0]?.value}
-              </td>
-            </tr>
+            {income?.contributions?.map((stmt) => {
+              const name = stmt?.name;
+              const contributions = stmt.value ? stmt.value : 0;
+              const d = income?.expenditures?.filter(
+                (item) => item?.id === stmt?.id
+              )[0];
+              const deductions = d ? d.value : 0;
+              const balance = parseInt(contributions) - parseInt(deductions);
+
+              tCont += contributions;
+              tDed += deductions;
+              tBal += balance;
+
+              return (
+                <tr className=" w-full text-base text-black font-medium">
+                  <td className="border-black border-[1px] p-2 w-6/12">
+                    {name}
+                  </td>
+                  <td className="border-black border-[1px] p-2 ">
+                    {contributions}
+                  </td>
+                  <td className="border-black border-[1px] p-2 ">
+                    {deductions}
+                  </td>
+                  <td
+                    className={`border-black border-[1px] p-2 ${
+                      balance > 0 && "text-green-700"
+                    }  ${balance < 0 && "text-red-700"}  ${
+                      balance === 0 && "text-blue-600"
+                    }   `}
+                  >
+                    {balance}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
 
           <tfoot>
-            <tr>
-              <td className="border-black font-bold border-[1px] p-2 ">
-                Total Contributions
+            <tr className="font-medium text-base">
+              <td className="border-gray-100 font-bold border-[1px] p-2 text-white bg-[#002140]">
+                TOTAL
               </td>
               <td className=" border-gray-100 text-white  bg-[#002140]  p-2 ">
-                6000
+                {tCont}
               </td>
               <td className="border-gray-100 text-white bg-[#002140] border-[1px] p-2 ">
-                8000
+                {tDed}
+              </td>
+              <td
+                className={`border-gray-100 text-white bg-[#002140] border-[1px] p-2 `}
+              >
+                {tBal}
               </td>
             </tr>
           </tfoot>
         </table>
       </div>
-    </AdminLayout>
+    </>
   );
 };

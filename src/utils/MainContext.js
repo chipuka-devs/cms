@@ -38,7 +38,12 @@ export const MainContext = ({ children }) => {
         query(collection(db, "users"), orderBy("joinedAt", "desc")),
         (docs) => {
           const users = [];
-          docs.forEach((user) => users.push({ ...user.data(), id: user.id }));
+          docs.forEach(
+            (user) =>
+              user.data().role &&
+              user.data().role !== "admin" &&
+              users.push({ ...user.data(), id: user.id })
+          );
 
           setAllUsers(users);
           setLoading(false);

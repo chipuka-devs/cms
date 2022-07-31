@@ -21,11 +21,13 @@ export const ProjectSummary = () => {
       title: "Amount",
       dataIndex: "amount",
       key: "amount",
+      render: (_, item) => parseInt(item?.amount).toLocaleString(),
     },
     {
       title: "Budget",
       dataIndex: "budget",
       key: "budget",
+      render: (_, item) => parseInt(item?.budget).toLocaleString(),
     },
 
     {
@@ -36,19 +38,19 @@ export const ProjectSummary = () => {
         if (balance > 0) {
           return (
             <div className="bg-green-200 m-0 w-24 text-green-500 font-medium text-center p-1">
-              {balance}
+              {balance?.toLocaleString()}
             </div>
           );
         } else if (balance < 0) {
           return (
             <div className="bg-red-200 m-0 w-24 text-center text-red-500 font-medium p-1">
-              {balance}
+              {balance?.toLocaleString()}
             </div>
           );
         } else {
           return (
             <div className="bg-blue-200 text-blue-600 m-0 w-24 text-center font-medium p-1">
-              {balance}
+              {balance?.toLocaleString()}
             </div>
           );
         }
@@ -128,7 +130,7 @@ export const ProjectSummary = () => {
     </Menu>
   );
   return (
-    <AdminLayout current="2" breadcrumbs={["Admin", "analysis", "project"]}>
+    <>
       <Divider className="font-medium">Yearly Project Summary</Divider>
 
       <div className="flex items-end gap-1 w-full py-3 ">
@@ -155,6 +157,6 @@ export const ProjectSummary = () => {
           title: "Total",
         }}
       />
-    </AdminLayout>
+    </>
   );
 };

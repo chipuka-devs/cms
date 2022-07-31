@@ -1,6 +1,5 @@
 import { Divider, Dropdown, Menu } from "antd";
 import React, { useContext, useEffect, useState } from "react";
-import AdminLayout from "../../../components/admin/AdminLayout";
 import { CustomTable } from "../../../components/CustomTable";
 import { AContext } from "../../../utils/AnalysisContext";
 import { Context } from "../../../utils/MainContext";
@@ -8,7 +7,9 @@ import { Context } from "../../../utils/MainContext";
 export const Project = () => {
   const { monthlyBasedContributions, months } = useContext(AContext);
   const { allUsers, allContributions } = useContext(Context);
-  const [selectedMonth, setSelectedMonth] = useState("March");
+  const [selectedMonth, setSelectedMonth] = useState(
+    months[new Date().getMonth()]
+  );
   const [tableData, setTableData] = useState();
 
   const columns = [
@@ -21,11 +22,13 @@ export const Project = () => {
       title: "Amount",
       dataIndex: "amount",
       key: "amount",
+      render: (_, item) => parseInt(item?.amount).toLocaleString(),
     },
     {
       title: "Budget",
       dataIndex: "budget",
       key: "budget",
+      render: (_, item) => parseInt(item?.budget).toLocaleString(),
     },
 
     {
@@ -36,19 +39,19 @@ export const Project = () => {
         if (balance > 0) {
           return (
             <div className="bg-green-200 m-0 w-24 text-green-500 font-medium text-center p-1">
-              {balance}
+              {balance.toLocaleString()}
             </div>
           );
         } else if (balance < 0) {
           return (
             <div className="bg-red-200 m-0 w-24 text-center text-red-500 font-medium p-1">
-              {balance}
+              {balance.toLocaleString()}
             </div>
           );
         } else {
           return (
             <div className="bg-blue-200 text-blue-600 m-0 w-24 text-center font-medium p-1">
-              {balance}
+              {balance.toLocaleString()}
             </div>
           );
         }
@@ -124,7 +127,7 @@ export const Project = () => {
     </Menu>
   );
   return (
-    <AdminLayout current="2" breadcrumbs={["Admin", "analysis", "project"]}>
+    <>
       <Divider className="font-medium">Project Budget Analysis</Divider>
 
       <div className="flex items-end gap-1 w-full py-3 ">
@@ -151,6 +154,6 @@ export const Project = () => {
           title: "Total",
         }}
       />
-    </AdminLayout>
+    </>
   );
 };

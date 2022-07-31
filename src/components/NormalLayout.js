@@ -21,9 +21,7 @@ const NormalLayout = ({ children, current = "1", breadcrumbs = ["Home"] }) => {
         <div className="site-layout-content">{children}</div>
       </Content>
       <Footer className="text-xs" style={{ textAlign: "center" }}>
-        <span className="text-[12px]">
-          Excel to Json ©2022 Created by Pekstar Coders
-        </span>
+        <span className="text-[12px]">CMS ©2022 built by chipuka-devs</span>
       </Footer>
     </Layout>
   );

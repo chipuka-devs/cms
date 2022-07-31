@@ -193,7 +193,7 @@ export const ViewUsers = () => {
           </Button>
           &nbsp;
           <Popconfirm
-            title="Are you sure to delete this task?"
+            title="Are you sure to delete this User?"
             onConfirm={() => handleDelete(data)}
             okText="Yes"
             cancelText="No"
@@ -211,7 +211,7 @@ export const ViewUsers = () => {
   ];
 
   return (
-    <AdminLayout current="5" breadcrumbs={["Admin/Users"]}>
+    <>
       <Spin
         spinning={loading.isLoading}
         size="large"
@@ -286,6 +286,6 @@ export const ViewUsers = () => {
 
         <CustomTable cols={columns} rows={groupUsers} style />
       </Spin>
-    </AdminLayout>
+    </>
   );
 };
