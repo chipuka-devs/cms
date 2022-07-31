@@ -1,6 +1,5 @@
 import { Divider, Dropdown, Menu } from "antd";
 import React, { useContext, useEffect, useState } from "react";
-import AdminLayout from "../../../components/admin/AdminLayout";
 import { CustomTable } from "../../../components/CustomTable";
 import { AContext } from "../../../utils/AnalysisContext";
 import { Context } from "../../../utils/MainContext";

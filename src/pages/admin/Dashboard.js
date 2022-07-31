@@ -1,5 +1,4 @@
 import React from "react";
-import AdminLayout from "../../components/admin/AdminLayout";
 import Chart from "../../components/admin/Charts";
 import PiChart from "../../components/admin/PieChart";
 import useContributions from "../../utils/hooks/useContributions";

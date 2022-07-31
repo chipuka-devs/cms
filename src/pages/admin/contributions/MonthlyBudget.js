@@ -10,7 +10,6 @@ import {
   where,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import AdminLayout from "../../../components/admin/AdminLayout";
 import { MonthlyForm } from "../../../components/admin/contributions/MonthlyForm";
 import { CustomTable } from "../../../components/CustomTable";
 import { error, success } from "../../../components/Notifications";

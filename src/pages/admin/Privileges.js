@@ -7,7 +7,6 @@ import {
   setDoc,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import AdminLayout from "../../components/admin/AdminLayout";
 import { error, success } from "../../components/Notifications";
 import { db } from "../../utils/firebase";
 

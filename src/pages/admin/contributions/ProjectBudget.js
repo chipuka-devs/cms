@@ -10,7 +10,6 @@ import {
   doc,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import AdminLayout from "../../../components/admin/AdminLayout";
 import { ProjectForm } from "../../../components/admin/contributions/ProjectForm";
 import { CustomTable } from "../../../components/CustomTable";
 import { error, success } from "../../../components/Notifications";

@@ -11,7 +11,6 @@ import {
   where,
 } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
-import AdminLayout from "../../../components/admin/AdminLayout";
 import { CustomTable } from "../../../components/CustomTable";
 import { error, success } from "../../../components/Notifications";
 import { db } from "../../../utils/firebase";

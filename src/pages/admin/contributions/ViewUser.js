@@ -1,6 +1,5 @@
 import { Input, Dropdown, Menu, Spin } from "antd";
 import React, { useContext } from "react";
-import AdminLayout from "../../../components/admin/AdminLayout";
 import { useState } from "react";
 import "../rowPointer.css";
 import { error, success } from "../../../components/Notifications";
@@ -181,7 +180,7 @@ const ViewUser = () => {
   );
 
   return (
-    <AdminLayout current="1" breadcrumbs={["Admin", "contributions", `${uid}`]}>
+    <>
       {/* input */}
       <Spin
         spinning={loading.isLoading}
@@ -263,7 +262,7 @@ const ViewUser = () => {
           />
         </div>
       </Spin>
-    </AdminLayout>
+    </>
   );
 };
 
