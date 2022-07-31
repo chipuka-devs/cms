@@ -23,7 +23,6 @@ import { db } from "../../../utils/firebase";
 import { CustomTable } from "../../../components/CustomTable";
 import { Context } from "../../../utils/MainContext";
 import { error, success } from "../../../components/Notifications";
-import moment from "moment";
 
 export const MonthlyContributions = () => {
   const { allUsers, allContributions } = useContext(Context);
