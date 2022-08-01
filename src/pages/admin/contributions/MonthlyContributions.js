@@ -18,6 +18,7 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "../../../utils/firebase";
 import { CustomTable } from "../../../components/CustomTable";
@@ -61,9 +62,11 @@ export const MonthlyContributions = () => {
   };
 
   const resetState = () => {
+    setSelectedUser("--Please select User --");
+    setSelectedContribution("--Please select Contribution --");
     setCurrentContribution({
-      user: "",
-      contribution: "",
+      // user: "",
+      // contribution: "",
       doc: "",
       amount: 0,
     });
@@ -77,17 +80,38 @@ export const MonthlyContributions = () => {
     if (!currentContribution.amount) {
       error("Empty Field", "Please enter a contribution amount");
 
+      stopLoading();
+
       return;
     }
 
-    if (!selectedContribution.name) {
+    if (!selectedContribution) {
       error("Error", "Please Select Contribution");
+
+      stopLoading();
       return;
     }
+    // console.log(currentContribution);
 
     try {
+      if (isUpdating) {
+        console.log(currentContribution);
+        await updateDoc(
+          doc(db, "user_contributions", currentContribution?.key),
+          {
+            amount: currentContribution.amount,
+            user: selectedUser?.uid,
+            contribution: selectedContribution.id,
+          }
+        );
+
+        setIsUpdating(false);
+
+        success("Success!", "Contribution updated successfully!");
+      }
+
       // add contribution
-      if (currentContribution && currentContribution.amount) {
+      if (!isUpdating && currentContribution?.amount) {
         await addDoc(collection(db, "user_contributions"), {
           amount: currentContribution.amount,
           user: selectedUser.uid,
@@ -95,13 +119,13 @@ export const MonthlyContributions = () => {
           doc: currentContribution?.doc,
           createdAt: serverTimestamp(),
         });
+
+        success("Success!", "Contribution added successfully!");
       }
 
       setLoading({ isLoading: false });
 
       resetState();
-
-      success("Success!", "Contribution added successfully!");
     } catch (err) {
       setLoading({ isLoading: false });
       error("Error", err.message);
@@ -111,14 +135,14 @@ export const MonthlyContributions = () => {
   const handleUpdate = (contrib) => {
     // setUpdate((prev) => ({ ...prev, mode: true, contribution: contrib }));
     setIsUpdating(true);
-    console.log(contrib);
 
-    setSelectedContribution(contrib?.purpose);
-    setSelectedUser(contrib?.member);
+    setSelectedContribution({ name: contrib?.purpose, id: contrib?.cid });
+    setSelectedUser({ name: contrib?.member, uid: contrib?.uid });
     setCurrentContribution((prev) => ({
       ...prev,
       doc: contributionNames?.date,
       amount: contrib?.amount,
+      key: contrib?.key,
     }));
   };
 
@@ -164,9 +188,11 @@ export const MonthlyContributions = () => {
             key: d?.id,
             date: d?.data().doc,
             member: currentUser?.name,
+            uid: currentUser?.id,
             amount: d?.data().amount,
             classification: currentContribution && currentContribution.category,
             purpose: currentContribution && currentContribution.name,
+            cid: currentContribution?.id,
           };
 
           if (
@@ -354,11 +380,12 @@ export const MonthlyContributions = () => {
                 required
                 value={currentContribution?.amount}
                 onChange={(e) =>
-                  setCurrentContribution({
+                  setCurrentContribution((prev) => ({
+                    ...prev,
                     user: selectedUser.uid,
                     contribution: selectedContribution.key,
                     amount: e.target.value,
-                  })
+                  }))
                 }
               />
             </div>
@@ -389,7 +416,7 @@ export const MonthlyContributions = () => {
               type="submit"
               className="bg-green-700 px-4 text-white h-8 mb-0"
             >
-              ADD
+              {isUpdating ? "UPDATE" : "ADD"}
             </button>
           </div>
         </form>

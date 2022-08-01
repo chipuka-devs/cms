@@ -9,7 +9,7 @@ import { Context } from "../../../utils/MainContext";
 export const OverallSummary = () => {
   const { yearBasedProjectContributions, years } = useContext(AContext);
   const { allUsers, allContributions } = useContext(Context);
-  const [selectedYear, setSelectedMonth] = useState([years[0]]);
+  const [selectedYear, setSelectedMonth] = useState(new Date().getFullYear());
   const [tableData, setTableData] = useState();
 
   const columns = [

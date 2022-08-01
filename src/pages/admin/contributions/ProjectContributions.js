@@ -18,6 +18,7 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "../../../utils/firebase";
 import { CustomTable } from "../../../components/CustomTable";
@@ -40,6 +41,7 @@ export const ProjectContributions = () => {
   );
   const [selectedUser, setSelectedUser] = useState("--Please select User --");
   const [currentContribution, setCurrentContribution] = useState({});
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const stopLoading = () => {
     setLoading({
@@ -52,6 +54,17 @@ export const ProjectContributions = () => {
     setLoading({
       isLoading: true,
       loadingMessage: message,
+    });
+  };
+
+  const resetState = () => {
+    setSelectedUser("--Please select User --");
+    setSelectedContribution("--Please select Contribution --");
+    setCurrentContribution({
+      // user: "",
+      // contribution: "",
+      doc: "",
+      amount: 0,
     });
   };
 
@@ -72,8 +85,23 @@ export const ProjectContributions = () => {
     }
 
     try {
+      if (isUpdating) {
+        console.log(currentContribution);
+        await updateDoc(
+          doc(db, "user_contributions", currentContribution?.key),
+          {
+            amount: currentContribution.amount,
+            user: selectedUser?.uid,
+            contribution: selectedContribution.id,
+          }
+        );
+
+        setIsUpdating(false);
+
+        success("Success!", "Contribution updated successfully!");
+      }
       // add contribution
-      if (currentContribution && currentContribution.amount) {
+      if (!isUpdating && currentContribution && currentContribution.amount) {
         await addDoc(collection(db, "user_contributions"), {
           amount: currentContribution.amount,
           user: selectedUser.uid,
@@ -81,14 +109,30 @@ export const ProjectContributions = () => {
           doc: currentContribution?.doc,
           createdAt: serverTimestamp(),
         });
+
+        success("Success!", "Contribution added successfully!");
       }
 
       setLoading({ isLoading: false });
 
-      success("Success!", "Contribution added successfully!");
+      resetState();
     } catch (err) {
       error("Error", err.message);
     }
+  };
+
+  const handleUpdate = (contrib) => {
+    // setUpdate((prev) => ({ ...prev, mode: true, contribution: contrib }));
+    setIsUpdating(true);
+
+    setSelectedContribution({ name: contrib?.purpose, id: contrib?.cid });
+    setSelectedUser({ name: contrib?.member, uid: contrib?.uid });
+    setCurrentContribution((prev) => ({
+      ...prev,
+      doc: contrib?.date,
+      amount: contrib?.amount,
+      key: contrib?.key,
+    }));
   };
 
   const handleDelete = async (id) => {
@@ -133,6 +177,8 @@ export const ProjectContributions = () => {
             key: d?.id,
             date: d?.data().doc,
             member: currentUser?.name,
+            uid: currentUser?.id,
+            cid: currentContribution?.id,
             amount: d?.data().amount,
             classification: currentContribution && currentContribution.category,
             purpose: currentContribution && currentContribution.name,
@@ -213,10 +259,7 @@ export const ProjectContributions = () => {
         <>
           <Button
             className="bg-blue-600 font-medium text-gray-100"
-            // onClick={() => {
-            //   setIsEditing(true);
-            //   setNewContribution(data);
-            // }}
+            onClick={() => handleUpdate(data)}
           >
             Edit
           </Button>
@@ -318,39 +361,43 @@ export const ProjectContributions = () => {
                 type="number"
                 placeholder="i.e 200 "
                 required
-                // value={currentContributionAmount}
+                value={currentContribution?.amount}
                 onChange={(e) =>
-                  setCurrentContribution({
+                  setCurrentContribution((prev) => ({
+                    ...prev,
                     user: selectedUser.uid,
                     contribution: selectedContribution.key,
                     amount: e.target.value,
-                  })
-                }
-              />
-            </div>
-
-            <div className="">
-              <label className="font-medium" htmlFor="type">
-                Contribution Date:
-              </label>
-              <br />
-              {/* amount  */}
-              <DatePicker
-                onChange={(_date, dateString) =>
-                  setCurrentContribution((prev) => ({
-                    ...prev,
-
-                    doc: new Date(dateString).toLocaleDateString(),
                   }))
                 }
               />
             </div>
 
+            {!isUpdating && (
+              <div className="">
+                <label className="font-medium" htmlFor="type">
+                  Contribution Date:
+                </label>
+                <br />
+                {/* amount  */}
+                <DatePicker
+                  defaultValue={currentContribution?.doc}
+                  onChange={(_date, dateString) =>
+                    setCurrentContribution((prev) => ({
+                      ...prev,
+
+                      doc: new Date(dateString).toLocaleDateString(),
+                    }))
+                  }
+                />
+              </div>
+            )}
+
             <button
               type="submit"
               className="bg-green-700 px-4 text-white h-8 mb-0"
             >
-              ADD
+              {isUpdating ? "UPDATE" : "ADD"}
             </button>
           </div>
         </form>

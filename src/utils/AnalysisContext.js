@@ -74,7 +74,9 @@ export const AnalysisContext = ({ children }) => {
           const currentYear =
             new Date(doc.data().doc).getFullYear() ||
             new Date(doc.data()?.doc?.seconds * 1000).getFullYear();
-          !years.includes(currentYear) && setYears([currentYear, ...years]);
+          currentYear &&
+            !years.includes(currentYear) &&
+            setYears([currentYear, ...years]);
 
           uArr.unshift({
             ...doc.data(),

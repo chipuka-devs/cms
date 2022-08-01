@@ -16,6 +16,7 @@ import {
   onSnapshot,
   query,
   Timestamp,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
@@ -41,6 +42,7 @@ export const VoluntaryContributions = () => {
     isLoading: false,
     loadingMessage: "loading...",
   });
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const stopLoading = () => {
     setLoading({
@@ -75,8 +77,23 @@ export const VoluntaryContributions = () => {
     const { name, user, amount } = voluntaryContribution;
 
     try {
+      if (isUpdating) {
+        // console.log(currentContribution);
+        await updateDoc(
+          doc(db, "user_contributions", voluntaryContribution?.key),
+          {
+            amount: voluntaryContribution.amount,
+            user: voluntaryContribution?.user?.uid,
+            contribution: voluntaryContribution.name,
+          }
+        );
+
+        setIsUpdating(false);
+
+        success("Success!", "Contribution updated successfully!");
+      }
       // add contribution
-      if (voluntaryContribution?.amount) {
+      if (!isUpdating && voluntaryContribution?.amount) {
         await addDoc(collection(db, "user_contributions"), {
           amount: amount,
           user: user.uid,
@@ -84,9 +101,10 @@ export const VoluntaryContributions = () => {
           contribution: name,
           doc: Timestamp.fromDate(new Date(voluntaryContribution?.doc)),
         });
+
+        success("Success!", "Contribution added successfully!");
       }
 
-      success("Success!", "Contribution added successfully!");
       stopLoading();
       setVoluntaryContribution({
         user: {
@@ -99,6 +117,21 @@ export const VoluntaryContributions = () => {
       error("Error", err.message);
       stopLoading();
     }
+  };
+
+  const handleUpdate = (contrib) => {
+    // setUpdate((prev) => ({ ...prev, mode: true, contribution: contrib }));
+    setIsUpdating(true);
+    console.log(contrib);
+    // setSelectedContribution({ name: contrib?.purpose, id: contrib?.cid });
+    // setSelectedUser({ name: contrib?.member, uid: contrib?.uid });
+    setVoluntaryContribution((prev) => ({
+      ...prev,
+      user: { name: contrib?.member, uid: contrib?.uid },
+      name: contrib?.purpose,
+      amount: contrib?.amount,
+      key: contrib?.key,
+    }));
   };
 
   const handleDelete = async (id) => {
@@ -141,6 +174,7 @@ export const VoluntaryContributions = () => {
             purpose: d.data()?.contribution,
             amount: d.data()?.amount,
             member: currentUser.name,
+            uid: currentUser?.id,
             key: d?.id,
           });
         });
@@ -204,10 +238,9 @@ export const VoluntaryContributions = () => {
         <>
           <Button
             className="bg-blue-600 font-medium text-gray-100"
-            // onClick={() => {
-            //   setIsEditing(true);
-            //   setNewContribution(data);
-            // }}
+            onClick={() => {
+              handleUpdate(data);
+            }}
           >
             Edit
           </Button>
@@ -293,23 +326,25 @@ export const VoluntaryContributions = () => {
               />
             </div>
 
-            <div className="">
-              <label className="font-medium" htmlFor="type">
-                Contribution Date:
-              </label>
-              <br />
-              {/* amount  */}
-              <DatePicker
-                defaultValue={voluntaryContribution?.doc}
-                onChange={(_date, dateString) =>
-                  setVoluntaryContribution((prev) => ({
-                    ...prev,
+            {!isUpdating && (
+              <div className="">
+                <label className="font-medium" htmlFor="type">
+                  Contribution Date:
+                </label>
+                <br />
+                {/* amount  */}
+                <DatePicker
+                  defaultValue={voluntaryContribution?.doc}
+                  onChange={(_date, dateString) =>
+                    setVoluntaryContribution((prev) => ({
+                      ...prev,
 
-                    doc: new Date(dateString).toLocaleDateString(),
-                  }))
-                }
-              />
-            </div>
+                      doc: new Date(dateString).toLocaleDateString(),
+                    }))
+                  }
+                />
+              </div>
+            )}
 
             <button
               type="submit"

@@ -18,6 +18,7 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "../../../utils/firebase";
 import { CustomTable } from "../../../components/CustomTable";
@@ -41,6 +42,7 @@ export const AnnualContributions = () => {
   const [selectedUser, setSelectedUser] = useState("--Please select User --");
 
   const [currentContribution, setCurrentContribution] = useState({});
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const stopLoading = () => {
     setLoading({
@@ -56,6 +58,17 @@ export const AnnualContributions = () => {
     });
   };
 
+  const resetState = () => {
+    setSelectedUser("--Please select User --");
+    setSelectedContribution("--Please select Contribution --");
+    setCurrentContribution({
+      // user: "",
+      // contribution: "",
+      doc: "",
+      amount: 0,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -63,19 +76,33 @@ export const AnnualContributions = () => {
 
     if (!currentContribution.amount) {
       error("Empty Field", "Please enter a contribution amount");
-
+      stopLoading();
       return;
     }
 
     if (!selectedContribution.name) {
       error("Error", "Please Select Contribution");
+      stopLoading();
       return;
     }
 
     try {
       // add contribution
+      if (isUpdating) {
+        await updateDoc(
+          doc(db, "user_contributions", currentContribution?.key),
+          {
+            amount: currentContribution.amount,
+            user: selectedUser?.uid,
+            contribution: selectedContribution.id,
+          }
+        );
 
-      if (currentContribution && currentContribution.amount) {
+        success("Success!", "Contribution updated successfully!");
+        setIsUpdating(false);
+      }
+
+      if (!isUpdating && currentContribution?.amount) {
         await addDoc(collection(db, "user_contributions"), {
           amount: currentContribution.amount,
           user: selectedUser.uid,
@@ -83,14 +110,30 @@ export const AnnualContributions = () => {
           doc: currentContribution.doc,
           createdAt: serverTimestamp(),
         });
+
+        success("Success!", "Contribution added successfully!");
       }
 
       setLoading({ isLoading: false });
-
-      success("Success!", "Contribution added successfully!");
+      resetState();
     } catch (err) {
+      stopLoading();
       error("Error", err.message);
     }
+  };
+
+  const handleUpdate = (contrib) => {
+    // setUpdate((prev) => ({ ...prev, mode: true, contribution: contrib }));
+    setIsUpdating(true);
+
+    setSelectedContribution({ name: contrib?.purpose, id: contrib?.cid });
+    setSelectedUser({ name: contrib?.member, uid: contrib?.uid });
+    setCurrentContribution((prev) => ({
+      ...prev,
+      doc: contributionNames?.date,
+      amount: contrib?.amount,
+      key: contrib?.key,
+    }));
   };
 
   const handleDelete = async (id) => {
@@ -136,6 +179,8 @@ export const AnnualContributions = () => {
             key: d?.id,
             date: d?.data().doc,
             member: currentUser?.name,
+            uid: currentUser?.id,
+            cid: currentContribution?.id,
             amount: d?.data().amount,
             classification: currentContribution && currentContribution.category,
             purpose: currentContribution && currentContribution.name,
@@ -216,10 +261,9 @@ export const AnnualContributions = () => {
         <>
           <Button
             className="bg-blue-600 font-medium text-gray-100"
-            // onClick={() => {
-            //   setIsEditing(true);
-            //   setNewContribution(data);
-            // }}
+            onClick={() => {
+              handleUpdate(data);
+            }}
           >
             Edit
           </Button>
@@ -290,8 +334,8 @@ export const AnnualContributions = () => {
                   className="h-8 bg-white border flex items-center px-3"
                   style={{ width: "300px" }}
                 >
-                  {selectedContribution.name
-                    ? selectedContribution.name
+                  {selectedContribution?.name
+                    ? selectedContribution?.name
                     : selectedContribution}
                 </div>
               </Dropdown>
@@ -320,40 +364,43 @@ export const AnnualContributions = () => {
                 type="number"
                 placeholder="i.e 200 "
                 required
-                // value={currentContributionAmount}
+                value={currentContribution?.amount}
                 onChange={(e) =>
-                  setCurrentContribution({
+                  setCurrentContribution((prev) => ({
+                    ...prev,
                     user: selectedUser.uid,
                     contribution: selectedContribution.key,
                     amount: e.target.value,
-                  })
-                }
-              />
-            </div>
-
-            <div className="">
-              <label className="font-medium" htmlFor="type">
-                Contribution Date:
-              </label>
-              <br />
-              {/* amount  */}
-              <DatePicker
-                defaultValue={currentContribution?.doc}
-                onChange={(_date, dateString) =>
-                  setCurrentContribution((prev) => ({
-                    ...prev,
-
-                    doc: new Date(dateString).toLocaleDateString(),
                   }))
                 }
               />
             </div>
 
+            {!isUpdating && (
+              <div className="">
+                <label className="font-medium" htmlFor="type">
+                  Contribution Date:
+                </label>
+                <br />
+                {/* amount  */}
+                <DatePicker
+                  defaultValue={currentContribution?.doc}
+                  onChange={(_date, dateString) =>
+                    setCurrentContribution((prev) => ({
+                      ...prev,
+
+                      doc: new Date(dateString).toLocaleDateString(),
+                    }))
+                  }
+                />
+              </div>
+            )}
+
             <button
               type="submit"
               className="bg-green-700 px-4 text-white h-8 mb-0"
             >
-              ADD
+              {isUpdating ? "UPDATE" : "ADD"}
             </button>
           </div>
         </form>
