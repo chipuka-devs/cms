@@ -70,14 +70,16 @@ export const Dashboard = () => {
       </div>
 
       {/* charts */}
-      <div className="py-4 flex gap-2">
-         <h3>Actual vs Budget Overview bar chart And The contribution mix pie chart </h3 >
-         
-        <div className="w-7/12 rounded-lg bg-white p-2 min-h-[500px]">
-          <Chart />
-        </div>
-        <div className="w-5/12 rounded-lg bg-white p-2">
-          <PiChart state={state} colors={colors} />
+      <div>
+        <h3 className="text-xl font-semibold">Actual vs Budget Overview bar chart And The contribution mix pie chart </h3 >
+        <div className="py-4 flex gap-2">
+
+          <div className="w-7/12 rounded-lg bg-white p-2 min-h-[500px]">
+            <Chart />
+          </div>
+          <div className="w-5/12 rounded-lg bg-white p-2">
+            <PiChart state={state} colors={colors} />
+          </div>
         </div>
       </div>
     </>
