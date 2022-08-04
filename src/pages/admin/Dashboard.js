@@ -81,7 +81,7 @@ export const Dashboard = () => {
             <PiChart state={state} colors={colors} />
           </div>
         </div>
-        <h3 className="text-lg">Actual vs Budget Overview bar chart And The contribution mix pie chart </h3 >
+        <h3 className="text-lg text-center font-medium">Actual vs Budget Overview bar chart And The contribution mix pie chart </h3 >
       </div>
     </>
   );
