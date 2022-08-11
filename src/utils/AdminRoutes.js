@@ -1,14 +1,14 @@
 import { IncomeStatement } from "../pages/admin/IncomeStatement";
 import PrivateRoute from "./PrivateAdminRoute";
 import { ViewUsers } from "../pages/admin/ViewUsers";
-import { Dashboard } from "../pages/admin/Dashboard";
+// import { Dashboard } from "../pages/admin/Dashboard";
 
 export const AdminRoutes = [
   {
     path: "/",
     element: (
       <PrivateRoute>
-        <Dashboard />
+        <ViewUsers />
       </PrivateRoute>
     ),
   },

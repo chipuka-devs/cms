@@ -64,10 +64,10 @@ const AdminLayout = ({ breadcrumbs = ["Admin"] }) => {
               {AdminRoutes.map((r, index) => (
                 <Route key={index} path={r.path} element={r.element} />
               ))}
-              {/* <Route
+              <Route
                 path="/contributions/"
                 element={<ViewAllContributions />}
-              /> */}
+              />
 
               {/* contributions */}
               <>
