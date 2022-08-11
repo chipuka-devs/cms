@@ -6,7 +6,7 @@ import { Route, Routes } from "react-router-dom";
 import MenuBar from "./Menu";
 import { AdminRoutes } from "../../utils/AdminRoutes";
 import PrivateRoute from "../../utils/PrivateAdminRoute";
-// import ViewAllContributions from "../../pages/admin/contributions/ViewAll";
+import ViewAllContributions from "../../pages/admin/contributions/ViewAll";
 import MonthlyBudget from "../../pages/admin/contributions/MonthlyBudget";
 import { MonthlyContributions } from "../../pages/admin/contributions/MonthlyContributions";
 import { ProjectContributions } from "../../pages/admin/contributions/ProjectContributions";
