@@ -14,7 +14,7 @@ const Signin = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
         success("Success!", "Login successful!");
-        navigate("/admin/");
+        navigate("/admin/users");
       })
       .catch((err) => {
         error("Error!", err.message);

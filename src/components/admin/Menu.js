@@ -26,9 +26,9 @@ const MenuBar = () => {
       theme="dark"
       // items={items}
     >
-      <Menu.Item key="0" icon={<BarChartOutlined />}>
+      {/* <Menu.Item key="0" icon={<BarChartOutlined />}>
         <Link to="/admin/">Dashboard</Link>
-      </Menu.Item>
+      </Menu.Item> */}
 
       <Menu.Item key="7" icon={<UserOutlined />}>
         <Link to="/admin/users">Member Details</Link>
