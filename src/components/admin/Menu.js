@@ -3,7 +3,7 @@ import {
   MinusCircleOutlined,
   KeyOutlined,
   ShareAltOutlined,
-  BarChartOutlined,
+  // BarChartOutlined,
   MoneyCollectOutlined,
   UserOutlined,
 } from "@ant-design/icons";
