@@ -168,10 +168,11 @@ export const VoluntaryContributions = () => {
             (item) => item.uid === d.data().user
           )[0];
 
+          const cDate = d.data()?.doc?.seconds
+            ? new Date(d.data()?.doc?.seconds * 1000)
+            : new Date(d.data().timestamp);
           cList.unshift({
-            date: d.data()?.doc?.seconds
-              ? new Date(d.data()?.doc?.seconds * 1000).toLocaleDateString()
-              : new Date(d.data().timestamp).toLocaleDateString(),
+            date: moment(cDate).format("DD/MM/YYYY"),
             purpose: d.data()?.contribution,
             amount: d.data()?.amount,
             member: currentUser.name,
