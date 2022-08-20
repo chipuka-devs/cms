@@ -78,16 +78,6 @@ const ProjectBudget = () => {
     } else {
       const { deadline, startDate, target } = newContribution;
 
-      const isValid =
-        validateDate(startDate, deadline) &&
-        validateDate(new Date(), deadline) &&
-        validateDate(new Date(), new Date(startDate));
-
-      if (!isValid) {
-        error("Error!", "Please provide valid dates!");
-        return;
-      }
-
       const nOfMonths = calculateDifferenceInMonths(startDate, deadline);
       const averageAmount = Math.floor(target / nOfMonths);
 

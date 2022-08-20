@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState, useMemo } from "react";
+import { useContext, useEffect, useState } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 import { AContext } from "../AnalysisContext";
