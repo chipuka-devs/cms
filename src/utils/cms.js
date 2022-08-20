@@ -1,23 +1,6 @@
 import * as _ from "lodash/collection";
 import * as _a from "lodash/array";
 
-let monthsArr = new Array([
-  {
-    1: [],
-    2: [],
-    3: [],
-    4: [],
-    5: [],
-    6: [],
-    7: [],
-    8: [],
-    9: [],
-    10: [],
-    11: [],
-    12: [],
-  },
-]);
-
 const viewData = async () => {
   fetch("http://localhost:8000/data")
     .then((response) => response.json())
