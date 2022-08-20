@@ -15,6 +15,7 @@ import { db } from "../../../utils/firebase";
 import { CustomTable } from "../../../components/CustomTable";
 import { Context } from "../../../utils/MainContext";
 import { error, success } from "../../../components/Notifications";
+import _ from "lodash/collection";
 
 export const Pledges = () => {
   const { allUsers, allContributions } = useContext(Context);
@@ -52,6 +53,12 @@ export const Pledges = () => {
     });
   };
 
+  const resetState = () => {
+    setSelectedContribution("--Please select Contribution --");
+    setSelectedUser("--Please select User --");
+    setUserPledge(0);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const d = {
@@ -65,9 +72,7 @@ export const Pledges = () => {
       try {
         await setDoc(doc(db, "pledges", selectedId), d);
 
-        setSelectedContribution("");
-        setSelectedUser("");
-        setUserPledge(0);
+        resetState();
 
         stopLoading();
 
@@ -143,14 +148,17 @@ export const Pledges = () => {
             const cUser = allUsers.filter(
               (item) => item.uid === doc.data().user
             )[0];
-            const cContribution = allContributions.filter(
-              (item) => item.id === doc.data().contribution
-            )[0];
+            // const cContribution = allContributions.filter(
+            //   (item) => item.id === doc.data().contribution
+            // )[0];
+            const cContribution = _.find(allContributions, {
+              id: doc.data().contribution,
+            });
 
             const pledge = {
               member: cUser.name,
               member_id: doc.data().user,
-              contribution: cContribution.name,
+              contribution: cContribution?.name,
               pledge: doc.data().amount,
               key: doc.id,
               user: doc.data().user,
@@ -337,6 +345,14 @@ export const Pledges = () => {
               className="bg-green-700 px-4 text-white h-8 mb-0"
             >
               {isEditing ? "Update" : "Create"}
+            </button>
+
+            <button
+              type="button"
+              className="border border-green-700 hover:bg-green-700 px-4 text-green-700 hover:text-white h-8 mb-0"
+              onClick={resetState}
+            >
+              CLEAR
             </button>
           </div>
         </form>

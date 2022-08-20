@@ -14,10 +14,7 @@ import { ProjectForm } from "../../../components/admin/contributions/ProjectForm
 import { CustomTable } from "../../../components/CustomTable";
 import { error, success } from "../../../components/Notifications";
 import { db } from "../../../utils/firebase";
-import {
-  calculateDifferenceInMonths,
-  validateDate,
-} from "../../../utils/Validations";
+import { calculateDifferenceInMonths } from "../../../utils/Validations";
 
 const ProjectBudget = () => {
   const [loading, setLoading] = useState({
