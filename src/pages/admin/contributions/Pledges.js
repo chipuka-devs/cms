@@ -199,6 +199,8 @@ export const Pledges = () => {
       dataIndex: "member",
       key: "member",
       filters: [...userNames],
+      defaultSortOrder: "ascend",
+      sorter: (a, b) => a?.member.localeCompare(b?.member),
       onFilter: (value, record) => record.member.startsWith(value),
     },
     {
