@@ -1,8 +1,9 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useMemo } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 import { AContext } from "../AnalysisContext";
 import { Context } from "../MainContext";
+import cms from "../cms";
 
 const useContributions = () => {
   const [state, setState] = useState({});
@@ -17,6 +18,19 @@ const useContributions = () => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    makeGroupings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state?.contributions, state?.userContributions]);
+
+  // const data = useMemo(() => {
+  //   return state
+  // }, [])
+
+  // useEffect(() => {
+  //   console.log(state);
+  // }, [state]);
 
   // function to fetch all contributions made by users
   function fetchUserContributions() {
@@ -61,6 +75,16 @@ const useContributions = () => {
     } catch (error) {
       console.log("Fetch Expenditure error:", error);
     }
+  }
+
+  // group state by date
+  function makeGroupings() {
+    const yearGroupings = cms.groupByYear(state?.userContributions);
+
+    const monthlyGroupings = cms.groupMonths(state?.userContributions);
+    console.log(monthlyGroupings);
+
+    setState((prev) => ({ ...prev, yearGroupings }));
   }
 
   // calculate total contributions made

@@ -24,6 +24,7 @@ import { db } from "../../../utils/firebase";
 import { CustomTable } from "../../../components/CustomTable";
 import { Context } from "../../../utils/MainContext";
 import { error, success } from "../../../components/Notifications";
+import moment from "moment";
 
 export const ProjectContributions = () => {
   const { allUsers, allContributions } = useContext(Context);
@@ -40,7 +41,9 @@ export const ProjectContributions = () => {
     "--Please select Contribution --"
   );
   const [selectedUser, setSelectedUser] = useState("--Please select User --");
-  const [currentContribution, setCurrentContribution] = useState({});
+  const [currentContribution, setCurrentContribution] = useState({
+    doc: new Date().toDateString(),
+  });
   const [isUpdating, setIsUpdating] = useState(false);
 
   const stopLoading = () => {
@@ -58,12 +61,13 @@ export const ProjectContributions = () => {
   };
 
   const resetState = () => {
+    setIsUpdating(false);
     setSelectedUser("--Please select User --");
     setSelectedContribution("--Please select Contribution --");
     setCurrentContribution({
       // user: "",
       // contribution: "",
-      doc: "",
+      doc: new Date().toDateString(),
       amount: 0,
     });
   };
@@ -75,18 +79,20 @@ export const ProjectContributions = () => {
 
     if (!currentContribution.amount) {
       error("Empty Field", "Please enter a contribution amount");
-
+      setLoading(false);
       return;
     }
 
     if (!selectedContribution.name) {
       error("Error", "Please Select Contribution");
+      setLoading(false);
+
       return;
     }
 
     try {
       if (isUpdating) {
-        console.log(currentContribution);
+        // console.log(currentContribution);
         await updateDoc(
           doc(db, "user_contributions", currentContribution?.key),
           {
@@ -381,7 +387,7 @@ export const ProjectContributions = () => {
                 <br />
                 {/* amount  */}
                 <DatePicker
-                  defaultValue={currentContribution?.doc}
+                  defaultValue={moment(currentContribution?.doc)}
                   onChange={(_date, dateString) =>
                     setCurrentContribution((prev) => ({
                       ...prev,
@@ -398,6 +404,14 @@ export const ProjectContributions = () => {
               className="bg-green-700 px-4 text-white h-8 mb-0"
             >
               {isUpdating ? "UPDATE" : "ADD"}
+            </button>
+
+            <button
+              type="button"
+              className="border border-green-700 hover:bg-green-700 px-4 text-green-700 hover:text-white h-8 mb-0"
+              onClick={resetState}
+            >
+              CLEAR
             </button>
           </div>
         </form>

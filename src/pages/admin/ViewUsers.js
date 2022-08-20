@@ -5,7 +5,6 @@ import {
   doc,
   getDocs,
   query,
-  serverTimestamp,
   setDoc,
   where,
 } from "firebase/firestore";
@@ -28,6 +27,7 @@ export const ViewUsers = () => {
     firstName: "",
     lastName: "",
     phone: "",
+    joinedAt: new Date(),
   });
   const [mode, setMode] = useState("");
 
@@ -38,14 +38,25 @@ export const ViewUsers = () => {
     });
   };
 
+  const resetState = () => {
+    setNewUser({
+      firstName: "",
+      lastName: "",
+      phone: "",
+      joinedAt: new Date().toISOString(),
+    });
+  };
+
   const handleEdit = (d) => {
     setMode("edit");
 
+    console.log(new Date(d?.date)?.toISOString());
     setNewUser((prev) => ({
       ...prev,
       firstName: d?.first,
       lastName: d?.surname,
       phone: d?.key,
+      joinedAt: new Date(d?.date),
     }));
 
     // setMode("");
@@ -89,7 +100,7 @@ export const ViewUsers = () => {
 
     startLoading("Adding new Member");
 
-    const { firstName, lastName, phone } = newUser;
+    const { firstName, lastName, phone, joinedAt } = newUser;
 
     if (
       !firstName ||
@@ -108,7 +119,7 @@ export const ViewUsers = () => {
       name: `${firstName.trim()} ${lastName.trim()}`,
       uid: phone,
       password: firstName.trim().toLowerCase() + phone.trim(),
-      joinedAt: serverTimestamp(),
+      joinedAt: joinedAt,
       role: "normal_user",
     };
 
@@ -118,11 +129,7 @@ export const ViewUsers = () => {
 
       stopLoading();
 
-      setNewUser({
-        firstName: "",
-        lastName: "",
-        phone: "",
-      });
+      resetState();
 
       success(
         "SUCCESS!",
@@ -162,16 +169,20 @@ export const ViewUsers = () => {
       title: "First Name",
       dataIndex: "first",
       key: "first",
+      defaultSortOrder: "ascend",
+      sorter: (a, b) => a?.first.localeCompare(b?.first),
     },
     {
       title: "Surname",
       dataIndex: "surname",
       key: "surname",
+      sorter: (a, b) => a?.surname.localeCompare(b?.surname),
     },
     {
       title: "Date Joined",
       dataIndex: "date",
       key: "date",
+      sorter: (a, b) => new Date(a.date) - new Date(b.date),
     },
     {
       title: "Phone",
@@ -274,11 +285,38 @@ export const ViewUsers = () => {
               />
             </div>
 
+            <div className="">
+              <label className="font-medium">Date Joined:</label>
+              {/* date  */}
+              <Input
+                type="date"
+                required
+                placeholder="select the starting day"
+                value={new Date(newUser?.joinedAt)
+                  ?.toISOString()
+                  .substring(0, 10)}
+                onChange={(e) =>
+                  setNewUser((prev) => ({
+                    ...prev,
+                    joinedAt: e.target.value,
+                  }))
+                }
+              />
+            </div>
+
             <button
               type="submit"
               className="bg-green-700 px-4 text-white h-8 mb-0"
             >
               {mode === "edit" ? "UPDATE" : "ADD"}
+            </button>
+
+            <button
+              type="button"
+              className="border border-green-700 hover:bg-green-700 px-4 text-green-700 hover:text-white h-8 mb-0"
+              onClick={resetState}
+            >
+              CLEAR
             </button>
           </div>
         </form>

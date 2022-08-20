@@ -1,0 +1,452 @@
+{
+  "data": [
+    {
+      "Date": "8/4/22",
+      " Name ": " Eric ",
+      " Bgt ": 800,
+      "Act": 730,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "8/11/22",
+      " Name ": " Pekmah ",
+      " Bgt ": 800,
+      "Act": 666,
+      " Contribution Purpose ": " Priest's Car "
+    },
+    {
+      "Date": "8/18/22",
+      " Name ": " Fundi ",
+      " Bgt ": 800,
+      "Act": 640,
+      " Contribution Purpose ": " Church renovations "
+    },
+    {
+      "Date": "8/25/22",
+      " Name ": " Mwaniki ",
+      " Bgt ": 800,
+      "Act": 660,
+      " Contribution Purpose ": " Church pews "
+    },
+    {
+      "Date": "9/1/22",
+      " Name ": " Nimo ",
+      " Bgt ": 800,
+      "Act": 515,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "9/8/22",
+      " Name ": " Cynthia ",
+      " Bgt ": 800,
+      "Act": 563,
+      " Contribution Purpose ": " Priest's Car "
+    },
+    {
+      "Date": "9/15/22",
+      " Name ": " Mike ",
+      " Bgt ": 800,
+      "Act": 507,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "9/22/22",
+      " Name ": " Atogo ",
+      " Bgt ": 800,
+      "Act": 554,
+      " Contribution Purpose ": " Church pews "
+    },
+    {
+      "Date": "9/29/22",
+      " Name ": " Kamau ",
+      " Bgt ": 800,
+      "Act": 675,
+      " Contribution Purpose ": " Priest's Car "
+    },
+    {
+      "Date": "10/6/22",
+      " Name ": " Eric ",
+      " Bgt ": 800,
+      "Act": 799,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "10/13/22",
+      " Name ": " Pekmah ",
+      " Bgt ": 800,
+      "Act": 677,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "10/20/22",
+      " Name ": " Fundi ",
+      " Bgt ": 800,
+      "Act": 570,
+      " Contribution Purpose ": " Church pews "
+    },
+    {
+      "Date": "10/27/22",
+      " Name ": " Mwaniki ",
+      " Bgt ": 800,
+      "Act": 821,
+      " Contribution Purpose ": " Church renovations "
+    },
+    {
+      "Date": "11/3/22",
+      " Name ": " Nimo ",
+      " Bgt ": 800,
+      "Act": 633,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "11/10/22",
+      " Name ": " Cynthia ",
+      " Bgt ": 800,
+      "Act": 679,
+      " Contribution Purpose ": " Priest's Car "
+    },
+    {
+      "Date": "11/17/22",
+      " Name ": " Mike ",
+      " Bgt ": 800,
+      "Act": 913,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "11/24/22",
+      " Name ": " Atogo ",
+      " Bgt ": 800,
+      "Act": 786,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "12/1/22",
+      " Name ": " Kamau ",
+      " Bgt ": 800,
+      "Act": 767,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "12/8/22",
+      " Name ": " Eric ",
+      " Bgt ": 800,
+      "Act": 825,
+      " Contribution Purpose ": " Church renovations "
+    },
+    {
+      "Date": "12/15/22",
+      " Name ": " Pekmah ",
+      " Bgt ": 800,
+      "Act": 753,
+      " Contribution Purpose ": " Church renovations "
+    },
+    {
+      "Date": "12/22/22",
+      " Name ": " Fundi ",
+      " Bgt ": 800,
+      "Act": 641,
+      " Contribution Purpose ": " Church pews "
+    },
+    {
+      "Date": "12/29/22",
+      " Name ": " Mwaniki ",
+      " Bgt ": 800,
+      "Act": 516,
+      " Contribution Purpose ": " Church pews "
+    },
+    {
+      "Date": "1/5/23",
+      " Name ": " Nimo ",
+      " Bgt ": 800,
+      "Act": 824,
+      " Contribution Purpose ": " Church pews "
+    },
+    {
+      "Date": "1/12/23",
+      " Name ": " Cynthia ",
+      " Bgt ": 800,
+      "Act": 926,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "1/19/23",
+      " Name ": " Mike ",
+      " Bgt ": 800,
+      "Act": 751,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "1/26/23",
+      " Name ": " Atogo ",
+      " Bgt ": 800,
+      "Act": 801,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "2/2/23",
+      " Name ": " Kamau ",
+      " Bgt ": 800,
+      "Act": 990,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "2/9/23",
+      " Name ": " Eric ",
+      " Bgt ": 800,
+      "Act": 535,
+      " Contribution Purpose ": " Priest's Car "
+    },
+    {
+      "Date": "2/16/23",
+      " Name ": " Pekmah ",
+      " Bgt ": 800,
+      "Act": 700,
+      " Contribution Purpose ": " Priest's Car "
+    },
+    {
+      "Date": "2/23/23",
+      " Name ": " Fundi ",
+      " Bgt ": 800,
+      "Act": 677,
+      " Contribution Purpose ": " Priest's Car "
+    },
+    {
+      "Date": "3/2/23",
+      " Name ": " Mwaniki ",
+      " Bgt ": 800,
+      "Act": 807,
+      " Contribution Purpose ": " Church pews "
+    },
+    {
+      "Date": "3/9/23",
+      " Name ": " Nimo ",
+      " Bgt ": 800,
+      "Act": 657,
+      " Contribution Purpose ": " Church pews "
+    },
+    {
+      "Date": "3/16/23",
+      " Name ": " Cynthia ",
+      " Bgt ": 800,
+      "Act": 590,
+      " Contribution Purpose ": " Church renovations "
+    },
+    {
+      "Date": "3/23/23",
+      " Name ": " Mike ",
+      " Bgt ": 800,
+      "Act": 815,
+      " Contribution Purpose ": " Church renovations "
+    },
+    {
+      "Date": "3/30/23",
+      " Name ": " Mike ",
+      " Bgt ": 800,
+      "Act": 640,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "4/6/23",
+      " Name ": " Atogo ",
+      " Bgt ": 800,
+      "Act": 601,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "4/13/23",
+      " Name ": " Kamau ",
+      " Bgt ": 800,
+      "Act": 996,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "4/20/23",
+      " Name ": " Eric ",
+      " Bgt ": 800,
+      "Act": 756,
+      " Contribution Purpose ": " Church renovations "
+    },
+    {
+      "Date": "4/27/23",
+      " Name ": " Pekmah ",
+      " Bgt ": 800,
+      "Act": 975,
+      " Contribution Purpose ": " Church renovations "
+    },
+    {
+      "Date": "5/4/23",
+      " Name ": " Fundi ",
+      " Bgt ": 800,
+      "Act": 563,
+      " Contribution Purpose ": " Church pews "
+    },
+    {
+      "Date": "5/11/23",
+      " Name ": " Mwaniki ",
+      " Bgt ": 800,
+      "Act": 610,
+      " Contribution Purpose ": " Church pews "
+    },
+    {
+      "Date": "5/18/23",
+      " Name ": " Nimo ",
+      " Bgt ": 800,
+      "Act": 685,
+      " Contribution Purpose ": " Church pews "
+    },
+    {
+      "Date": "5/25/23",
+      " Name ": " Cynthia ",
+      " Bgt ": 800,
+      "Act": 884,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "6/1/23",
+      " Name ": " Mike ",
+      " Bgt ": 800,
+      "Act": 732,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "6/8/23",
+      " Name ": " Atogo ",
+      " Bgt ": 800,
+      "Act": 762,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "6/15/23",
+      " Name ": " Kamau ",
+      " Bgt ": 800,
+      "Act": 655,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "6/22/23",
+      " Name ": " Eric ",
+      " Bgt ": 800,
+      "Act": 824,
+      " Contribution Purpose ": " Priest's Car "
+    },
+    {
+      "Date": "6/29/23",
+      " Name ": " Pekmah ",
+      " Bgt ": 800,
+      "Act": 980,
+      " Contribution Purpose ": " Priest's Car "
+    },
+    {
+      "Date": "7/6/23",
+      " Name ": " Fundi ",
+      " Bgt ": 800,
+      "Act": 680,
+      " Contribution Purpose ": " Priest's Car "
+    },
+    {
+      "Date": "7/13/23",
+      " Name ": " Mwaniki ",
+      " Bgt ": 800,
+      "Act": 856,
+      " Contribution Purpose ": " Church pews "
+    },
+    {
+      "Date": "7/20/23",
+      " Name ": " Nimo ",
+      " Bgt ": 800,
+      "Act": 560,
+      " Contribution Purpose ": " Church pews "
+    },
+    {
+      "Date": "7/27/23",
+      " Name ": " Cynthia ",
+      " Bgt ": 800,
+      "Act": 616,
+      " Contribution Purpose ": " Church renovations "
+    },
+    {
+      "Date": "8/3/23",
+      " Name ": " Mike ",
+      " Bgt ": 800,
+      "Act": 994,
+      " Contribution Purpose ": " Church renovations "
+    },
+    {
+      "Date": "8/10/23",
+      " Name ": " Mike ",
+      " Bgt ": 800,
+      "Act": 938,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "8/17/23",
+      " Name ": " Atogo ",
+      " Bgt ": 800,
+      "Act": 561,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "8/24/23",
+      " Name ": " Kamau ",
+      " Bgt ": 800,
+      "Act": 911,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "8/31/23",
+      " Name ": " Eric ",
+      " Bgt ": 800,
+      "Act": 719,
+      " Contribution Purpose ": " Church renovations "
+    },
+    {
+      "Date": "9/7/23",
+      " Name ": " Pekmah ",
+      " Bgt ": 800,
+      "Act": 650,
+      " Contribution Purpose ": " Church renovations "
+    },
+    {
+      "Date": "9/14/23",
+      " Name ": " Fundi ",
+      " Bgt ": 800,
+      "Act": 945,
+      " Contribution Purpose ": " Church pews "
+    },
+    {
+      "Date": "9/21/23",
+      " Name ": " Mwaniki ",
+      " Bgt ": 800,
+      "Act": 699,
+      " Contribution Purpose ": " Church pews "
+    },
+    {
+      "Date": "9/28/23",
+      " Name ": " Nimo ",
+      " Bgt ": 800,
+      "Act": 720,
+      " Contribution Purpose ": " Church pews "
+    },
+    {
+      "Date": "10/5/23",
+      " Name ": " Mike ",
+      " Bgt ": 800,
+      "Act": 940,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "10/12/23",
+      " Name ": " Atogo ",
+      " Bgt ": 800,
+      "Act": 664,
+      " Contribution Purpose ": " Breakfast "
+    },
+    {
+      "Date": "10/19/23",
+      " Name ": " Kamau ",
+      " Bgt ": 800,
+      "Act": 939,
+      " Contribution Purpose ": " Breakfast "
+    }
+  ]
+}

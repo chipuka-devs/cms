@@ -47,18 +47,15 @@ const AdminLayout = ({ breadcrumbs = ["Admin"] }) => {
         {/* <Header className="site-layout-background" style={{ padding: 0 }} /> */}
 
         <Content className=" mx-2">
-          <Breadcrumb className="rounded p-2 my-2 bg-slate-200">
+          {/* <Breadcrumb className="rounded p-2 my-2 bg-slate-200">
             {breadcrumbs &&
               breadcrumbs.map((b, i) => (
                 <Breadcrumb.Item key={i}>{b}</Breadcrumb.Item>
               ))}
-            {/* <Breadcrumb.Item>Bill</Breadcrumb.Item> */}
-          </Breadcrumb>
+           <> <Breadcrumb.Item>Bill</Breadcrumb.Item></>
+          </Breadcrumb> */}
 
-          <div
-            className="site-layout-background p-4"
-            style={{ minHeight: 360 }}
-          >
+          <div className="site-layout-background " style={{ minHeight: 360 }}>
             {/* {children} */}
             <Routes>
               {AdminRoutes.map((r, index) => (

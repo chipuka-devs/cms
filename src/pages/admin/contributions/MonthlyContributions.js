@@ -24,6 +24,7 @@ import { db } from "../../../utils/firebase";
 import { CustomTable } from "../../../components/CustomTable";
 import { Context } from "../../../utils/MainContext";
 import { error, success } from "../../../components/Notifications";
+import moment from "moment";
 
 export const MonthlyContributions = () => {
   const { allUsers, allContributions } = useContext(Context);
@@ -42,7 +43,7 @@ export const MonthlyContributions = () => {
   const [selectedUser, setSelectedUser] = useState("--Please select User --");
 
   const [currentContribution, setCurrentContribution] = useState({
-    doc: "",
+    doc: new Date().toDateString(),
     amount: "",
   });
   const [isUpdating, setIsUpdating] = useState(false);
@@ -62,6 +63,7 @@ export const MonthlyContributions = () => {
   };
 
   const resetState = () => {
+    setIsUpdating(false);
     setSelectedUser("--Please select User --");
     setSelectedContribution("--Please select Contribution --");
     setCurrentContribution({
@@ -398,9 +400,7 @@ export const MonthlyContributions = () => {
                 <br />
                 {/* amount  */}
                 <DatePicker
-                  // defaultValue={new Date(
-                  //   currentContribution?.doc
-                  // ).toLocaleDateString()}
+                  defaultValue={moment(currentContribution?.doc)}
                   onChange={(_date, dateString) =>
                     setCurrentContribution((prev) => ({
                       ...prev,
@@ -417,6 +417,14 @@ export const MonthlyContributions = () => {
               className="bg-green-700 px-4 text-white h-8 mb-0"
             >
               {isUpdating ? "UPDATE" : "ADD"}
+            </button>
+
+            <button
+              type="button"
+              className="border border-green-700 hover:bg-green-700 px-4 text-green-700 hover:text-white h-8 mb-0"
+              onClick={resetState}
+            >
+              CLEAR
             </button>
           </div>
         </form>

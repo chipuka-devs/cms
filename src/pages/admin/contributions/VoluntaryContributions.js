@@ -19,6 +19,7 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
+import moment from "moment";
 import React, { useContext, useEffect, useState } from "react";
 import { CustomTable } from "../../../components/CustomTable";
 import { error, success } from "../../../components/Notifications";
@@ -34,7 +35,7 @@ export const VoluntaryContributions = () => {
     },
     name: "",
     amount: "",
-    doc: null,
+    doc: new Date().toDateString(),
   });
   const [voluntaryContributions, setVoluntaryContributions] = useState([]);
 
@@ -334,7 +335,7 @@ export const VoluntaryContributions = () => {
                 <br />
                 {/* amount  */}
                 <DatePicker
-                  defaultValue={voluntaryContribution?.doc}
+                  defaultValue={moment(voluntaryContribution?.doc)}
                   onChange={(_date, dateString) =>
                     setVoluntaryContribution((prev) => ({
                       ...prev,

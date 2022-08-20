@@ -1,7 +1,9 @@
+import { Dropdown, Menu } from "antd";
 import React from "react";
 import Chart from "../../components/admin/Charts";
 import PiChart from "../../components/admin/PieChart";
 import useContributions from "../../utils/hooks/useContributions";
+import { DownOutlined } from "@ant-design/icons";
 
 export const Dashboard = () => {
   const {
@@ -9,9 +11,34 @@ export const Dashboard = () => {
     getSurplusDeficit,
     getTotalBudget,
     getTotalGroupedContributions,
+    state,
   } = useContributions();
 
-  const state = getTotalGroupedContributions();
+  // const state = getTotalGroupedContributions();
+  const [selected, setSelected] = React.useState({
+    year: "",
+  });
+
+  React.useEffect(() => {
+    if (state?.yearGroupings) {
+      const years = Object.keys(state?.yearGroupings);
+      setSelected((prev) => ({
+        ...prev,
+        year: years[years.length - 1],
+      }));
+    }
+  }, [state?.yearGroupings]);
+
+  const menu = (
+    <Menu
+      onClick={(e) => setSelected((prev) => ({ ...prev, year: e.key }))}
+      items={Object.keys(state?.yearGroupings || [])?.map((y) => ({
+        label: y,
+        key: y,
+        // icon: <UserOutlined />,
+      }))}
+    />
+  );
 
   const colors = [
     "#FFAF00",
@@ -34,54 +61,32 @@ export const Dashboard = () => {
 
   return (
     <>
-      <div
-        className=" grid grid-cols-3 justify-between gap-5 p-2 rounded-sm text-white"
-        style={{
-          backgroundImage: "linear-gradient(180deg,#001529,#1890FF)",
-        }}
-      >
-        {/* Total Contributions */}
-        <Card>
-          <span className="font-extrabold text-lg">Total Contributions</span>
-
-          <span className="text-2xl font-bold text-center">
-            {getTotalContributions()?.toLocaleString()}
-            <span className="text-sm pl-1">kshs</span>
-          </span>
-        </Card>
-        {/* Total Deductions */}
-        <Card>
-          <span className="font-extrabold text-lg ">Budget</span>
-
-          <span className="text-2xl font-bold text-center">
-            {getTotalBudget()?.toLocaleString()}
-            <span className="text-sm pl-1">kshs</span>
-          </span>
-        </Card>
-        {/* Grand Total */}
-        <Card>
-          <span className="font-extrabold text-lg">Surplus/Deficit</span>
-
-          <span className="text-2xl font-bold text-center">
-            {getSurplusDeficit()?.total?.toLocaleString()}
-            <span className="text-sm pl-1">kshs</span>
-          </span>
-        </Card>
+      <div className="flex">
+        <div>
+          selected year:
+          <br />
+          <Dropdown.Button
+            // className="w-[300px]"
+            icon={<DownOutlined />}
+            overlay={menu}
+          >
+            {selected?.year}
+          </Dropdown.Button>
+        </div>
       </div>
-
       {/* charts */}
       <div>
-        
         <div className="py-4 flex gap-2">
-
           <div className="w-7/12 rounded-lg bg-white p-2 min-h-[500px]">
             <Chart />
           </div>
           <div className="w-5/12 rounded-lg bg-white p-2">
-            <PiChart state={state} colors={colors} />
+            {/* <PiChart state={state} colors={colors} /> */}
           </div>
         </div>
-        <h3 className="text-lg text-center font-medium">Actual vs Budget Overview bar chart And The contribution mix pie chart </h3 >
+        <h3 className="text-lg text-center font-medium">
+          Actual vs Budget Overview bar chart And The contribution mix pie chart{" "}
+        </h3>
       </div>
     </>
   );
