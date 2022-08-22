@@ -11,12 +11,26 @@ export const MonthlySummary = () => {
     months[new Date().getMonth()]
   );
   const [tableData, setTableData] = useState();
+  const [contributionNames, setContributionNames] = useState([]);
+
+  useEffect(() => {
+    let conts = [];
+
+    allContributions?.forEach(
+      (c) =>
+        c.category === "monthly" && conts.push({ text: c.name, value: c.name })
+    );
+    setContributionNames(conts);
+  }, [allContributions, allUsers]);
 
   const columns = [
     {
       title: "Name",
       dataIndex: "contribution",
       key: "contribution",
+      filters: [...contributionNames],
+      onFilter: (value, record) =>
+        record?.contribution?.toLowerCase() === value?.toLowerCase(),
     },
     {
       title: "Amount",

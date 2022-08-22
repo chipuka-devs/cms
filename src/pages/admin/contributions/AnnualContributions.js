@@ -228,7 +228,7 @@ export const AnnualContributions = () => {
       dataIndex: "date",
       key: "date",
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
-      //   render: (text) => <Link to={"/"}>{text}</Link>,
+      render: (text) => <>{new Date(text)?.toLocaleDateString()}</>,
     },
     {
       title: "Member",

@@ -7,14 +7,28 @@ import { Context } from "../../../utils/MainContext";
 export const ProjectSummary = () => {
   const { yearBasedProjectContributions, years } = useContext(AContext);
   const { allUsers, allContributions } = useContext(Context);
-  const [selectedYear, setSelectedMonth] = useState([years[0]]);
+  const [selectedYear, setSelectedMonth] = useState([new Date().getFullYear()]);
   const [tableData, setTableData] = useState();
+  const [contributionNames, setContributionNames] = useState([]);
+
+  useEffect(() => {
+    let conts = [];
+
+    allContributions?.forEach(
+      (c) =>
+        c.category === "project" && conts.push({ text: c.name, value: c.name })
+    );
+    setContributionNames(conts);
+  }, [allContributions, allUsers]);
 
   const columns = [
     {
       title: "Name",
       dataIndex: "contribution",
       key: "contribution",
+      filters: [...contributionNames],
+      onFilter: (value, record) =>
+        record?.contribution?.toLowerCase() === value?.toLowerCase(),
     },
     {
       title: "Amount",
@@ -61,21 +75,19 @@ export const ProjectSummary = () => {
     const getTotalUserContributions = () => {
       const contArr = [];
 
-      yearBasedProjectContributions &&
-        yearBasedProjectContributions[selectedYear] &&
-        yearBasedProjectContributions[selectedYear].forEach((c) => {
-          const currentUser = allUsers.filter((item) => item.uid === c.user)[0];
-          const currentContribution = allContributions.filter(
-            (item) => item.id === c.contribution
-          )[0];
+      yearBasedProjectContributions[selectedYear]?.forEach((c) => {
+        const currentUser = allUsers.filter((item) => item.uid === c.user)[0];
+        const currentContribution = allContributions.filter(
+          (item) => item.id === c.contribution
+        )[0];
 
-          currentContribution &&
-            contArr.unshift({
-              ...c,
-              contribution: currentContribution && currentContribution.name,
-              user: currentUser && currentUser.name,
-            });
-        });
+        currentContribution &&
+          contArr.unshift({
+            ...c,
+            contribution: currentContribution && currentContribution.name,
+            user: currentUser && currentUser.name,
+          });
+      });
 
       const userContributionsGroupedByCont =
         contArr &&

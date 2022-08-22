@@ -17,7 +17,7 @@ import { Context } from "../../../utils/MainContext";
 export const NetBalance = () => {
   const { yearBasedProjectContributions, years } = useContext(AContext);
   const { allUsers, allContributions } = useContext(Context);
-  const [selectedYear, setSelectedMonth] = useState([years[0]]);
+  const [selectedYear, setSelectedMonth] = useState([new Date().getFullYear()]);
   const [tableData, setTableData] = useState([{ surplus: 0 }, { deficit: 0 }]);
 
   const columns = [
