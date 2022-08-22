@@ -1,14 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import {
-  Button,
-  DatePicker,
-  Divider,
-  Dropdown,
-  Input,
-  Menu,
-  Popconfirm,
-  Spin,
-} from "antd";
+import { Button, Divider, Dropdown, Input, Menu, Popconfirm, Spin } from "antd";
 import {
   addDoc,
   collection,
@@ -99,6 +90,7 @@ export const AnnualContributions = () => {
             amount: currentContribution.amount,
             user: selectedUser?.uid,
             contribution: selectedContribution.id,
+            doc: new Date(currentContribution.doc).toISOString(),
           }
         );
 
@@ -111,7 +103,7 @@ export const AnnualContributions = () => {
           amount: currentContribution.amount,
           user: selectedUser.uid,
           contribution: selectedContribution.id,
-          doc: currentContribution.doc,
+          doc: new Date(currentContribution.doc).toISOString(),
           createdAt: serverTimestamp(),
         });
 
@@ -134,10 +126,11 @@ export const AnnualContributions = () => {
     setSelectedUser({ name: contrib?.member, uid: contrib?.uid });
     setCurrentContribution((prev) => ({
       ...prev,
-      doc: contributionNames?.date,
+      doc: contrib?.date,
       amount: contrib?.amount,
       key: contrib?.key,
     }));
+    // console.log(contrib);
   };
 
   const handleDelete = async (id) => {
@@ -197,6 +190,7 @@ export const AnnualContributions = () => {
             cList.unshift(contributionDetails);
           }
         });
+        console.log(cList);
 
         setUserContributions(cList);
 
@@ -228,7 +222,9 @@ export const AnnualContributions = () => {
       dataIndex: "date",
       key: "date",
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
-      render: (text) => <>{new Date(text)?.toLocaleDateString()}</>,
+      render: (text) => (
+        <>{moment(new Date(text).toLocaleDateString()).format("DD/MM/YYYY")}</>
+      ),
     },
     {
       title: "Member",
@@ -380,25 +376,35 @@ export const AnnualContributions = () => {
               />
             </div>
 
-            {!isUpdating && (
+            {
               <div className="">
                 <label className="font-medium" htmlFor="type">
                   Contribution Date:
                 </label>
                 <br />
                 {/* amount  */}
-                <DatePicker
-                  defaultValue={moment(currentContribution?.doc)}
-                  onChange={(_date, dateString) =>
+
+                <Input
+                  type="date"
+                  required
+                  placeholder="select the starting day"
+                  value={new Date(
+                    currentContribution?.doc ||
+                      new Date(currentContribution?.doc?.seconds) ||
+                      null
+                  )
+                    ?.toISOString()
+                    .substring(0, 10)}
+                  onChange={(e) =>
                     setCurrentContribution((prev) => ({
                       ...prev,
 
-                      doc: new Date(dateString).toLocaleDateString(),
+                      doc: new Date(e.target.value),
                     }))
                   }
                 />
               </div>
-            )}
+            }
 
             <button
               type="submit"

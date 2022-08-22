@@ -1,14 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import {
-  Button,
-  DatePicker,
-  Divider,
-  Dropdown,
-  Input,
-  Menu,
-  Popconfirm,
-  Spin,
-} from "antd";
+import { Button, Divider, Dropdown, Input, Menu, Popconfirm, Spin } from "antd";
 import {
   addDoc,
   collection,
@@ -43,7 +34,7 @@ export const MonthlyContributions = () => {
   const [selectedUser, setSelectedUser] = useState("--Please select User --");
 
   const [currentContribution, setCurrentContribution] = useState({
-    doc: new Date().toDateString(),
+    doc: new Date().toISOString(),
     amount: "",
   });
   const [isUpdating, setIsUpdating] = useState(false);
@@ -69,7 +60,7 @@ export const MonthlyContributions = () => {
     setCurrentContribution({
       // user: "",
       // contribution: "",
-      doc: "",
+      doc: new Date().toISOString(),
       amount: 0,
     });
   };
@@ -104,6 +95,7 @@ export const MonthlyContributions = () => {
             amount: currentContribution.amount,
             user: selectedUser?.uid,
             contribution: selectedContribution.id,
+            doc: new Date(currentContribution.doc).toISOString(),
           }
         );
 
@@ -118,7 +110,8 @@ export const MonthlyContributions = () => {
           amount: currentContribution.amount,
           user: selectedUser.uid,
           contribution: selectedContribution.id,
-          doc: currentContribution?.doc,
+          doc: new Date(currentContribution.doc).toISOString(),
+
           createdAt: serverTimestamp(),
         });
 
@@ -142,7 +135,7 @@ export const MonthlyContributions = () => {
     setSelectedUser({ name: contrib?.member, uid: contrib?.uid });
     setCurrentContribution((prev) => ({
       ...prev,
-      doc: contributionNames?.date,
+      doc: contrib?.date,
       amount: contrib?.amount,
       key: contrib?.key,
     }));
@@ -184,11 +177,13 @@ export const MonthlyContributions = () => {
             (item) => item.id === d.data().contribution
           )[0];
 
+          const date = d?.data().doc;
+
           //   cList.push(d.data());
 
           const contributionDetails = {
             key: d?.id,
-            date: d?.data().doc,
+            date: new Date(date).toISOString(),
             member: currentUser?.name,
             uid: currentUser?.id,
             amount: d?.data().amount,
@@ -236,7 +231,9 @@ export const MonthlyContributions = () => {
       dataIndex: "date",
       key: "date",
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
-      //   render: (text) => <Link to={"/"}>{text}</Link>,
+      render: (text) => (
+        <>{moment(new Date(text).toLocaleDateString()).format("DD/MM/YYYY")}</>
+      ),
     },
     {
       title: "Member",
@@ -392,25 +389,31 @@ export const MonthlyContributions = () => {
               />
             </div>
 
-            {!isUpdating && (
+            {
               <div className="">
                 <label className="font-medium" htmlFor="type">
                   Contribution Date:
                 </label>
                 <br />
                 {/* amount  */}
-                <DatePicker
-                  defaultValue={moment(currentContribution?.doc)}
-                  onChange={(_date, dateString) =>
+
+                <Input
+                  type="date"
+                  required
+                  placeholder="select the starting day"
+                  value={new Date(currentContribution?.doc || null)
+                    ?.toISOString()
+                    .substring(0, 10)}
+                  onChange={(e) =>
                     setCurrentContribution((prev) => ({
                       ...prev,
 
-                      doc: new Date(dateString).toLocaleDateString(),
+                      doc: new Date(e.target.value),
                     }))
                   }
                 />
               </div>
-            )}
+            }
 
             <button
               type="submit"
