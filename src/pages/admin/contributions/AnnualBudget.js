@@ -10,7 +10,7 @@ import {
   where,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { MonthlyForm } from "../../../components/admin/contributions/MonthlyForm";
+import { MonthlyGroupForm } from "../../../components/admin/contributions/MonthlyGroupForm";
 import { CustomTable } from "../../../components/CustomTable";
 import { error, success } from "../../../components/Notifications";
 import { db } from "../../../utils/firebase";
@@ -215,7 +215,7 @@ const AnnualBudget = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="flex gap-2 my-4">
-            <MonthlyForm
+            <MonthlyGroupForm
               state={newContribution}
               setState={setNewContribution}
             />

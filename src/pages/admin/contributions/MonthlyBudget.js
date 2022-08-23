@@ -1,4 +1,4 @@
-import { Button, Divider, Popconfirm, Spin } from "antd";
+import { Button, Divider, Dropdown, Menu, Popconfirm, Spin } from "antd";
 import {
   addDoc,
   collection,
@@ -10,7 +10,8 @@ import {
   where,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { MonthlyForm } from "../../../components/admin/contributions/MonthlyForm";
+import { MonthlyGroupForm } from "../../../components/admin/contributions/MonthlyGroupForm";
+import { MonthlyIndividualForm } from "../../../components/admin/contributions/MonthlyIndividualForm";
 import { CustomTable } from "../../../components/CustomTable";
 import { error, success } from "../../../components/Notifications";
 import { db } from "../../../utils/firebase";
@@ -24,8 +25,9 @@ const MonthlyBudget = () => {
   const [isEditing, setIsEditing] = useState(false);
 
   const [monthlyContributions, setMonthlyContributions] = useState([]);
-
   const [newContribution, setNewContribution] = useState({});
+  const [selectedType, setSelectedType] = useState("group");
+  const [individualParticipants, setIndividualParticipants] = useState([]);
 
   const resetState = () => {
     setNewContribution({});
@@ -47,10 +49,19 @@ const MonthlyBudget = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const d = {
-      ...newContribution,
-      category: "monthly",
-    };
+    const d =
+      selectedType === "individual"
+        ? {
+            ...newContribution,
+            category: "monthly",
+            type: selectedType,
+            participants: individualParticipants,
+          }
+        : {
+            ...newContribution,
+            category: "monthly",
+            type: selectedType,
+          };
 
     if (isEditing) {
       try {
@@ -190,6 +201,18 @@ const MonthlyBudget = () => {
     },
   ];
 
+  const menu = (
+    <Menu>
+      {["Individual", "Group"].map((item, i) => (
+        <Menu.Item key={i} onClick={() => setSelectedType(item)}>
+          <span target="_blank" rel="noopener noreferrer">
+            {item}
+          </span>
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
+
   //   const tableData = setTableData();
 
   return (
@@ -208,14 +231,31 @@ const MonthlyBudget = () => {
             Fill in the form below to create a new contribution
           </p>
         </div>
+        <Dropdown overlay={menu} placement="bottomLeft">
+          <div
+            className="h-8 bg-white border flex items-center px-3"
+            style={{ width: "300px" }}
+          >
+            {selectedType}
+          </div>
+        </Dropdown>
         {/* create new contribution form */}
 
         <form onSubmit={handleSubmit}>
-          <div className="flex gap-2 my-4">
-            <MonthlyForm
-              state={newContribution}
-              setState={setNewContribution}
-            />
+          <div className="flex gap-2 my-4 flex-wrap">
+            {selectedType.toLowerCase() === "individual" ? (
+              <MonthlyIndividualForm
+                state={newContribution}
+                setState={setNewContribution}
+                individualParticipants={individualParticipants}
+                setIndividualParticipants={setIndividualParticipants}
+              />
+            ) : (
+              <MonthlyGroupForm
+                state={newContribution}
+                setState={setNewContribution}
+              />
+            )}
           </div>
 
           <button
