@@ -26,11 +26,66 @@ import { NetBalance } from "../../pages/admin/analysis/NetBalance";
 import Deductions from "../../pages/admin/deductions/viewAll";
 import { IncomeStatement } from "../../pages/admin/IncomeStatement";
 import Privileges from "../../pages/admin/Privileges";
+import { useCallback, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchUserContributions,
+  fetchContributions,
+  makeGroupings,
+} from "../../redux/contributions/contributionSlice";
+import {
+  collection,
+  getDocs,
+  onSnapshot,
+  orderBy,
+  query,
+} from "firebase/firestore";
+import { db } from "../../utils/firebase";
 
 const { Content, Footer, Sider } = Layout;
 // const { SubMenu } = Menu;
+const AdminLayout = () => {
+  const dispatch = useDispatch();
+  // const { userContributions, contributions } = useSelector(
+  //   (state) => state.contribution
+  // );
 
-const AdminLayout = ({ breadcrumbs = ["Admin"] }) => {
+  // const fetchConts = useCallback(() => {
+  //   console.log("Fetching contributions");
+  //   dispatch(fetchUserContributions());
+  //   dispatch(fetchContributions());
+  // }, [dispatch]);
+
+  useEffect(() => {
+    const q = query(collection(db, "user_contributions"), orderBy("createdAt"));
+    onSnapshot(q, (docs) => {
+      const cList = [];
+
+      docs.forEach((doc) => {
+        const { createdAt, ...rest } = doc.data();
+
+        const date = new Date(
+          doc.data().createdAt?.seconds * 1000
+        ).toISOString();
+        const month = new Date(doc.data().doc).getMonth();
+        const year = new Date(doc.data().doc).getFullYear();
+
+        const contribution = {
+          id: doc.id,
+          createdAt: date,
+          month: month,
+          year,
+          ...rest,
+        };
+
+        cList.push(contribution);
+      });
+
+      dispatch(makeGroupings(cList));
+    });
+    // fetchConts();
+  }, []);
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider
