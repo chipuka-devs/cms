@@ -7,6 +7,7 @@ import { contributionService } from "../services/ContributionServices";
 
 const initialState = {
   groupedContributions: [],
+  annualGroupingContributions: [],
   // contributions: [],
   // contributionsByMonth: [],
   isLoading: false,
@@ -106,6 +107,31 @@ const contributionSlice = createSlice({
 
       // console.log("Yearly grouping", yearlyGroupings);
       state.groupedContributions = yearlyGroupings;
+
+      // return { contributions: cList, yearlyGroupings };
+    },
+
+    makeYearlyContributionsGroupings: (state, action) => {
+      const cList = action.payload;
+      const yearlyGroupings = _.mapValues(_.groupBy(cList, "year"));
+      // console.log(yearlyGroupings);
+
+      Object.keys(yearlyGroupings).forEach((year) => {
+        const currentMonthGroupings = _.mapValues(
+          _.groupBy(yearlyGroupings[year], "contribution")
+        );
+
+        Object.keys(currentMonthGroupings).forEach((cont) => {
+          currentMonthGroupings[cont] = _.mapValues(
+            _.groupBy(currentMonthGroupings[cont], "user")
+          );
+        });
+
+        yearlyGroupings[year] = currentMonthGroupings;
+      });
+
+      // console.log("Yearly grouping", yearlyGroupings);
+      state.annualGroupingContributions = yearlyGroupings;
 
       // return { contributions: cList, yearlyGroupings };
     },

@@ -16,9 +16,13 @@ import { CustomTable } from "../../../components/CustomTable";
 import { Context } from "../../../utils/MainContext";
 import { error, success } from "../../../components/Notifications";
 import moment from "moment";
+import { useSelector } from "react-redux";
 
 export const AnnualContributions = () => {
   const { allUsers, allContributions } = useContext(Context);
+  const { annualGroupingContributions } = useSelector(
+    (state) => state.contribution
+  );
 
   const [contributionNames, setContributionNames] = useState([]);
   const [userNames, setUserNames] = useState([]);
@@ -170,23 +174,26 @@ export const AnnualContributions = () => {
             (item) => item.id === d.data().contribution
           )[0];
 
+          const date = d?.data().doc;
+          const contDate = new Date(date);
+          const year = contDate.getFullYear();
+
           //   cList.push(d.data());
+          console.log("Annual groupings", annualGroupingContributions);
+          const totals = annualGroupingContributions[year];
+          if (currentContribution?.category === "annual") {
+            console.log("totals", totals);
+            const contributionDetails = {
+              key: d?.id,
+              date: d?.data().doc,
+              member: currentUser?.name,
+              uid: currentUser?.id,
+              cid: currentContribution?.id,
+              amount: d?.data().amount,
+              classification: currentContribution?.category,
+              purpose: currentContribution?.name,
+            };
 
-          const contributionDetails = {
-            key: d?.id,
-            date: d?.data().doc,
-            member: currentUser?.name,
-            uid: currentUser?.id,
-            cid: currentContribution?.id,
-            amount: d?.data().amount,
-            classification: currentContribution && currentContribution.category,
-            purpose: currentContribution && currentContribution.name,
-          };
-
-          if (
-            currentContribution &&
-            currentContribution.category === "annual"
-          ) {
             cList.unshift(contributionDetails);
           }
         });
@@ -199,7 +206,7 @@ export const AnnualContributions = () => {
     };
 
     fetchUserContributions();
-  }, [allContributions, allUsers]);
+  }, [allContributions, allUsers, annualGroupingContributions]);
 
   useEffect(() => {
     let conts = [];

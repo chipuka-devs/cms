@@ -90,7 +90,7 @@ const MenuBar = () => {
         </Menu.Item>
 
         <Menu.Item>
-          <Link to="/admin/analysis/project">Project Budget</Link>
+          <Link to="/admin/analysis/project">Monthly Project</Link>
         </Menu.Item>
 
         <Menu.Item>
@@ -98,15 +98,11 @@ const MenuBar = () => {
         </Menu.Item>
 
         <Menu.Item>
-          <Link to="/admin/analysis/p_summary">Project Summary</Link>
+          <Link to="/admin/analysis/p_summary">Annual Project</Link>
         </Menu.Item>
 
         <Menu.Item>
           <Link to="/admin/analysis/o_summary">Overall Summary</Link>
-        </Menu.Item>
-
-        <Menu.Item>
-          <Link to="/admin/analysis/net">Net Balance</Link>
         </Menu.Item>
       </Menu.SubMenu>
 

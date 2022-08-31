@@ -1,8 +1,5 @@
 import { Layout } from "antd";
-
-// import { Context } from "../../utils/MainContext";
 import { Route, Routes } from "react-router-dom";
-
 import MenuBar from "./Menu";
 import { AdminRoutes } from "../../utils/AdminRoutes";
 import PrivateRoute from "../../utils/PrivateAdminRoute";
@@ -22,24 +19,13 @@ import {
   Project,
 } from "../../pages/admin/analysis";
 import { ProjectSummary } from "../../pages/admin/analysis/ProjectSummary";
-import { NetBalance } from "../../pages/admin/analysis/NetBalance";
 import Deductions from "../../pages/admin/deductions/viewAll";
 import { IncomeStatement } from "../../pages/admin/IncomeStatement";
 import Privileges from "../../pages/admin/Privileges";
-import { useCallback, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchUserContributions,
-  fetchContributions,
-  makeGroupings,
-} from "../../redux/contributions/contributionSlice";
-import {
-  collection,
-  getDocs,
-  onSnapshot,
-  orderBy,
-  query,
-} from "firebase/firestore";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { makeGroupings } from "../../redux/contributions/contributionSlice";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../../utils/firebase";
 
 const { Content, Footer, Sider } = Layout;
@@ -84,7 +70,7 @@ const AdminLayout = () => {
       dispatch(makeGroupings(cList));
     });
     // fetchConts();
-  }, []);
+  }, [dispatch]);
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -257,16 +243,6 @@ const AdminLayout = () => {
                   element={
                     <PrivateRoute>
                       <OverallSummary />
-                    </PrivateRoute>
-                  }
-                />
-
-                <Route
-                  path={"/analysis/net"}
-                  exact
-                  element={
-                    <PrivateRoute>
-                      <NetBalance />
                     </PrivateRoute>
                   }
                 />
