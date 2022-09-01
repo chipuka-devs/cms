@@ -17,6 +17,7 @@ import { Context } from "../../../utils/MainContext";
 import { error, success } from "../../../components/Notifications";
 import moment from "moment";
 import { useSelector } from "react-redux";
+import _ from "lodash";
 
 export const AnnualContributions = () => {
   const { allUsers, allContributions } = useContext(Context);
@@ -179,10 +180,22 @@ export const AnnualContributions = () => {
           const year = contDate.getFullYear();
 
           //   cList.push(d.data());
-          console.log("Annual groupings", annualGroupingContributions);
           const totals = annualGroupingContributions[year];
           if (currentContribution?.category === "annual") {
-            console.log("totals", totals);
+            const currentContContributions = totals[currentContribution?.id];
+            const currentUserContributions = currentContContributions
+              ? currentContContributions[currentUser?.id]
+              : [];
+
+            const total =
+              currentUserContributions &&
+              _.sumBy(currentUserContributions, (user) =>
+                parseInt(user?.amount)
+              );
+            const balance = total - parseInt(currentContribution.amount);
+
+            // console.log("Current conts: ", balance);
+            // console.log("totals", totals);
             const contributionDetails = {
               key: d?.id,
               date: d?.data().doc,
@@ -192,12 +205,13 @@ export const AnnualContributions = () => {
               amount: d?.data().amount,
               classification: currentContribution?.category,
               purpose: currentContribution?.name,
+              balance,
             };
 
             cList.unshift(contributionDetails);
           }
         });
-        console.log(cList);
+        // console.log(cList);
 
         setUserContributions(cList);
 
@@ -259,6 +273,34 @@ export const AnnualContributions = () => {
       key: "purpose",
       filters: [...contributionNames],
       onFilter: (value, record) => record.purpose.startsWith(value),
+    },
+    {
+      title: "Balance",
+      dataIndex: "balance",
+      key: "balance",
+      filters: [...contributionNames],
+      onFilter: (value, record) => record.purpose.startsWith(value),
+      render: (_, { balance }) => {
+        if (balance > 0) {
+          return (
+            <div className="bg-green-200 m-0 w-24 text-green-500 font-medium text-center p-1">
+              {balance?.toLocaleString()}
+            </div>
+          );
+        } else if (balance < 0) {
+          return (
+            <div className="bg-red-200 m-0 w-24 text-center text-red-500 font-medium p-1">
+              {balance?.toLocaleString()}
+            </div>
+          );
+        } else {
+          return (
+            <div className="bg-blue-200 text-blue-600 m-0 w-24 text-center font-medium p-1">
+              {balance?.toLocaleString()}
+            </div>
+          );
+        }
+      },
     },
     {
       title: "Actions",

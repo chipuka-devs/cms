@@ -24,7 +24,10 @@ import { IncomeStatement } from "../../pages/admin/IncomeStatement";
 import Privileges from "../../pages/admin/Privileges";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { makeGroupings } from "../../redux/contributions/contributionSlice";
+import {
+  makeGroupings,
+  makeYearlyContributionsGroupings,
+} from "../../redux/contributions/contributionSlice";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../../utils/firebase";
 
@@ -68,6 +71,7 @@ const AdminLayout = () => {
       });
 
       dispatch(makeGroupings(cList));
+      dispatch(makeYearlyContributionsGroupings(cList));
     });
     // fetchConts();
   }, [dispatch]);

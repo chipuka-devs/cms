@@ -169,6 +169,7 @@ const contributionSlice = createSlice({
   },
 });
 
-export const { reset, makeGroupings } = contributionSlice.actions;
+export const { reset, makeGroupings, makeYearlyContributionsGroupings } =
+  contributionSlice.actions;
 
 export default contributionSlice.reducer;
