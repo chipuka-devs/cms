@@ -27,6 +27,8 @@ import { useDispatch } from "react-redux";
 import {
   makeGroupings,
   makeYearlyContributionsGroupings,
+  setBudgets,
+  setContributions,
 } from "../../redux/contributions/contributionSlice";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../../utils/firebase";
@@ -35,16 +37,6 @@ const { Content, Footer, Sider } = Layout;
 // const { SubMenu } = Menu;
 const AdminLayout = () => {
   const dispatch = useDispatch();
-  // const { userContributions, contributions } = useSelector(
-  //   (state) => state.contribution
-  // );
-
-  // const fetchConts = useCallback(() => {
-  //   console.log("Fetching contributions");
-  //   dispatch(fetchUserContributions());
-  //   dispatch(fetchContributions());
-  // }, [dispatch]);
-
   useEffect(() => {
     const q = query(collection(db, "user_contributions"), orderBy("createdAt"));
     onSnapshot(q, (docs) => {
@@ -70,10 +62,36 @@ const AdminLayout = () => {
         cList.push(contribution);
       });
 
+      dispatch(setContributions(cList));
       dispatch(makeGroupings(cList));
       dispatch(makeYearlyContributionsGroupings(cList));
+      // console.log(
+      //   "Groupings:",
+      //   Groupings.getContributionOpeningBalance(
+      //     Groupings.getMonthlyTotalBalance(cList)["2022"],
+      //     1,
+      //     "UI2KCfyNRFYPhw45Xgq1"
+      //   )
+      // );
     });
     // fetchConts();
+  }, [dispatch]);
+
+  useEffect(() => {
+    const qProjects = query(collection(db, "contributions"));
+
+    const fetchProject = () => {
+      onSnapshot(qProjects, (docs) => {
+        let contributions = {};
+        docs.forEach((doc) => {
+          contributions[doc?.id] = doc.data();
+        });
+
+        dispatch(setBudgets(contributions));
+      });
+    };
+
+    fetchProject();
   }, [dispatch]);
 
   return (

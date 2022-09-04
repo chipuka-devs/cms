@@ -48,12 +48,18 @@ const ProjectBudget = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const { deadline, startDate, target } = newContribution;
+
+    const nOfMonths = calculateDifferenceInMonths(startDate, deadline);
+    const averageAmount = Math.floor(target / nOfMonths);
+
     if (isEditing) {
       try {
-        await setDoc(
-          doc(db, "contributions", newContribution?.key),
-          newContribution
-        );
+        await setDoc(doc(db, "contributions", newContribution?.key), {
+          ...newContribution,
+          duration: nOfMonths,
+          amountPerMonth: averageAmount,
+        });
 
         stopLoading();
 
@@ -73,11 +79,6 @@ const ProjectBudget = () => {
       }
       return;
     } else {
-      const { deadline, startDate, target } = newContribution;
-
-      const nOfMonths = calculateDifferenceInMonths(startDate, deadline);
-      const averageAmount = Math.floor(target / nOfMonths);
-
       startLoading("Creating Contribution. . .");
 
       try {

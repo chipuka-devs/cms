@@ -1,15 +1,24 @@
 import { Divider, Dropdown, Menu } from "antd";
 import React, { useContext, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { CustomTable } from "../../../components/CustomTable";
 import { AContext } from "../../../utils/AnalysisContext";
+import Groupings from "../../../utils/hooks/Groupings";
 import { Context } from "../../../utils/MainContext";
 
 export const MonthlySummary = () => {
-  const { monthlyBasedContributions, months } = useContext(AContext);
+  const { months } = useContext(AContext);
   const { allUsers, allContributions } = useContext(Context);
-  const [selectedMonth, setSelectedMonth] = useState(
-    months[new Date().getMonth()]
-  );
+  const {
+    contributions: cList,
+    budgets,
+    years,
+  } = useSelector((state) => state.contribution);
+
+  const [selectedYear, setSelectedYear] = useState(years[years?.length - 1]);
+
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+
   const [tableData, setTableData] = useState();
   const [contributionNames, setContributionNames] = useState([]);
 
@@ -71,68 +80,72 @@ export const MonthlySummary = () => {
         }
       },
     },
+
+    {
+      title: "Opening Balance",
+      dataIndex: "opening_balance",
+      key: "opening_balance",
+      render: (_, item) => parseInt(item?.opening_balance).toLocaleString(),
+    },
   ];
 
   useEffect(() => {
     const getTotalUserContributions = () => {
-      const contArr = [];
+      const currentYearContributions =
+        Groupings.getMonthlyTotalBalance(cList)[selectedYear];
 
-      monthlyBasedContributions &&
-        monthlyBasedContributions[selectedMonth] &&
-        monthlyBasedContributions[selectedMonth].forEach((c) => {
-          const currentUser = allUsers.filter((item) => item.uid === c.user)[0];
-          const currentContribution = allContributions.filter(
-            (item) => item.id === c.contribution
-          )[0];
+      if (currentYearContributions) {
+        const currentMonthContributions =
+          currentYearContributions[selectedMonth] || [];
 
-          contArr.unshift({
-            ...c,
-            contribution: currentContribution && currentContribution.name,
-            user: currentUser && currentUser.name,
-          });
+        let tData = [];
+
+        Object.keys(currentMonthContributions).forEach((cont) => {
+          const contributionDetails = budgets[cont];
+          if (contributionDetails?.category === "monthly") {
+            const openingBalance = Groupings.getContributionOpeningBalance(
+              currentYearContributions,
+              selectedMonth,
+              cont
+            );
+
+            const cDetails = {
+              amount: currentMonthContributions[cont],
+              contribution: contributionDetails?.name,
+              budget: contributionDetails?.amount,
+              opening_balance: openingBalance,
+              balance:
+                parseInt(currentMonthContributions[cont]) -
+                parseInt(contributionDetails?.amount),
+            };
+
+            tData.push(cDetails);
+          }
         });
 
-      const userContributionsGroupedByCont =
-        contArr &&
-        contArr.reduce(function (r, a) {
-          r[a.contribution] = r[a.contribution] || [];
-          r[a.contribution].unshift(a);
-          return r;
-        }, Object.create(null));
-
-      const tData = [];
-
-      Object.entries(userContributionsGroupedByCont).forEach((c) => {
-        const currentCont = allContributions.filter(
-          (item) => item.name === c[0]
-        )[0];
-
-        if (currentCont && currentCont.category === "monthly") {
-          const totalContributionAmount = c[1]
-            .map((item) => item.amount)
-            .reduce((prev, next) => parseInt(prev) + parseInt(next));
-
-          const cDetails = {
-            amount: totalContributionAmount,
-            contribution: c[0],
-            budget: currentCont.amount,
-            balance:
-              parseInt(totalContributionAmount) - parseInt(currentCont.amount),
-          };
-
-          tData.unshift(cDetails);
-        }
-      });
-      setTableData(tData);
+        setTableData(tData);
+      }
     };
 
     getTotalUserContributions();
-  }, [allContributions, allUsers, monthlyBasedContributions, selectedMonth]);
+  }, [budgets, cList, selectedMonth, selectedYear]);
+
+  const menu_years = (
+    <Menu>
+      {years.map((item, i) => (
+        <Menu.Item key={i} onClick={() => setSelectedYear(item)}>
+          <span target="_blank" rel="noopener noreferrer">
+            {item}
+          </span>
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
 
   const menu_months = (
     <Menu>
       {months.map((item, i) => (
-        <Menu.Item key={i} onClick={() => setSelectedMonth(item)}>
+        <Menu.Item key={i} onClick={() => setSelectedMonth(i)}>
           <span target="_blank" rel="noopener noreferrer">
             {item}
           </span>
@@ -145,6 +158,20 @@ export const MonthlySummary = () => {
       <Divider className="font-medium">Monthly Summary Analysis</Divider>
 
       <div className="flex items-end gap-1 w-full py-3 ">
+        <div className="">
+          <label className="font-medium" htmlFor="type">
+            Select year to view:
+          </label>
+          <Dropdown overlay={menu_years} placement="bottomLeft">
+            <div
+              className="h-8 bg-white border flex items-center px-3"
+              style={{ width: "300px" }}
+            >
+              {selectedYear}
+            </div>
+          </Dropdown>
+        </div>
+
         <div className="">
           <label className="font-medium" htmlFor="type">
             Select month to view:

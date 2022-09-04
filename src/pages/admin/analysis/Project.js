@@ -1,16 +1,63 @@
 import { Divider, Dropdown, Menu } from "antd";
 import React, { useContext, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { CustomTable } from "../../../components/CustomTable";
 import { AContext } from "../../../utils/AnalysisContext";
-import { Context } from "../../../utils/MainContext";
+import Groupings from "../../../utils/hooks/Groupings";
 
 export const Project = () => {
-  const { monthlyBasedContributions, months } = useContext(AContext);
-  const { allUsers, allContributions } = useContext(Context);
-  const [selectedMonth, setSelectedMonth] = useState(
-    months[new Date().getMonth()]
-  );
+  const { months } = useContext(AContext);
+
+  const {
+    contributions: cList,
+    budgets,
+    years,
+  } = useSelector((state) => state.contribution);
+
+  const [selectedYear, setSelectedYear] = useState(years[years?.length - 1]);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [tableData, setTableData] = useState();
+
+  useEffect(() => {
+    const getTotalUserContributions = () => {
+      const currentYearContributions =
+        Groupings.getMonthlyTotalBalance(cList)[selectedYear];
+
+      if (currentYearContributions) {
+        const currentMonthContributions =
+          currentYearContributions[selectedMonth] || [];
+
+        let tData = [];
+
+        Object.keys(currentMonthContributions).forEach((cont) => {
+          const contributionDetails = budgets[cont];
+          if (contributionDetails?.category === "project") {
+            const openingBalance = Groupings.getContributionOpeningBalance(
+              currentYearContributions,
+              selectedMonth,
+              cont
+            );
+
+            const cDetails = {
+              amount: currentMonthContributions[cont],
+              contribution: contributionDetails?.name,
+              budget: contributionDetails?.target,
+              opening_balance: openingBalance,
+              balance:
+                parseInt(currentMonthContributions[cont]) -
+                parseInt(contributionDetails?.target),
+            };
+
+            tData.push(cDetails);
+          }
+        });
+
+        setTableData(tData);
+      }
+    };
+
+    getTotalUserContributions();
+  }, [budgets, cList, selectedMonth, selectedYear]);
 
   const columns = [
     {
@@ -57,68 +104,31 @@ export const Project = () => {
         }
       },
     },
+
+    {
+      title: "Opening Balance",
+      dataIndex: "opening_balance",
+      key: "opening_balance",
+      render: (_, item) => parseInt(item?.opening_balance).toLocaleString(),
+    },
   ];
 
-  useEffect(() => {
-    const getTotalUserContributions = () => {
-      const contArr = [];
-
-      monthlyBasedContributions &&
-        monthlyBasedContributions[selectedMonth] &&
-        monthlyBasedContributions[selectedMonth].forEach((c) => {
-          const currentUser = allUsers.filter((item) => item.uid === c.user)[0];
-          const currentContribution = allContributions.filter(
-            (item) => item.id === c.contribution
-          )[0];
-
-          contArr.unshift({
-            ...c,
-            contribution: currentContribution && currentContribution.name,
-            user: currentUser.name,
-          });
-        });
-
-      const userContributionsGroupedByCont =
-        contArr &&
-        contArr.reduce(function (r, a) {
-          r[a.contribution] = r[a.contribution] || [];
-          r[a.contribution].unshift(a);
-          return r;
-        }, Object.create(null));
-
-      const tData = [];
-
-      Object.entries(userContributionsGroupedByCont).forEach((c) => {
-        const currentCont = allContributions.filter(
-          (item) => item.name === c[0]
-        )[0];
-
-        if (currentCont && currentCont.category === "project") {
-          const totalContributionAmount = c[1]
-            .map((item) => item.amount)
-            .reduce((prev, next) => parseInt(prev) + parseInt(next));
-
-          const cDetails = {
-            amount: totalContributionAmount,
-            contribution: c[0],
-            budget: currentCont.target,
-            balance:
-              parseInt(totalContributionAmount) - parseInt(currentCont.target),
-          };
-
-          tData.unshift(cDetails);
-        }
-      });
-      setTableData(tData);
-    };
-
-    getTotalUserContributions();
-  }, [allContributions, allUsers, monthlyBasedContributions, selectedMonth]);
+  const menu_years = (
+    <Menu>
+      {years.map((item, i) => (
+        <Menu.Item key={i} onClick={() => setSelectedYear(item)}>
+          <span target="_blank" rel="noopener noreferrer">
+            {item}
+          </span>
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
 
   const menu_months = (
     <Menu>
       {months.map((item, i) => (
-        <Menu.Item key={i} onClick={() => setSelectedMonth(item)}>
+        <Menu.Item key={i} onClick={() => setSelectedMonth(i)}>
           <span target="_blank" rel="noopener noreferrer">
             {item}
           </span>
@@ -133,14 +143,28 @@ export const Project = () => {
       <div className="flex items-end gap-1 w-full py-3 ">
         <div className="">
           <label className="font-medium" htmlFor="type">
-            Select month to view:
+            Select year to view:
+          </label>
+          <Dropdown overlay={menu_years} placement="bottomLeft">
+            <div
+              className="h-8 bg-white border flex items-center px-3"
+              style={{ width: "300px" }}
+            >
+              {selectedYear}
+            </div>
+          </Dropdown>
+        </div>
+
+        <div className="">
+          <label className="font-medium" htmlFor="type">
+            Select month:
           </label>
           <Dropdown overlay={menu_months} placement="bottomLeft">
             <div
               className="h-8 bg-white border flex items-center px-3"
               style={{ width: "300px" }}
             >
-              {selectedMonth}
+              {months[selectedMonth]}
             </div>
           </Dropdown>
         </div>

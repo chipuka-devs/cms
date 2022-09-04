@@ -8,6 +8,9 @@ import { contributionService } from "../services/ContributionServices";
 const initialState = {
   groupedContributions: [],
   annualGroupingContributions: [],
+  contributions: [],
+  years: [],
+  budgets: {},
   // contributions: [],
   // contributionsByMonth: [],
   isLoading: false,
@@ -79,9 +82,18 @@ const contributionSlice = createSlice({
   initialState,
   reducers: {
     reset: () => initialState,
+    setContributions: (state, action) => {
+      state.contributions = action.payload;
+    },
+    setBudgets: (state, action) => {
+      state.budgets = action.payload;
+    },
     makeGroupings: (state, action) => {
       const cList = action.payload;
       const yearlyGroupings = _.mapValues(_.groupBy(cList, "year"));
+
+      state.years = Object.keys(yearlyGroupings);
+
       // console.log(yearlyGroupings);
 
       Object.keys(yearlyGroupings).forEach((year) => {
@@ -135,6 +147,11 @@ const contributionSlice = createSlice({
 
       // return { contributions: cList, yearlyGroupings };
     },
+
+    // groupAnnualy: (action) => {
+    //   const cList = action.payload;
+    //   // const yearlyGroupings = _.mapValues(_.groupBy(cList, "year"));
+    // },
   },
   extraReducers: (builder) => {
     builder
@@ -169,7 +186,12 @@ const contributionSlice = createSlice({
   },
 });
 
-export const { reset, makeGroupings, makeYearlyContributionsGroupings } =
-  contributionSlice.actions;
+export const {
+  reset,
+  makeGroupings,
+  makeYearlyContributionsGroupings,
+  setContributions,
+  setBudgets,
+} = contributionSlice.actions;
 
 export default contributionSlice.reducer;
