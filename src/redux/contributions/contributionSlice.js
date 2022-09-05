@@ -11,6 +11,7 @@ const initialState = {
   contributions: [],
   years: [],
   budgets: {},
+  users: {},
   // contributions: [],
   // contributionsByMonth: [],
   isLoading: false,
@@ -87,6 +88,9 @@ const contributionSlice = createSlice({
     },
     setBudgets: (state, action) => {
       state.budgets = action.payload;
+    },
+    setUsers: (state, action) => {
+      state.users = action.payload;
     },
     makeGroupings: (state, action) => {
       const cList = action.payload;
@@ -192,6 +196,7 @@ export const {
   makeYearlyContributionsGroupings,
   setContributions,
   setBudgets,
+  setUsers,
 } = contributionSlice.actions;
 
 export default contributionSlice.reducer;

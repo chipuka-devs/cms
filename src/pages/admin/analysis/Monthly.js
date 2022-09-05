@@ -3,93 +3,79 @@ import { AContext } from "../../../utils/AnalysisContext";
 import { Context } from "../../../utils/MainContext";
 import { Divider, Menu, Dropdown } from "antd";
 import { CustomTable } from "../../../components/CustomTable";
+import { useSelector } from "react-redux";
+import Groupings from "../../../utils/hooks/Groupings";
 
 export const Monthly = () => {
-  const { allUsers, allContributions } = useContext(Context);
-  const { monthlyBasedContributions, months } = useContext(AContext);
-  const [selectedMonth, setSelectedMonth] = useState(
-    months[new Date().getMonth()]
+  const { allContributions } = useContext(Context);
+  const { months } = useContext(AContext);
+
+  const { budgets, years, groupedContributions, users } = useSelector(
+    (state) => state.contribution
   );
+
+  const [selectedYear, setSelectedYear] = useState();
+
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedContribution, setSelectedContribution] = useState("");
   const [tableData, setTableData] = useState([]);
 
   useEffect(() => {
+    setSelectedYear(years[years?.length - 1]);
     setSelectedContribution(
-      allContributions?.filter((item) => item?.category === "monthly")[0]
+      allContributions?.filter((item) => item?.category === "monthly")[0]?.id
     );
-  }, [allContributions]);
+  }, [allContributions, years]);
 
   useEffect(() => {
     const getTotalUserContributions = () => {
-      const contArr = [];
+      const currentYearContributions = groupedContributions[selectedYear];
 
-      monthlyBasedContributions &&
-        monthlyBasedContributions[selectedMonth] &&
-        monthlyBasedContributions[selectedMonth].forEach((c) => {
-          const currentUser = allUsers.filter((item) => item.uid === c.user)[0];
-          const currentContribution = allContributions.filter(
-            (item) => item.id === c.contribution
-          )[0];
+      if (currentYearContributions) {
+        const currentMonthContributions =
+          currentYearContributions[selectedMonth];
 
-          contArr.unshift({
-            ...c,
-            contribution: currentContribution && currentContribution.name,
-            user: currentUser && currentUser.name,
-          });
-        });
+        if (currentMonthContributions) {
+          const contributionDetails = budgets[selectedContribution];
+          if (contributionDetails?.category === "monthly") {
+            // console.log(currentMonthContributions[cont]);
 
-      const userContributionsGroupedByCont =
-        contArr &&
-        contArr.reduce(function (r, a) {
-          r[a.contribution] = r[a.contribution] || [];
-          r[a.contribution].unshift(a);
-          return r;
-        }, Object.create(null));
+            const userTotals = currentMonthContributions[selectedContribution]
+              ? Groupings.getUsersMonthlyTotal(
+                  currentMonthContributions[selectedContribution]
+                )
+              : {};
 
-      const currentSelectedContribution =
-        userContributionsGroupedByCont[selectedContribution];
+            let tData = [];
 
-      const currentSelectedContributionByUser =
-        currentSelectedContribution &&
-        Object.entries(
-          currentSelectedContribution.reduce(function (r, a) {
-            r[a.user] = r[a.user] || [];
-            r[a.user].unshift(a);
-            return r;
-          }, Object.create(null))
-        );
-      // currentSelectedContributionByUser.forEach((c) => console.log(c));
-      const tData = [];
-      currentSelectedContributionByUser &&
-        currentSelectedContributionByUser.forEach((c) => {
-          const userTotalAmount = c[1]
-            .map((item) => item.amount)
-            .reduce((prev, next) => parseInt(prev) + parseInt(next));
+            userTotals &&
+              Object.keys(userTotals).forEach((user) => {
+                const cDetails = {
+                  amount: userTotals[user],
+                  user: users[user]?.name,
+                  budget: contributionDetails?.amount,
+                  balance:
+                    parseInt(userTotals[user]) -
+                    parseInt(contributionDetails?.amount),
+                };
 
-          const currentCont = allContributions.filter(
-            (item) => item && item.name === selectedContribution
-          )[0];
+                tData.push(cDetails);
+              });
 
-          const cDetails = {
-            amount: userTotalAmount,
-            user: c[0],
-            budget: currentCont && currentCont.amount,
-            balance:
-              parseInt(userTotalAmount) -
-              parseInt(currentCont && currentCont.amount),
-          };
-          tData.unshift(cDetails);
-        });
-      setTableData(tData);
+            setTableData(tData);
+          }
+        }
+      }
     };
 
     getTotalUserContributions();
   }, [
-    selectedMonth,
-    allContributions,
-    allUsers,
-    monthlyBasedContributions,
+    budgets,
+    groupedContributions,
     selectedContribution,
+    selectedMonth,
+    selectedYear,
+    users,
   ]);
 
   const columns = [
@@ -138,15 +124,24 @@ export const Monthly = () => {
     },
   ];
 
+  const menu_years = (
+    <Menu>
+      {years.map((item, i) => (
+        <Menu.Item key={i} onClick={() => setSelectedYear(item)}>
+          <span target="_blank" rel="noopener noreferrer">
+            {item}
+          </span>
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
+
   const menu = (
     <Menu>
       {allContributions.map(
         (item, i) =>
           item.category === "monthly" && (
-            <Menu.Item
-              key={i}
-              onClick={() => setSelectedContribution(item.name)}
-            >
+            <Menu.Item key={i} onClick={() => setSelectedContribution(item.id)}>
               <span target="_blank" rel="noopener noreferrer">
                 {item.name}
               </span>
@@ -158,7 +153,7 @@ export const Monthly = () => {
   const menu_months = (
     <Menu>
       {months.map((item, i) => (
-        <Menu.Item key={i} onClick={() => setSelectedMonth(item)}>
+        <Menu.Item key={i} onClick={() => setSelectedMonth(i)}>
           <span target="_blank" rel="noopener noreferrer">
             {item}
           </span>
@@ -174,6 +169,19 @@ export const Monthly = () => {
       <div className="flex items-end gap-1 w-full py-3 ">
         <div className="">
           <label className="font-medium" htmlFor="type">
+            Select year to view:
+          </label>
+          <Dropdown overlay={menu_years} placement="bottomLeft">
+            <div
+              className="h-8 bg-white border flex items-center px-3"
+              style={{ width: "300px" }}
+            >
+              {selectedYear}
+            </div>
+          </Dropdown>
+        </div>
+        <div className="">
+          <label className="font-medium" htmlFor="type">
             Select monthly contribution:
           </label>
           <Dropdown overlay={menu} placement="bottomLeft">
@@ -181,9 +189,7 @@ export const Monthly = () => {
               className="h-8 bg-white border flex items-center px-3"
               style={{ width: "300px" }}
             >
-              {selectedContribution.name
-                ? selectedContribution.name
-                : selectedContribution}
+              {budgets[selectedContribution]?.name}
             </div>
           </Dropdown>
         </div>
@@ -197,7 +203,7 @@ export const Monthly = () => {
               className="h-8 bg-white border flex items-center px-3"
               style={{ width: "300px" }}
             >
-              {selectedMonth}
+              {months[selectedMonth]}
             </div>
           </Dropdown>
         </div>

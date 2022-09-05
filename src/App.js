@@ -11,8 +11,8 @@ function App() {
 
   return (
     <div className="App">
-      <MainContext>
-        <Provider store={store}>
+      <Provider store={store}>
+        <MainContext>
           <AnalysisContext>
             <BrowserRouter>
               <Routes>
@@ -28,8 +28,8 @@ function App() {
               </Routes>
             </BrowserRouter>
           </AnalysisContext>
-        </Provider>
-      </MainContext>
+        </MainContext>
+      </Provider>
     </div>
   );
 }

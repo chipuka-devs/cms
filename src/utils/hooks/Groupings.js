@@ -49,6 +49,18 @@ function getContributionOpeningBalance(list, month, contribution) {
   return total;
 }
 
+function getUsersMonthlyTotal(list) {
+  let conts = {};
+
+  Object.keys(list).forEach((user) => {
+    const total = _.sumBy(list[user], (contrib) => parseInt(contrib?.amount));
+
+    conts[user] = total;
+  });
+
+  return conts;
+}
+
 function getClosingBalance(list) {
   const total = _.sumBy(list, (contrib) => parseInt(contrib?.amount));
 
@@ -60,6 +72,7 @@ const Groupings = {
   getClosingBalance,
   getMonthlyTotalBalance,
   getContributionOpeningBalance,
+  getUsersMonthlyTotal,
 };
 
 export default Groupings;

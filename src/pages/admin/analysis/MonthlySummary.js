@@ -181,7 +181,7 @@ export const MonthlySummary = () => {
               className="h-8 bg-white border flex items-center px-3"
               style={{ width: "300px" }}
             >
-              {selectedMonth}
+              {months[selectedMonth]}
             </div>
           </Dropdown>
         </div>

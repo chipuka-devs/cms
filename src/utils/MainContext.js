@@ -4,6 +4,8 @@ import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { createContext, useEffect, useState } from "react";
 import { db } from "./firebase";
 import { doc } from "firebase/firestore";
+import { useDispatch } from "react-redux";
+import { setUsers } from "../redux/contributions/contributionSlice";
 
 export const Context = createContext();
 
@@ -17,6 +19,7 @@ export const MainContext = ({ children }) => {
   const [allUsers, setAllUsers] = useState([]);
   const [allContributions, setAllContributions] = useState([]);
   const [currentTab, setCurrentTab] = useState("home");
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const auth = getAuth();
@@ -38,14 +41,26 @@ export const MainContext = ({ children }) => {
         query(collection(db, "users"), orderBy("joinedAt", "desc")),
         (docs) => {
           const users = [];
-          docs.forEach(
-            (user) =>
-              user.data().role &&
-              user.data().role !== "admin" &&
-              users.push({ ...user.data(), id: user.id })
-          );
+          let usersObject = {};
+
+          docs.forEach((user) => {
+            if (user.data()?.role !== "admin") {
+              const date = user?.data()?.joinedAt;
+
+              const dateJoined = date?.seconds
+                ? new Date(date?.seconds * 1000).toISOString()
+                : new Date(date).toISOString();
+
+              // ).toISOString();
+
+              users.push({ ...user.data(), id: user.id });
+
+              usersObject[user.id] = { ...user?.data(), joinedAt: dateJoined };
+            }
+          });
 
           setAllUsers(users);
+          dispatch(setUsers(usersObject));
           setLoading(false);
         }
       );
@@ -64,7 +79,7 @@ export const MainContext = ({ children }) => {
 
     fetchAllUsers();
     fetchAllContributions();
-  }, []);
+  }, [dispatch]);
 
   // check if user is approver:
   useEffect(() => {

@@ -37,6 +37,7 @@ const { Content, Footer, Sider } = Layout;
 // const { SubMenu } = Menu;
 const AdminLayout = () => {
   const dispatch = useDispatch();
+
   useEffect(() => {
     const q = query(collection(db, "user_contributions"), orderBy("createdAt"));
     onSnapshot(q, (docs) => {

@@ -187,9 +187,6 @@ export const MonthlyContributions = () => {
           const year = contDate.getFullYear();
           const month = contDate.getMonth();
 
-          console.log(year, month);
-          //   cList.push(d.data());
-
           const totals = groupedContributions[year][month];
           // console.log(totals);
 
@@ -229,8 +226,6 @@ export const MonthlyContributions = () => {
 
               cList.unshift(contributionDetails);
             }
-
-            console.log(cList);
           }
         });
 
