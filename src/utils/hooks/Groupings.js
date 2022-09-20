@@ -67,12 +67,22 @@ function getClosingBalance(list) {
   return total;
 }
 
+function getObjectValueTotals(object) {
+  let newObject = {};
+  Object?.values(object)?.forEach((obj, index) => {
+    newObject[index] = _.sum(Object?.values(obj));
+  });
+
+  return newObject;
+}
+
 const Groupings = {
   groupContributionsAnnualy,
   getClosingBalance,
   getMonthlyTotalBalance,
   getContributionOpeningBalance,
   getUsersMonthlyTotal,
+  getObjectValueTotals,
 };
 
 export default Groupings;

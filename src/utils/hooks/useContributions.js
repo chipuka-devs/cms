@@ -4,6 +4,8 @@ import { db } from "../firebase";
 import { AContext } from "../AnalysisContext";
 import { Context } from "../MainContext";
 import cms from "../cms";
+import _ from "lodash";
+import Groupings from "./Groupings";
 
 const useContributions = () => {
   const [state, setState] = useState({});
@@ -68,7 +70,21 @@ const useContributions = () => {
     try {
       let arrOfExp = [];
       onSnapshot(collection(db, "deductions"), (docs) =>
-        docs.forEach((d) => arrOfExp.push(d.data()))
+        docs.forEach((d) => {
+          const yearCreated = new Date(
+            d?.data()?.createdAt?.seconds * 1000
+          )?.getFullYear();
+
+          const monthCreated = new Date(
+            d?.data()?.createdAt?.seconds * 1000
+          )?.getMonth();
+
+          arrOfExp.push({
+            ...d.data(),
+            year: yearCreated,
+            month: monthCreated,
+          });
+        })
       );
 
       setState((prev) => ({ ...prev, expenditures: arrOfExp }));
@@ -81,8 +97,7 @@ const useContributions = () => {
   function makeGroupings() {
     const yearGroupings = cms.groupByYear(state?.userContributions);
 
-    const monthlyGroupings = cms.groupMonths(state?.userContributions);
-    console.log(monthlyGroupings);
+    // const monthlyGroupings = cms.groupMonths(state?.userContributions);
 
     setState((prev) => ({ ...prev, yearGroupings }));
   }
@@ -344,6 +359,38 @@ const useContributions = () => {
     return dedsArr;
   };
 
+  const getYearlyGroupedExpenditures = () => {
+    // console.log(state.contributions);
+
+    const cList = state?.expenditures;
+    const yearlyGroupings = _.mapValues(_.groupBy(cList, "year"));
+
+    // state.years = Object.keys(yearlyGroupings);
+
+    Object.keys(yearlyGroupings).forEach((year) => {
+      const monthlyGroupings = _.mapValues(
+        _.groupBy(yearlyGroupings[year], "month")
+      );
+      Object.keys(monthlyGroupings).forEach((month) => {
+        const currentMonthGroupings = _.mapValues(
+          _.groupBy(monthlyGroupings[month], "contribution")
+        );
+
+        Object.keys(currentMonthGroupings).forEach((cont) => {
+          currentMonthGroupings[cont] = Groupings.getClosingBalance(
+            currentMonthGroupings[cont]
+          );
+        });
+
+        monthlyGroupings[month] = _.sum(Object.values(currentMonthGroupings));
+        // console.log(Object.values(currentMonthGroupings));
+      });
+
+      yearlyGroupings[year] = monthlyGroupings;
+    });
+    return yearlyGroupings;
+  };
+
   return {
     fetchUserContributions,
     state,
@@ -353,6 +400,7 @@ const useContributions = () => {
     monthlyGroupings,
     getTotalGroupedContributions,
     getGroupedExpenditures,
+    getYearlyGroupedExpenditures,
   };
 };
 

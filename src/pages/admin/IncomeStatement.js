@@ -10,12 +10,12 @@ export const IncomeStatement = () => {
     contributions: getTotalGroupedContributions(),
   });
 
+  const expenditures = getGroupedExpenditures();
+  const contributions = getTotalGroupedContributions();
   React.useEffect(() => {
-    const expenditures = getGroupedExpenditures();
-    const contributions = getTotalGroupedContributions();
-
     setIncome({ expenditures, contributions });
-  }, [getGroupedExpenditures, getTotalGroupedContributions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expenditures.length, contributions.length]);
 
   let tCont = 0;
   let tDed = 0;

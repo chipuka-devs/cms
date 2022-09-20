@@ -52,7 +52,9 @@ function groupByYear(data) {
   const dateArr = [];
 
   data?.forEach((i) => {
-    let date = new Date(i?.doc).toISOString();
+    let date = i?.doc?.seconds
+      ? new Date(i?.doc?.seconds * 1000)?.toISOString()
+      : new Date(i?.doc)?.toISOString();
 
     dateArr.push({ ...i, date });
   });
@@ -70,8 +72,16 @@ function groupQuarters(data) {
 // group by months
 function groupMonths(data) {
   return _.groupBy(data, function (item) {
-    return new Date(item?.doc).toISOString().substring(5, 7);
+    if (item?.doc?.seconds) {
+      return new Date(item?.doc?.seconds * 1000).toISOString().substring(5, 7);
+    } else {
+      return new Date(item?.doc).toISOString().substring(5, 7);
+    }
   });
+}
+
+function groupMonthlyTotals(data) {
+  console.log("MONTHLY CONTS:", data);
 }
 
 function getTotalAmount(data) {
@@ -84,6 +94,12 @@ function getTotalAmount(data) {
   );
 }
 
-const cms = { viewData, groupByYear, groupQuarters, groupMonths };
+const cms = {
+  viewData,
+  groupByYear,
+  groupQuarters,
+  groupMonths,
+  groupMonthlyTotals,
+};
 
 export default cms;

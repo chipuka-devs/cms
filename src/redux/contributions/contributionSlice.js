@@ -3,6 +3,7 @@ import { collection, getDocs, query } from "firebase/firestore";
 import _ from "lodash";
 
 import { db } from "../../utils/firebase";
+import Groupings from "../../utils/hooks/Groupings";
 import { contributionService } from "../services/ContributionServices";
 
 const initialState = {
@@ -12,6 +13,8 @@ const initialState = {
   years: [],
   budgets: {},
   users: {},
+  expenditures: {},
+  groupedExpenditures: {},
   // contributions: [],
   // contributionsByMonth: [],
   isLoading: false,
@@ -86,6 +89,9 @@ const contributionSlice = createSlice({
     setContributions: (state, action) => {
       state.contributions = action.payload;
     },
+    setExpenditures: (state, action) => {
+      state.expenditures = action.payload;
+    },
     setBudgets: (state, action) => {
       state.budgets = action.payload;
     },
@@ -123,6 +129,39 @@ const contributionSlice = createSlice({
 
       // console.log("Yearly grouping", yearlyGroupings);
       state.groupedContributions = yearlyGroupings;
+
+      // return { contributions: cList, yearlyGroupings };
+    },
+
+    makeExpenditureGroupings: (state, action) => {
+      const cList = action.payload;
+      const yearlyGroupings = _.mapValues(_.groupBy(cList, "year"));
+
+      // state.years = Object.keys(yearlyGroupings);
+
+      Object.keys(yearlyGroupings).forEach((year) => {
+        const monthlyGroupings = _.mapValues(
+          _.groupBy(yearlyGroupings[year], "month")
+        );
+        Object.keys(monthlyGroupings).forEach((month) => {
+          const currentMonthGroupings = _.mapValues(
+            _.groupBy(monthlyGroupings[month], "contribution")
+          );
+
+          Object.keys(currentMonthGroupings).forEach((cont) => {
+            currentMonthGroupings[cont] = Groupings.getClosingBalance(
+              currentMonthGroupings[cont]
+            );
+          });
+
+          monthlyGroupings[month] = _.sum(Object.values(currentMonthGroupings));
+          // console.log(Object.values(currentMonthGroupings));
+        });
+
+        yearlyGroupings[year] = monthlyGroupings;
+      });
+      console.log(yearlyGroupings);
+      state.groupedExpenditures = yearlyGroupings;
 
       // return { contributions: cList, yearlyGroupings };
     },
@@ -197,6 +236,8 @@ export const {
   setContributions,
   setBudgets,
   setUsers,
+  setExpenditures,
+  makeExpenditureGroupings,
 } = contributionSlice.actions;
 
 export default contributionSlice.reducer;

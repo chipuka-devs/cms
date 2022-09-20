@@ -104,6 +104,10 @@ const MenuBar = () => {
         <Menu.Item>
           <Link to="/admin/analysis/o_summary">Overall Summary</Link>
         </Menu.Item>
+
+        <Menu.Item>
+          <Link to="/admin/analysis/net">Net</Link>
+        </Menu.Item>
       </Menu.SubMenu>
 
       <Menu.SubMenu

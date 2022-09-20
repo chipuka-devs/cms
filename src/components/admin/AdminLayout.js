@@ -22,21 +22,57 @@ import { ProjectSummary } from "../../pages/admin/analysis/ProjectSummary";
 import Deductions from "../../pages/admin/deductions/viewAll";
 import { IncomeStatement } from "../../pages/admin/IncomeStatement";
 import Privileges from "../../pages/admin/Privileges";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import {
+  makeExpenditureGroupings,
   makeGroupings,
   makeYearlyContributionsGroupings,
   setBudgets,
   setContributions,
+  setExpenditures,
 } from "../../redux/contributions/contributionSlice";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../../utils/firebase";
+import Net from "../../pages/admin/analysis/Net";
 
 const { Content, Footer, Sider } = Layout;
 // const { SubMenu } = Menu;
 const AdminLayout = () => {
   const dispatch = useDispatch();
+
+  const fetchExpenditures = useCallback(() => {
+    try {
+      onSnapshot(collection(db, "deductions"), (docs) => {
+        let arrOfExp = [];
+        docs.forEach((d) => {
+          const yearCreated = new Date(
+            d?.data()?.createdAt?.seconds * 1000
+          )?.getFullYear();
+
+          const date = new Date(
+            d?.data()?.createdAt?.seconds * 1000
+          )?.getFullYear();
+
+          const monthCreated = new Date(
+            d?.data()?.createdAt?.seconds * 1000
+          )?.getMonth();
+
+          arrOfExp.push({
+            ...d.data(),
+            year: yearCreated,
+            month: monthCreated,
+            createdAt: date,
+          });
+        });
+        dispatch(setExpenditures(arrOfExp));
+        dispatch(makeExpenditureGroupings(arrOfExp));
+      });
+      // setState((prev) => ({ ...prev, expenditures: arrOfExp }));
+    } catch (error) {
+      console.log("Fetch Expenditure error:", error);
+    }
+  }, [dispatch]);
 
   useEffect(() => {
     const q = query(collection(db, "user_contributions"), orderBy("createdAt"));
@@ -75,8 +111,10 @@ const AdminLayout = () => {
       //   )
       // );
     });
+
+    fetchExpenditures();
     // fetchConts();
-  }, [dispatch]);
+  }, [dispatch, fetchExpenditures]);
 
   useEffect(() => {
     const qProjects = query(collection(db, "contributions"));
@@ -266,6 +304,16 @@ const AdminLayout = () => {
                   element={
                     <PrivateRoute>
                       <OverallSummary />
+                    </PrivateRoute>
+                  }
+                />
+
+                <Route
+                  path={"/analysis/net"}
+                  exact
+                  element={
+                    <PrivateRoute>
+                      <Net />
                     </PrivateRoute>
                   }
                 />
