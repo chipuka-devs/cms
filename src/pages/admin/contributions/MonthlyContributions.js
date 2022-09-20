@@ -17,7 +17,6 @@ import { Context } from "../../../utils/MainContext";
 import { error, success } from "../../../components/Notifications";
 import moment from "moment";
 import { useSelector } from "react-redux";
-import _ from "lodash";
 
 export const MonthlyContributions = () => {
   const { allUsers, allContributions } = useContext(Context);
@@ -195,18 +194,18 @@ export const MonthlyContributions = () => {
             currentContContribution.category === "monthly"
           ) {
             if (totals) {
-              const currentContContributions =
-                totals[currentContContribution?.id];
-              const currentUserContributions = currentContContributions
-                ? currentContContributions[currentUser?.id]
-                : [];
+              // const currentContContributions =
+              //   totals[currentContContribution?.id];
+              // const currentUserContributions = currentContContributions
+              //   ? currentContContributions[currentUser?.id]
+              //   : [];
 
-              const total =
-                currentUserContributions &&
-                _.sumBy(currentUserContributions, (user) =>
-                  parseInt(user?.amount)
-                );
-              const balance = total - parseInt(currentContContribution.amount);
+              // const total =
+              //   currentUserContributions &&
+              //   _.sumBy(currentUserContributions, (user) =>
+              //     parseInt(user?.amount)
+              //   );
+              // const balance = total - parseInt(currentContContribution.amount);
 
               //   currentcontContributionscon && currentContContribution[currentUser?.id];
               console.log(currentContContribution);
@@ -221,7 +220,7 @@ export const MonthlyContributions = () => {
                 purpose:
                   currentContContribution && currentContContribution.name,
                 cid: currentContContribution?.id,
-                balance: balance,
+                // balance: balance,
               };
 
               cList.unshift(contributionDetails);
@@ -291,34 +290,34 @@ export const MonthlyContributions = () => {
       filters: [...contributionNames],
       onFilter: (value, record) => record.purpose.startsWith(value),
     },
-    {
-      title: "Balance",
-      dataIndex: "balance",
-      key: "balance",
-      filters: [...contributionNames],
-      onFilter: (value, record) => record.purpose.startsWith(value),
-      render: (_, { balance }) => {
-        if (balance > 0) {
-          return (
-            <div className="bg-green-200 m-0 w-24 text-green-500 font-medium text-center p-1">
-              {balance?.toLocaleString()}
-            </div>
-          );
-        } else if (balance < 0) {
-          return (
-            <div className="bg-red-200 m-0 w-24 text-center text-red-500 font-medium p-1">
-              {balance?.toLocaleString()}
-            </div>
-          );
-        } else {
-          return (
-            <div className="bg-blue-200 text-blue-600 m-0 w-24 text-center font-medium p-1">
-              {balance?.toLocaleString()}
-            </div>
-          );
-        }
-      },
-    },
+    // {
+    //   title: "Balance",
+    //   dataIndex: "balance",
+    //   key: "balance",
+    //   filters: [...contributionNames],
+    //   onFilter: (value, record) => record.purpose.startsWith(value),
+    //   render: (_, { balance }) => {
+    //     if (balance > 0) {
+    //       return (
+    //         <div className="bg-green-200 m-0 w-24 text-green-500 font-medium text-center p-1">
+    //           {balance?.toLocaleString()}
+    //         </div>
+    //       );
+    //     } else if (balance < 0) {
+    //       return (
+    //         <div className="bg-red-200 m-0 w-24 text-center text-red-500 font-medium p-1">
+    //           {balance?.toLocaleString()}
+    //         </div>
+    //       );
+    //     } else {
+    //       return (
+    //         <div className="bg-blue-200 text-blue-600 m-0 w-24 text-center font-medium p-1">
+    //           {balance?.toLocaleString()}
+    //         </div>
+    //       );
+    //     }
+    //   },
+    // },
     {
       title: "Actions",
       dataIndex: "actions",
