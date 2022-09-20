@@ -15,7 +15,7 @@ const getMonthlyTotalBalance = (list) => {
     const monthlyGroupings = _.mapValues(
       _.groupBy(yearlyGroupings[year], "month")
     );
-    Object.keys(monthlyGroupings).forEach((month) => {
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].forEach((month) => {
       const currentMonthGroupings = _.mapValues(
         _.groupBy(monthlyGroupings[month], "contribution")
       );
