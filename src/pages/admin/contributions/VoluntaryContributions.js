@@ -2,10 +2,9 @@ import {
   Button,
   DatePicker,
   Divider,
-  Dropdown,
   Input,
-  Menu,
   Popconfirm,
+  Select,
   Spin,
 } from "antd";
 import {
@@ -190,23 +189,6 @@ export const VoluntaryContributions = () => {
     fetchUserContributions();
   }, [allUsers]);
 
-  const uMenu = (
-    <Menu>
-      {allUsers.map((item, i) => (
-        <Menu.Item
-          key={i}
-          onClick={() =>
-            setVoluntaryContribution((prev) => ({ ...prev, user: item }))
-          }
-        >
-          <span target="_blank" rel="noopener noreferrer">
-            {item.name}
-          </span>
-        </Menu.Item>
-      ))}
-    </Menu>
-  );
-
   const columns = [
     {
       title: "Date",
@@ -276,27 +258,37 @@ export const VoluntaryContributions = () => {
 
         <form className="mx-auto my-2" onSubmit={handleSubmit}>
           <div className="flex items-end gap-1 w-full ">
-            <div className="">
+            <div className="flex-1">
               <label className="font-medium" htmlFor="type">
                 Select User:
               </label>
-              <Dropdown overlay={uMenu} placement="bottomLeft">
-                <div
-                  className="h-8 bg-white border flex items-center px-3"
-                  style={{ width: "300px" }}
-                >
-                  {voluntaryContribution?.user?.name}
-                </div>
-              </Dropdown>
+
+              <Select
+                defaultValue={voluntaryContribution?.user?.name}
+                style={{ width: "100%" }}
+                onChange={(value) =>
+                  setVoluntaryContribution((prev) => ({
+                    ...prev,
+                    user: allUsers[value],
+                  }))
+                }
+              >
+                {allUsers.map((item, i) => (
+                  <Select.Option key={i} value={i}>
+                    {item?.name}
+                  </Select.Option>
+                ))}
+              </Select>
             </div>
 
-            <div className="">
+            <div className="flex-1">
               <label className="font-medium" htmlFor="type">
                 Contribution Title:
               </label>
               {/* Contribution Name */}
               <Input
                 type="text"
+                className="w-full"
                 placeholder="contribution title i.e celebration "
                 required
                 value={voluntaryContribution?.name}
@@ -309,12 +301,13 @@ export const VoluntaryContributions = () => {
               />
             </div>
 
-            <div className="">
+            <div className="flex-1">
               <label className="font-medium" htmlFor="type">
                 Input Amount:
               </label>
               {/* amount  */}
               <Input
+                className="w-full"
                 type="number"
                 placeholder="i.e 200 "
                 required
@@ -329,13 +322,15 @@ export const VoluntaryContributions = () => {
             </div>
 
             {!isUpdating && (
-              <div className="">
+              <div className="flex-1">
                 <label className="font-medium" htmlFor="type">
                   Contribution Date:
                 </label>
                 <br />
                 {/* amount  */}
                 <DatePicker
+                  format={"DD/MM/YYYY"}
+                  className={"w-full"}
                   defaultValue={moment(voluntaryContribution?.doc)}
                   onChange={(_date, dateString) =>
                     setVoluntaryContribution((prev) => ({

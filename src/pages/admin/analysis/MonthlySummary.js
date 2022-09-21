@@ -42,7 +42,7 @@ export const MonthlySummary = () => {
         record?.contribution?.toLowerCase() === value?.toLowerCase(),
     },
     {
-      title: "Amount",
+      title: "Actual Amount",
       dataIndex: "amount",
       key: "amount",
       render: (_, item) => parseInt(item?.amount).toLocaleString(),
@@ -79,13 +79,6 @@ export const MonthlySummary = () => {
           );
         }
       },
-    },
-
-    {
-      title: "Opening Balance",
-      dataIndex: "opening_balance",
-      key: "opening_balance",
-      render: (_, item) => parseInt(item?.opening_balance).toLocaleString(),
     },
   ];
 

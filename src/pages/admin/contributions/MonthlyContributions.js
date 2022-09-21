@@ -1,5 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Button, Divider, Dropdown, Input, Menu, Popconfirm, Spin } from "antd";
+import {
+  Button,
+  DatePicker,
+  Divider,
+  Input,
+  Popconfirm,
+  Select,
+  Spin,
+} from "antd";
 import {
   addDoc,
   collection,
@@ -92,7 +100,6 @@ export const MonthlyContributions = () => {
 
     try {
       if (isUpdating) {
-        console.log(currentContribution);
         await updateDoc(
           doc(db, "user_contributions", currentContribution?.key),
           {
@@ -198,7 +205,7 @@ export const MonthlyContributions = () => {
               //   totals[currentContContribution?.id];
               // const currentUserContributions = currentContContributions
               //   ? currentContContributions[currentUser?.id]
-              //   : [];
+              //   : []; console.log
 
               // const total =
               //   currentUserContributions &&
@@ -208,7 +215,6 @@ export const MonthlyContributions = () => {
               // const balance = total - parseInt(currentContContribution.amount);
 
               //   currentcontContributionscon && currentContContribution[currentUser?.id];
-              console.log(currentContContribution);
               const contributionDetails = {
                 key: d?.id,
                 date: contDate.toISOString(),
@@ -351,31 +357,6 @@ export const MonthlyContributions = () => {
     },
   ];
   // name total_amount email actions
-  const menu = (
-    <Menu>
-      {allContributions.map(
-        (item, i) =>
-          item.category === "monthly" && (
-            <Menu.Item key={i} onClick={() => setSelectedContribution(item)}>
-              <span target="_blank" rel="noopener noreferrer">
-                {item.name}
-              </span>
-            </Menu.Item>
-          )
-      )}
-    </Menu>
-  );
-  const uMenu = (
-    <Menu>
-      {allUsers.map((item, i) => (
-        <Menu.Item key={i} onClick={() => setSelectedUser(item)}>
-          <span target="_blank" rel="noopener noreferrer">
-            {item.name}
-          </span>
-        </Menu.Item>
-      ))}
-    </Menu>
-  );
 
   const tableData = userContributions;
 
@@ -390,47 +371,58 @@ export const MonthlyContributions = () => {
 
         <form className="mx-auto my-2" onSubmit={handleSubmit}>
           <div className="flex items-end gap-1 w-full ">
-            <div className="">
+            <div className="flex-1">
               <label className="font-medium" htmlFor="type">
                 Input Contribution:
               </label>
-              <Dropdown overlay={menu} placement="bottomLeft">
-                <div
-                  className="h-8 bg-white border flex items-center px-3"
-                  style={{ width: "300px" }}
-                >
-                  {selectedContribution.name
+
+              <Select
+                className={"w-full"}
+                defaultValue={
+                  selectedContribution.name
                     ? selectedContribution.name
-                    : selectedContribution}
-                </div>
-              </Dropdown>
+                    : selectedContribution
+                }
+                onChange={(value) =>
+                  setSelectedContribution(allContributions[value])
+                }
+              >
+                {allContributions.map((item, i) => (
+                  <Select.Option key={i} value={i}>
+                    {item?.name}
+                  </Select.Option>
+                ))}
+              </Select>
             </div>
 
-            <div className="">
+            <div className="flex-1">
               <label className="font-medium" htmlFor="type">
                 Select User:
               </label>
-              <Dropdown
-                overlay={uMenu}
-                placement="bottomLeft"
-                // disabled={isUpdating}
+
+              <Select
+                defaultValue={
+                  selectedUser.name ? selectedUser.name : selectedUser
+                }
+                className={"w-full"}
+                onChange={(value) => setSelectedUser(allUsers[value])}
               >
-                <div
-                  className="h-8 bg-white border flex items-center px-3"
-                  style={{ width: "300px" }}
-                >
-                  {selectedUser.name ? selectedUser.name : selectedUser}
-                </div>
-              </Dropdown>
+                {allUsers.map((item, i) => (
+                  <Select.Option key={i} value={i}>
+                    {item?.name}
+                  </Select.Option>
+                ))}
+              </Select>
             </div>
 
-            <div className="">
+            <div className="flex-1">
               <label className="font-medium" htmlFor="type">
                 Input Amount:
               </label>
               {/* amount  */}
               <Input
                 type="number"
+                className={"w-full"}
                 placeholder="i.e 200 "
                 required
                 value={currentContribution?.amount}
@@ -446,27 +438,27 @@ export const MonthlyContributions = () => {
             </div>
 
             {
-              <div className="">
+              <div className="flex-1">
                 <label className="font-medium" htmlFor="type">
                   Contribution Date:
                 </label>
                 <br />
                 {/* amount  */}
-
-                <Input
-                  type="date"
+                <DatePicker
                   required
+                  className={"w-full"}
                   placeholder="select the starting day"
-                  value={new Date(currentContribution?.doc || null)
-                    ?.toISOString()
-                    .substring(0, 10)}
-                  onChange={(e) =>
+                  defaultValue={moment(
+                    new Date(currentContribution?.doc || null)
+                  )}
+                  onChange={(value) =>
                     setCurrentContribution((prev) => ({
                       ...prev,
 
-                      doc: new Date(e.target.value),
+                      doc: new Date(value),
                     }))
                   }
+                  format={"DD/MM/YYYY"}
                 />
               </div>
             }

@@ -85,7 +85,7 @@ export const Monthly = () => {
       key: "user",
     },
     {
-      title: "Amount",
+      title: "Actual Amount",
       dataIndex: "amount",
       key: "amount",
       render: (_, item) => parseInt(item?.amount).toLocaleString(),

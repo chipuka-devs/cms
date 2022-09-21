@@ -1,4 +1,4 @@
-import { Button, Divider, Input, Popconfirm, Spin } from "antd";
+import { Button, DatePicker, Divider, Input, Popconfirm, Spin } from "antd";
 import {
   collection,
   deleteDoc,
@@ -8,6 +8,7 @@ import {
   setDoc,
   where,
 } from "firebase/firestore";
+import moment from "moment";
 import React, { useContext, useEffect, useState } from "react";
 import { CustomTable } from "../../components/CustomTable";
 import { error, success } from "../../components/Notifications";
@@ -182,6 +183,9 @@ export const ViewUsers = () => {
       title: "Date Joined",
       dataIndex: "date",
       key: "date",
+      render: (text) => (
+        <>{moment(new Date(text).toLocaleDateString()).format("DD/MM/YYYY")}</>
+      ),
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
     },
     {
@@ -232,13 +236,14 @@ export const ViewUsers = () => {
         <form className="mx-auto my-2" onSubmit={handleSubmit}>
           <p className="my-2">Add new Member:</p>
           <div className="flex items-end gap-1 w-full ">
-            <div className="">
+            <div className="flex-1">
               <label className="font-medium" htmlFor="type">
                 First Name:
               </label>
               {/* amount  */}
               <Input
                 type="text"
+                className={"w-full"}
                 placeholder="First Name"
                 required
                 // disabled={accessPledge ? false : true}
@@ -250,13 +255,14 @@ export const ViewUsers = () => {
             </div>
 
             {/* lastname */}
-            <div className="">
+            <div className="flex-1">
               <label className="font-medium" htmlFor="type">
                 Last Name:
               </label>
               {/* amount  */}
               <Input
                 type="text"
+                className={"w-full"}
                 placeholder="Last Name "
                 required
                 // disabled={accessPledge ? false : true}
@@ -268,7 +274,7 @@ export const ViewUsers = () => {
             </div>
 
             {/* phone number */}
-            <div className="">
+            <div className="flex-1">
               <label className="font-medium" htmlFor="type">
                 Phone Number:
               </label>
@@ -276,6 +282,7 @@ export const ViewUsers = () => {
               <Input
                 type="text"
                 placeholder="0700000000"
+                className={"w-full"}
                 required
                 disabled={mode === "edit"}
                 value={newUser.phone}
@@ -285,22 +292,21 @@ export const ViewUsers = () => {
               />
             </div>
 
-            <div className="">
+            <div className="flex-1">
               <label className="font-medium">Date Joined:</label>
               {/* date  */}
-              <Input
-                type="date"
+              <DatePicker
                 required
+                className={"w-full"}
                 placeholder="select the starting day"
-                value={new Date(newUser?.joinedAt)
-                  ?.toISOString()
-                  .substring(0, 10)}
-                onChange={(e) =>
+                defaultValue={moment(new Date(newUser?.joinedAt || null))}
+                onChange={(value) =>
                   setNewUser((prev) => ({
                     ...prev,
-                    joinedAt: e.target.value,
+                    joinedAt: value,
                   }))
                 }
+                format={"DD/MM/YYYY"}
               />
             </div>
 

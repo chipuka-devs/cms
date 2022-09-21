@@ -7,7 +7,7 @@ export const MonthlyGroupForm = ({ state, setState }) => {
       {/* contribution category: */}
       <div className="">
         <label className="font-medium" htmlFor="type">
-          Input Contrubution name:
+          Input Contribution name:
         </label>
         {/* amount  */}
         <Input

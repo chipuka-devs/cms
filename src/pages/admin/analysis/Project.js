@@ -66,7 +66,7 @@ export const Project = () => {
       key: "contribution",
     },
     {
-      title: "Amount",
+      title: "Actual Amount",
       dataIndex: "amount",
       key: "amount",
       render: (_, item) => parseInt(item?.amount).toLocaleString(),
@@ -103,13 +103,6 @@ export const Project = () => {
           );
         }
       },
-    },
-
-    {
-      title: "Opening Balance",
-      dataIndex: "opening_balance",
-      key: "opening_balance",
-      render: (_, item) => parseInt(item?.opening_balance).toLocaleString(),
     },
   ];
 

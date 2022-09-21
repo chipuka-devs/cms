@@ -32,7 +32,7 @@ export const OverallSummary = () => {
         record?.contribution?.toLowerCase() === value?.toLowerCase(),
     },
     {
-      title: "Amount",
+      title: "Actual Amount",
       dataIndex: "amount",
       key: "amount",
       render: (_, item) => parseInt(item?.amount).toLocaleString(),
